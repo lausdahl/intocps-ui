@@ -4,24 +4,32 @@
   "version": "1.0.0",
   "description": "New user inferface for the INTO-CPS app",
   "license": "MIT",
-   "repository": "user/repo",
+  "repository" : { 
+      "type" : "git", 
+      "url" : "https://github.com/intocps/intocps-ui.git"
+  } ,
   "author": {
     "name": "INTO-CPS Project",
     "email": "",
     "url": "http://into-cps.au.dk/"
-  }, 
+  },
   "electronVersion": "0.36.0",
   "scripts": {
     "start": "electron ."
   },
-
   "dependencies": {
     "electron-debug": "^0.5.0"
   },
-
   "devDependencies": {
     "electron-packager": "^5.0.0",
-    "electron-prebuilt": "^0.36.0"
+    "del": "^2.2.0",
+    "electron-prebuilt": "^0.36.0",
+    "gulp": "^3.9.1",
+    "gulp-debug": "^2.1.2",
+    "gulp-inject": "^4.0.0",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-tslint": "^4.3.4",
+    "gulp-typescript": "^2.12.2",
+    "tslint": "^3.7.0"
   }
 }
-
