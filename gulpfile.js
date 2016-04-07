@@ -14,8 +14,15 @@ var gulp = require('gulp'),
     sourcemap = require('gulp-sourcemaps'),
     tsProject = ts.createProject('tsconfig.json'),
     lint = require('gulp-tslint'),
+    del = require('del');
 
 // Tasks
+
+// Clean everything!
+gulp.task("clean",function() {
+  return del([outputPath]);
+});
+
 // Lint TS (check for rule violations)
 gulp.task("lint-ts", function() {
    return gulp.src(tsSrcs).pipe(lint()).pipe(lint.report('prose')); 
@@ -40,5 +47,9 @@ gulp.task('copy-html', function() {
     .pipe(gulp.dest(outputPath));
 });
 
+
+//Build App
+gulp.task('build', ['compile-ts','copy-html']);
+
 // Default task 
-gulp.task('default', function() { });
+gulp.task('default', function(){});
