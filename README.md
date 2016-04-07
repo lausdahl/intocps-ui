@@ -9,6 +9,7 @@ npm (comes with Node.js). We use Gulp to manage tasks. Its easiest to
 have it installed globally (`npm install -g gulp`).
 
 After checking out the repo...
+
 1. To install dependencies: `npm intall`
 2. To build the UI: `gulp`
 3. To run it: `npm start`
