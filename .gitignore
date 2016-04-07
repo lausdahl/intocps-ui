@@ -20,4 +20,5 @@ jspm_packages
 .*.un~
 .*.swp
 .*.swo
+*~
 
