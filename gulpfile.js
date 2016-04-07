@@ -10,8 +10,14 @@ var gulp = require('gulp'),
     ts = require('gulp-typescript'),
     sourcemap = require('gulp-sourcemaps'),
     tsProject = ts.createProject('tsconfig.json'),
+    lint = require('gulp-tslint'),
 
 // Tasks
+// Lint TS (check for rule violations)
+gulp.task("lint-ts", function() {
+   return gulp.src(tsSrcs).pipe(lint()).pipe(lint.report('prose')); 
+});
+
 // Compile TS->JS with sourcemaps 
 gulp.task("compile-ts", function () {
     var tsResult = gulp.src(tsSrcs)
