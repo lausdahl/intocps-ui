@@ -6,6 +6,7 @@
 // Locations 
 var outputPath = 'dist/',
     htmlSrcs = 'src/**/*.html',
+    jsSrcs = 'src/**/*.js',
     tsSrcs = 'src/**/*.ts';
 
 // Tools.
@@ -47,9 +48,15 @@ gulp.task('copy-html', function() {
     .pipe(gulp.dest(outputPath));
 });
 
+// Copy js to app folder
+gulp.task('copy-js', function() {
+    gulp.src(jsSrcs)
+    // process js here if needed
+    .pipe(gulp.dest(outputPath));
+});
 
 //Build App
-gulp.task('build', ['compile-ts','copy-html']);
+gulp.task('build', ['compile-ts','copy-js','copy-html']);
 
 // Default task 
 gulp.task('default', function(){});
