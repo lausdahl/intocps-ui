@@ -2,6 +2,7 @@
 
 // Locations 
 var outputPath = 'dist/',
+    htmlSrcs = 'src/**/*.html',
     tsSrcs = 'src/**/*.ts';
 
 // Tools.
@@ -23,6 +24,12 @@ gulp.task("compile-ts", function () {
                           .pipe(gulp.dest(outputPath));
 });
 
+// Copy html to app folder
+gulp.task('copy-html', function() {
+    gulp.src(htmlSrcs)
+    // process html here if needed
+    .pipe(gulp.dest(outputPath));
+});
 
 // Default task 
 gulp.task('default', function() { });
