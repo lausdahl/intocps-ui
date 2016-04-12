@@ -59,4 +59,4 @@ gulp.task('copy-js', function() {
 gulp.task('build', ['compile-ts','copy-js','copy-html']);
 
 // Default task 
-gulp.task('default', function(){});
+gulp.task('default', ['build']);
