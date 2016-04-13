@@ -7,7 +7,7 @@
 var outputPath = 'dist/',
     htmlSrcs = 'src/**/*.html',
     jsSrcs = 'src/**/*.js',
-    tsSrcs = 'src/**/*.ts';
+    tsSrcs = ['src/**/*.ts','typings/browser/**/*.ts'];
 
 // Tools.
 var gulp = require('gulp'),
