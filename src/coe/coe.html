@@ -1,3 +1,17 @@
-<script src ="coe.js"></script>
-<button type="button" onclick="launchExplorer()">COE config file</button>
-<span>Configuration file: <span id="configFileSpan"></span></span>
+<div class="row">
+    <div class="col-md-1"></div>
+    <div class="col-md-10">
+        <label for="configFileText">
+            Configuration file path:
+        </label>
+        <div class="input-group">
+            <input type="text" class="form-control input-sm" id="configFileText">
+            <span class="input-group-btn">
+      <button type="button" class="btn btn-default btn-sm" onclick="coeController.launchExplorer()">
+          <span class="glyphicon glyphicon-file"></span> File
+            </button>
+            </span>
+        </div>
+    </div>
+    <div class="col-md-1"></div>
+</div>

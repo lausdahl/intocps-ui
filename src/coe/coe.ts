@@ -1,16 +1,22 @@
-var remote : Electron.Remote = require("remote");
-var dialog : Electron.Dialog = remote.require("dialog");
-
-function launchExplorer() {
-    var dialogResult : string[] = dialog.showOpenDialog({properties : ['openFile']});
-    var span = document.getElementById("configFileSpan");
-    if(dialogResult != undefined){
-        span.appendChild(document.createTextNode(dialogResult[0]));
+class CoeController {
+    configButton: HTMLButtonElement;
+    remote: Electron.Remote;
+    dialog: Electron.Dialog;
+    configFilePath: HTMLInputElement;
+    constructor() {
+        this.remote = require("remote");
+        this.dialog = this.remote.require("dialog");
     }
-    else{
-        while( span.firstChild ) {
-            span.removeChild( span.firstChild );
+
+    initialize() {
+        this.configFilePath = <HTMLInputElement>document.getElementById("configFileText");
+    }
+
+    launchExplorer() {
+        let dialogResult: string[] = this.dialog.showOpenDialog({ properties: ["openFile"] });
+        if (dialogResult != undefined) {
+            this.configFilePath.value = dialogResult[0];
         }
-        span.appendChild( document.createTextNode("No file was chosen.") );
     }
 }
+
