@@ -9,8 +9,8 @@ npm (comes with Node.js). We use Gulp to manage tasks. Its easiest to
 have it installed globally (`npm install -g gulp`). 
 Furthermore, you need the node package `typings` to manage typescript definitions.
 A typescript definition file offers type information for JavaScript code.
-It is also easier to install this globally: `npm install -g typings`.
-As the last package manager you need bower to manage front-end packages.
+It is also easier to install this globally (`npm install -g typings`).
+As the last package manager you need bower to manage front-end packages (`npm install -g bower`).
 
 After checking out the repo...
 
