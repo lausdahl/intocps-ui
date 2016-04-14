@@ -21,48 +21,11 @@ var gulp = require('gulp'),
     mainBowerFiles = require('main-bower-files'),
     bowerFilter = require('gulp-filter'),
     debug = require('gulp-debug'),
-	childProcess = require('child_process');
     typings = require('gulp-typings'),
     bower = require('gulp-bower');
 
 // Tasks
 
-// Download an initialize typings and bower
-// Spawn does not work well on windows, because it cannot run cmd files, which npm is. https://github.com/nodejs/node-v0.x-archive/issues/2318
-gulp.task("init", function(cb){
-	var reportFunc = function(error, stdout, stderr, prefix, func){
-		console.log(prefix + ` - stdout: ${stdout}`);
-		if(stderr !== null && /\S/.test(stderr)){
-				console.log(prefix + ` - stderr: [${stderr}]`);
-		}
-		
-		if (error !== null) {
-		  console.log(prefix + ` - error: ${error}`);
-		}
-		else{
-			if(func != null)
-			{
-				func();
-			}		
-		}		
-	}
-	
-	var typingsInstallFunc = function(){
-		childProcess.exec('typings install', (error, stdout, stderr) => {reportFunc(error, stdout, stderr,'typings install');
-		});
-	}
-	var bowerInstallFunc = function(){
-		childProcess.exec('bower install', (error, stdout, stderr) => {reportFunc(error, stdout, stderr, 'bower install');
-		});
-	}
-	
-	childProcess.exec('npm install -g typings',  (error, stdout, stderr) => {
-		reportFunc(error, stdout, stderr, "npm install typings", typingsInstallFunc);
-	});
-	
-	childProcess.exec('npm install -g bower',  (error, stdout, stderr) => {
-		reportFunc(error, stdout, stderr, "npm install bower", bowerInstallFunc);
-	});
 // Install typings
 gulp.task("install-ts-defs",function(){
     gulp.src("./typings.json")
@@ -127,6 +90,9 @@ gulp.task('copy-js', function() {
         // process js here if needed
         .pipe(gulp.dest(outputPath));
 });
+
+// Grab non-npm dependencies
+gulp.task('init', ['install-ts-defs','install-bower-components']);
 
 //Build App
 gulp.task('build', ['compile-ts', 'copy-js', 'copy-html', 'copy-css', 'copy-bower', 'copy-fonts']);
