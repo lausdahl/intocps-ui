@@ -9,6 +9,8 @@ var outputPath = 'dist/',
     jsSrcs = 'src/**/*.js',
     lintTsSrcs = ['src/**/*.ts'],
     tsSrcs = ['src/**/*.ts', 'typings/browser/**/*.ts'],
+    bowerFolder = 'bower_components',
+    typingsFolder = 'typings',
     cssSrcs = 'bower_components/bootstrap/dist/css/bootstrap.css';
 
 // Tools.
@@ -39,7 +41,11 @@ gulp.task('install-bower-components', function() {
 
 // Clean everything!
 gulp.task("clean", function() {
-    return del([outputPath]);
+    return del( [
+        outputPath,
+        bowerFolder,
+        typingsFolder
+    ]);
 });
 
 // Lint TS (check for rule violations)
