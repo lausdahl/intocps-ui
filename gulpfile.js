@@ -21,12 +21,46 @@ var gulp = require('gulp'),
     mainBowerFiles = require('main-bower-files'),
     bowerFilter = require('gulp-filter'),
     debug = require('gulp-debug'),
-    shell = require('gulp-shell');
+	childProcess = require('child_process');
 
 // Tasks
 
-gulp.task("init", function(){
-   return shell(['npm install typings', 'typings install', 'npm install bower', 'bower install']);
+// Download an initialize typings and bower
+// Spawn does not work well on windows, because it cannot run cmd files, which npm is. https://github.com/nodejs/node-v0.x-archive/issues/2318
+gulp.task("init", function(cb){
+	var reportFunc = function(error, stdout, stderr, prefix, func){
+		console.log(prefix + ` - stdout: ${stdout}`);
+		if(stderr !== null && /\S/.test(stderr)){
+				console.log(prefix + ` - stderr: [${stderr}]`);
+		}
+		
+		if (error !== null) {
+		  console.log(prefix + ` - error: ${error}`);
+		}
+		else{
+			if(func != null)
+			{
+				func();
+			}		
+		}		
+	}
+	
+	var typingsInstallFunc = function(){
+		childProcess.exec('typings install', (error, stdout, stderr) => {reportFunc(error, stdout, stderr,'typings install');
+		});
+	}
+	var bowerInstallFunc = function(){
+		childProcess.exec('bower install', (error, stdout, stderr) => {reportFunc(error, stdout, stderr, 'bower install');
+		});
+	}
+	
+	childProcess.exec('npm install typings',  (error, stdout, stderr) => {
+		reportFunc(error, stdout, stderr, "npm install typings", typingsInstallFunc);
+	});
+	
+	childProcess.exec('npm install bower',  (error, stdout, stderr) => {
+		reportFunc(error, stdout, stderr, "npm install bower", bowerInstallFunc);
+	});
 });
 
 // Clean everything!
