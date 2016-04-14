@@ -20,9 +20,14 @@ var gulp = require('gulp'),
     del = require('del'),
     mainBowerFiles = require('main-bower-files'),
     bowerFilter = require('gulp-filter'),
-    debug = require('gulp-debug');
+    debug = require('gulp-debug'),
+    shell = require('gulp-shell');
 
 // Tasks
+
+gulp.task("init", function(){
+   return shell(['npm install typings', 'typings install', 'npm install bower', 'bower install']);
+});
 
 // Clean everything!
 gulp.task("clean", function() {
@@ -79,7 +84,7 @@ gulp.task('copy-js', function() {
 });
 
 //Build App
-gulp.task('build', ['lint-ts', 'compile-ts', 'copy-js', 'copy-html', 'copy-css', 'copy-bower', 'copy-fonts']);
+gulp.task('build', ['compile-ts', 'copy-js', 'copy-html', 'copy-css', 'copy-bower', 'copy-fonts']);
 
 // Default task 
 gulp.task('default', ['build']);
