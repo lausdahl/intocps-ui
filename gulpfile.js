@@ -21,7 +21,7 @@ var gulp = require('gulp'),
     lint = require('gulp-tslint'),
     del = require('del'),
     mainBowerFiles = require('main-bower-files'),
-    bowerFilter = require('gulp-filter'),
+    filter = require('gulp-filter'),
     debug = require('gulp-debug'),
     typings = require('gulp-typings'),
     bower = require('gulp-bower');
@@ -68,13 +68,13 @@ gulp.task("compile-ts", function() {
 // Copy important bower files to destination
 gulp.task('copy-bower', function() {
     return gulp.src(mainBowerFiles())
-        .pipe(bowerFilter('**/*.js'))
-        .pipe(gulp.dest(outputPath + 'bower_components'));
+        .pipe(filter('**/*.js'))
+        .pipe(gulp.dest(outputPath + bowerFolder));
 });
 
 // Copy bootstrap fonts to destination
 gulp.task('copy-fonts', function() {
-    return gulp.src('bower_components/bootstrap/fonts/**/*').pipe(gulp.dest(outputPath + 'fonts'))
+    return gulp.src(bowerFolder+'/bootstrap/fonts/**/*').pipe(gulp.dest(outputPath + 'fonts'))
 });
 
 
