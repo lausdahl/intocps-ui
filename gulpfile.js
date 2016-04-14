@@ -54,11 +54,11 @@ gulp.task("init", function(cb){
 		});
 	}
 	
-	childProcess.exec('npm install typings',  (error, stdout, stderr) => {
+	childProcess.exec('npm install -g typings',  (error, stdout, stderr) => {
 		reportFunc(error, stdout, stderr, "npm install typings", typingsInstallFunc);
 	});
 	
-	childProcess.exec('npm install bower',  (error, stdout, stderr) => {
+	childProcess.exec('npm install -g bower',  (error, stdout, stderr) => {
 		reportFunc(error, stdout, stderr, "npm install bower", bowerInstallFunc);
 	});
 });
