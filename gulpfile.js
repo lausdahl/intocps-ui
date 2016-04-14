@@ -22,6 +22,7 @@ var gulp = require('gulp'),
     bowerFilter = require('gulp-filter'),
     debug = require('gulp-debug'),
 	childProcess = require('child_process');
+    typings = require('gulp-typings'),
 
 // Tasks
 
@@ -61,6 +62,11 @@ gulp.task("init", function(cb){
 	childProcess.exec('npm install -g bower',  (error, stdout, stderr) => {
 		reportFunc(error, stdout, stderr, "npm install bower", bowerInstallFunc);
 	});
+// Install typings
+gulp.task("install-ts-defs",function(){
+    gulp.src("./typings.json")
+        .pipe(typings()); 
+});
 });
 
 // Clean everything!
