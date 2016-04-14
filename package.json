@@ -21,15 +21,15 @@
     "bootstrap": "^3.3.6",
     "bower": "^1.7.9",
     "del": "^2.2.0",
-    "electron-debug": "^0.5.0",
+    "electron-debug": "^0.5.0"
+  },
+
+  "devDependencies": {
     "gulp-debug": "^2.1.2",
     "gulp-filter": "^4.0.0",
-    "gulp-load-plugins": "^1.2.0",
-    "main-bower-files": "^2.11.1"
-  },
-  "devDependencies": {
-    "electron-packager": "^5.0.0",
+    "main-bower-files": "^2.11.1",
     "del": "^2.2.0",
+    "electron-packager": "^5.0.0",
     "electron-prebuilt": "^0.36.0",
     "gulp": "^3.9.1",
     "gulp-debug": "^2.1.2",
