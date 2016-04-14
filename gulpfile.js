@@ -23,6 +23,7 @@ var gulp = require('gulp'),
     debug = require('gulp-debug'),
 	childProcess = require('child_process');
     typings = require('gulp-typings'),
+    bower = require('gulp-bower');
 
 // Tasks
 
@@ -67,6 +68,10 @@ gulp.task("install-ts-defs",function(){
     gulp.src("./typings.json")
         .pipe(typings()); 
 });
+
+// Install bower components
+gulp.task('install-bower-components', function() {
+  return bower();
 });
 
 // Clean everything!
