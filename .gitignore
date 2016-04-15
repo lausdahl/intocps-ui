@@ -24,3 +24,6 @@ dist/
 .*.swo
 *~
 
+bower_components/
+typings/
+.vscode/

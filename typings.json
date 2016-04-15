@@ -1,0 +1,21 @@
+{
+    "name": "intocps-ui",
+    "productName": "New INTO-CPS UI",
+    "version": "1.0.0",
+    "description": "New user inferface for the INTO-CPS app",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/intocps/intocps-ui.git"
+    },
+    "author": {
+        "name": "INTO-CPS Project",
+        "email": "",
+        "url": "http://into-cps.au.dk/"
+    },
+    "ambientDependencies": {
+        "github-electron": "registry:dt/github-electron#0.37.4+20160412150407",
+        "jquery": "registry:dt/jquery#2.0.0+20160303223636",
+        "node": "registry:dt/node#4.0.0+20160412142033"
+    }
+}

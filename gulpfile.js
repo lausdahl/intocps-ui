@@ -7,7 +7,11 @@
 var outputPath = 'dist/',
     htmlSrcs = 'src/**/*.html',
     jsSrcs = 'src/**/*.js',
-    tsSrcs = 'src/**/*.ts';
+    lintTsSrcs = ['src/**/*.ts'],
+    tsSrcs = ['src/**/*.ts', 'typings/browser/**/*.ts'],
+    bowerFolder = 'bower_components',
+    typingsFolder = 'typings',
+    cssSrcs = 'bower_components/bootstrap/dist/css/bootstrap.css';
 
 // Tools.
 var gulp = require('gulp'),
@@ -15,48 +19,89 @@ var gulp = require('gulp'),
     sourcemap = require('gulp-sourcemaps'),
     tsProject = ts.createProject('tsconfig.json'),
     lint = require('gulp-tslint'),
-    del = require('del');
+    del = require('del'),
+    mainBowerFiles = require('main-bower-files'),
+    filter = require('gulp-filter'),
+    debug = require('gulp-debug'),
+    typings = require('gulp-typings'),
+    bower = require('gulp-bower');
 
 // Tasks
 
+// Install typings
+gulp.task("install-ts-defs",function(){
+    gulp.src("./typings.json")
+        .pipe(typings()); 
+});
+
+// Install bower components
+gulp.task('install-bower-components', function() {
+  return bower();
+});
+
 // Clean everything!
-gulp.task("clean",function() {
-  return del([outputPath]);
+gulp.task("clean", function() {
+    return del( [
+        outputPath,
+        bowerFolder,
+        typingsFolder
+    ]);
 });
 
 // Lint TS (check for rule violations)
 gulp.task("lint-ts", function() {
-   return gulp.src(tsSrcs).pipe(lint()).pipe(lint.report('prose')); 
+    return gulp.src(lintTsSrcs).pipe(lint()).pipe(lint.report('prose', { emitError: false }));
 });
 
 // Compile TS->JS with sourcemaps 
-gulp.task("compile-ts", function () {
+gulp.task("compile-ts", function() {
     var tsResult = gulp.src(tsSrcs)
-                        .pipe(sourcemap.init())
-                        .pipe(ts(tsProject));
-   
+        .pipe(sourcemap.init())
+        .pipe(ts(tsProject));
+
     tsResult.dts.pipe(gulp.dest(outputPath));
 
     return tsResult.js.pipe(sourcemap.write('.'))
-                          .pipe(gulp.dest(outputPath));
+        .pipe(gulp.dest(outputPath));
+});
+
+// Copy important bower files to destination
+gulp.task('copy-bower', function() {
+    return gulp.src(mainBowerFiles())
+        .pipe(filter('**/*.js'))
+        .pipe(gulp.dest(outputPath + bowerFolder));
+});
+
+// Copy bootstrap fonts to destination
+gulp.task('copy-fonts', function() {
+    return gulp.src(bowerFolder+'/bootstrap/fonts/**/*').pipe(gulp.dest(outputPath + 'fonts'))
+});
+
+
+// Copy css to app folder
+gulp.task('copy-css', function() {
+    gulp.src(cssSrcs).pipe(gulp.dest(outputPath + 'css'));
 });
 
 // Copy html to app folder
 gulp.task('copy-html', function() {
     gulp.src(htmlSrcs)
-    // process html here if needed
-    .pipe(gulp.dest(outputPath));
+        // process html here if needed
+        .pipe(gulp.dest(outputPath));
 });
 
 // Copy js to app folder
 gulp.task('copy-js', function() {
     gulp.src(jsSrcs)
-    // process js here if needed
-    .pipe(gulp.dest(outputPath));
+        // process js here if needed
+        .pipe(gulp.dest(outputPath));
 });
 
+// Grab non-npm dependencies
+gulp.task('init', ['install-ts-defs','install-bower-components']);
+
 //Build App
-gulp.task('build', ['compile-ts','copy-js','copy-html']);
+gulp.task('build', ['compile-ts', 'copy-js', 'copy-html', 'copy-css', 'copy-bower', 'copy-fonts']);
 
 // Default task 
 gulp.task('default', ['build']);
