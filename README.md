@@ -10,19 +10,21 @@ have it installed globally (`npm install -g gulp`).
 
 After checking out the repo...
 
-1. To install dependencies: `npm install`
-2. To install gulp: `npm install -g gulp`
-3. To initialize: `gulp init`
+1. To install node dependencies: `npm install`
+3. To install other resources: `gulp init`
 4. To build the UI: `gulp`
 5. To run it: `npm start`
 
-Editor
----
-Visual Studio Code works well, it is cross-platform and actually built on top of Electron.
+
+<!--The editor recommendation is hidden until the workshop so we can make a joke -->
+<!--Editor-->
+<!------->
+<!--Visual Studio Code works well, it is cross-platform and actually built on-->
+<!--top of Electron.-->
 
 About
 ---
-The INTO-CPS is an EU H2020 project that is creating an integrated tool chain
-for comprehensive Model-Based Design of Cyber-Physical Systems.  For more, see:
-http://into-cps.au.dk/
+INTO-CPS is an EU Horizon 2020 research project that is creating an integrated
+tool chain for comprehensive Model-Based Design of Cyber-Physical Systems.  For
+more, see: http://into-cps.au.dk/
 

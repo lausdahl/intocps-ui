@@ -9,6 +9,8 @@ var outputPath = 'dist/',
     jsSrcs = 'src/**/*.js',
     lintTsSrcs = ['src/**/*.ts'],
     tsSrcs = ['src/**/*.ts', 'typings/browser/**/*.ts'],
+    bowerFolder = 'bower_components',
+    typingsFolder = 'typings',
     cssSrcs = 'bower_components/bootstrap/dist/css/bootstrap.css';
 
 // Tools.
@@ -19,53 +21,31 @@ var gulp = require('gulp'),
     lint = require('gulp-tslint'),
     del = require('del'),
     mainBowerFiles = require('main-bower-files'),
-    bowerFilter = require('gulp-filter'),
+    filter = require('gulp-filter'),
     debug = require('gulp-debug'),
-	childProcess = require('child_process');
+    typings = require('gulp-typings'),
+    bower = require('gulp-bower');
 
 // Tasks
 
-// Download an initialize typings and bower
-// Spawn does not work well on windows, because it cannot run cmd files, which npm is. https://github.com/nodejs/node-v0.x-archive/issues/2318
-gulp.task("init", function(cb){
-	var reportFunc = function(error, stdout, stderr, prefix, func){
-		console.log(prefix + ` - stdout: ${stdout}`);
-		if(stderr !== null && /\S/.test(stderr)){
-				console.log(prefix + ` - stderr: [${stderr}]`);
-		}
-		
-		if (error !== null) {
-		  console.log(prefix + ` - error: ${error}`);
-		}
-		else{
-			if(func != null)
-			{
-				func();
-			}		
-		}		
-	}
-	
-	var typingsInstallFunc = function(){
-		childProcess.exec('typings install', (error, stdout, stderr) => {reportFunc(error, stdout, stderr,'typings install');
-		});
-	}
-	var bowerInstallFunc = function(){
-		childProcess.exec('bower install', (error, stdout, stderr) => {reportFunc(error, stdout, stderr, 'bower install');
-		});
-	}
-	
-	childProcess.exec('npm install -g typings',  (error, stdout, stderr) => {
-		reportFunc(error, stdout, stderr, "npm install typings", typingsInstallFunc);
-	});
-	
-	childProcess.exec('npm install -g bower',  (error, stdout, stderr) => {
-		reportFunc(error, stdout, stderr, "npm install bower", bowerInstallFunc);
-	});
+// Install typings
+gulp.task("install-ts-defs",function(){
+    gulp.src("./typings.json")
+        .pipe(typings()); 
+});
+
+// Install bower components
+gulp.task('install-bower-components', function() {
+  return bower();
 });
 
 // Clean everything!
 gulp.task("clean", function() {
-    return del([outputPath]);
+    return del( [
+        outputPath,
+        bowerFolder,
+        typingsFolder
+    ]);
 });
 
 // Lint TS (check for rule violations)
@@ -88,13 +68,13 @@ gulp.task("compile-ts", function() {
 // Copy important bower files to destination
 gulp.task('copy-bower', function() {
     return gulp.src(mainBowerFiles())
-        .pipe(bowerFilter('**/*.js'))
-        .pipe(gulp.dest(outputPath + 'bower_components'));
+        .pipe(filter('**/*.js'))
+        .pipe(gulp.dest(outputPath + bowerFolder));
 });
 
 // Copy bootstrap fonts to destination
 gulp.task('copy-fonts', function() {
-    return gulp.src('bower_components/bootstrap/fonts/**/*').pipe(gulp.dest(outputPath + 'fonts'))
+    return gulp.src(bowerFolder+'/bootstrap/fonts/**/*').pipe(gulp.dest(outputPath + 'fonts'))
 });
 
 
@@ -116,6 +96,9 @@ gulp.task('copy-js', function() {
         // process js here if needed
         .pipe(gulp.dest(outputPath));
 });
+
+// Grab non-npm dependencies
+gulp.task('init', ['install-ts-defs','install-bower-components']);
 
 //Build App
 gulp.task('build', ['compile-ts', 'copy-js', 'copy-html', 'copy-css', 'copy-bower', 'copy-fonts']);
