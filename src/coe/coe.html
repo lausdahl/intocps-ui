@@ -2,7 +2,7 @@
     <div class="col-md-1"></div>
     <div class="col-md-10">
         <label for="configFileText">
-            Configuration file path:
+            Project root path:
         </label>
 
 
@@ -18,6 +18,11 @@
         </div>
 
         <div style="width:100%">
+
+            <label for="configFileText">
+            Simulation:
+        </label>
+
             <button type="button" class="btn btn-default btn-sm" onclick="coeController.launch()">Launch Simulation</button>
 
 
@@ -27,9 +32,14 @@
                     0%
                 </div>
             </p>
-
+            <p>
+                <label for="configFileText">
+            Simulation Callback:
+        </label>
+                <div id="coe-callback"></div>
+            </p>
         </div>
-
+        <br/>
 
         <div class="col-md-1">
 
@@ -40,6 +50,8 @@
             <p>
                 <div id="coe-debug" style="visibility: hidden"></div>
             </p>
+
+
         </div>
 
 

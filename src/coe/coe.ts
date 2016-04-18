@@ -48,7 +48,7 @@ class CoeController {
     }
 
     getConfigFile(): string {
-        return this.projectRootPath.value+"/" + this.configFileName;
+        return this.projectRootPath.value + "/" + this.configFileName;
     }
 
 
@@ -79,7 +79,7 @@ class CoeController {
             div.innerHTML = message;
             ///_this.setProgress(_this.progressState, message);
 
-            let filePath = _this.projectRootPath.value+"/" + path;
+            let filePath = _this.projectRootPath.value + "/" + path;
 
             var content = _this.fs.readFileSync(filePath);
             var blob = new Blob([content], { type: "multipart/form-data" });
@@ -144,6 +144,9 @@ class CoeController {
 
     simulate() {
 
+        let callback = new SimulationCallbackHandler();
+        callback.connect("ws://localhost:8082/attachSession/" + this.sessionId);
+
         var _this = this;
 
         var dat = JSON.stringify({ startTime: 0, endTime: 10 });
@@ -181,9 +184,9 @@ class CoeController {
     launch() {
         var _this = this;
 
-       // _this.setProgress(15, "Creating session");
- _this.setProgress(0,null);
- 
+        // _this.setProgress(15, "Creating session");
+        _this.setProgress(0, null);
+
         var cfg = _this.parseConfig(_this.getConfigFile());
         if (cfg == null) {
             return console.error("Unable to parse config file: " + _this.getConfigFile());
@@ -213,12 +216,14 @@ class CoeController {
                 _this.sessionId = data.sessionId;
                 _this.setDebugMessage("Session created with id: " + data.sessionId);
 
-                _this.setProgress(25,null);// "Session created");
+                _this.setProgress(25, null);// "Session created");
                 _this.uploadFmus();
 
             });
 
     }
+
+
 
     progressState: number = 0;
 
@@ -236,4 +241,85 @@ class CoeController {
         this.progressState = progress;
     }
 
+}
+
+
+class SimulationCallbackHandler {
+
+    connect(url: string) {
+
+        var websocket = new WebSocket(url);
+        let _this = this;
+        websocket.onopen = function (evt) { _this.onOpen(evt) };
+        websocket.onclose = function (evt) { _this.onClose(evt) };
+        websocket.onmessage = function (evt) { _this.onMessage(evt) };
+        websocket.onerror = function (evt) { _this.onError(evt) };
+
+
+        var style = document.createElement('style');
+        style.type = 'text/css';
+        style.innerHTML = '.string { color: green; } .number { color: darkorange; } .boolean { color: blue; } .null { color: magenta; } .key { color: red; } ';
+        document.getElementsByTagName('head')[0].appendChild(style);
+    }
+
+    onOpen(evt: any) {
+        this.output("CONNECTED");
+    }
+
+    onClose(evt: any) {
+        this.output('<span style="color: orange;">CLOSE: </span> ')
+        this.output("DISCONNECTED");
+    }
+
+    onMessage(evt: any) {
+
+        var str = JSON.stringify(JSON.parse(evt.data), undefined, 4);
+        this.output(this.syntaxHighlight(str));
+    }
+
+    onError(evt: any) {
+        this.output('<span style="color: red;">ERROR:</span> ' + evt.data);
+    }
+
+    output(inp: string) {
+
+        let div = <HTMLInputElement>document.getElementById("coe-callback");
+
+        let pre = document.createElement('pre');
+
+        /* pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; }
+.string { color: green; }
+.number { color: darkorange; }
+.boolean { color: blue; }
+.null { color: magenta; }
+.key { color: red; } */
+        pre.style.outline = "1px solid #ccc";
+        pre.style.padding = "5px";
+        pre.style.margin = "5px";
+
+
+        pre.innerHTML = inp;
+        div.appendChild(pre);
+
+        //document.body.appendChild(document.createElement('pre')).innerHTML = inp;
+    }
+
+    syntaxHighlight(json: string) {
+        json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+            var cls = 'number';
+            if (/^"/.test(match)) {
+                if (/:$/.test(match)) {
+                    cls = 'key';
+                } else {
+                    cls = 'string';
+                }
+            } else if (/true|false/.test(match)) {
+                cls = 'boolean';
+            } else if (/null/.test(match)) {
+                cls = 'null';
+            }
+            return '<span class="' + cls + '">' + match + '</span>';
+        });
+    }
 }
