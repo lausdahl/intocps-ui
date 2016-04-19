@@ -1,10 +1,10 @@
-//TODO: DUMMY REFERENCE UNTIL CHART MAKES A TYPESCRIPT DEFINITION FILE!
+// TODO: DUMMY REFERENCE UNTIL CHART MAKES A TYPESCRIPT DEFINITION FILE!
 ///<reference path="Chart.d.ts"/>
 class CoeController {
     
     url: string = "http://localhost:8082/";
 
-    statusCmd: string = "status/"
+    statusCmd: string = "status/";
     createSessionCmd: string = "createSession";
     initializeSessionCmd: string = "initialize/";
     simulateCmd: string = "simulate/";
@@ -29,7 +29,7 @@ class CoeController {
     sessionId = -1
 
     // Here we import the File System module of node
-    private fs = require('fs');
+    private fs = require("fs");
 
     constructor() {
         this.remote = require("remote");
@@ -59,13 +59,13 @@ class CoeController {
                     // String or array - Line color
                     borderColor: "rgba(220,220,220,1)",
                     // String - cap style of the line. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineCap
-                    borderCapStyle: 'butt',
+                    borderCapStyle: "butt",
                     // Array - Length and spacing of dashes. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setLineDash
                     borderDash: [],
                     // Number - Offset for line dashes. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineDashOffset
                     borderDashOffset: 0.0,
                     // String - line join style. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineJoin
-                    borderJoinStyle: 'miter',
+                    borderJoinStyle: "miter",
                     // String or array - Point stroke color
                     pointBorderColor: "rgba(220,220,220,1)",
                     // String or array - Point fill color
@@ -87,8 +87,8 @@ class CoeController {
                 }
             ]
         };
-        //Creating labels every 10th number
-        for (var i = 1; i <= 100; i++) {
+        // Creating labels every 10th number
+        for (var i : number = 1; i <= 100; i++) {
             if (i % 10 == 0)
                 lineData.labels.push(i);
             else
@@ -125,17 +125,17 @@ class CoeController {
 
 
     uploadFmus() {
-        var _this = this;
+        var _this : CoeController = this;
 
-        var div = <HTMLInputElement>document.getElementById("coe-debug");
+        var div : HTMLInputElement = <HTMLInputElement>document.getElementById("coe-debug");
 
-        var res = _this.parseConfig(_this.getConfigFile());
+        var res : any = _this.parseConfig(_this.getConfigFile());
 
-        var message = "Uploading Fmu: "
+        var message : string = "Uploading Fmu: "
         div.innerHTML = message;
         _this.setProgress(_this.progressState, "Uploading Fmus");
 
-        var formData = new FormData();
+        var formData : FormData = new FormData();
 
         $.each(res.fmus, function (i, item) {
 
@@ -153,10 +153,10 @@ class CoeController {
 
             let filePath = _this.projectRootPath.value + "/" + path;
 
-            var content = _this.fs.readFileSync(filePath);
-            var blob = new Blob([content], { type: "multipart/form-data" });
+            var content : any = _this.fs.readFileSync(filePath);
+            var blob : Blob = new Blob([content], { type: "multipart/form-data" });
 
-            formData.append('file', blob, path);
+            formData.append("file", blob, path);
 
 
 
@@ -166,7 +166,7 @@ class CoeController {
 
         $.ajax({
             url: url,
-            type: 'POST',
+            type: "POST",
             data: formData,
             processData: false,  // tell jQuery not to process the data
             contentType: false,  // tell jQuery not to set contentType
@@ -186,7 +186,7 @@ class CoeController {
     }
 
     setDebugMessage(message: string) {
-        var div = <HTMLInputElement>document.getElementById("coe-debug");
+        var div : HTMLInputElement = <HTMLInputElement>document.getElementById("coe-debug");
         div.innerHTML = message;
     }
 
@@ -196,8 +196,8 @@ class CoeController {
         _this.setDebugMessage("Initializing the COE");
         _this.setProgress(_this.progressState, "Initializing the COE");
 
-        var dat = JSON.stringify(_this.config);
-        let url = _this.url + _this.initializeSessionCmd + _this.sessionId;
+        var dat : string = JSON.stringify(_this.config);
+        let url : string = _this.url + _this.initializeSessionCmd + _this.sessionId;
 
 
         jQuery.ajax({
@@ -220,10 +220,9 @@ class CoeController {
         callback.chart = this.liveChart;
         callback.connect("ws://localhost:8082/attachSession/" + this.sessionId);
 
-        var _this = this;
-
-        var dat = JSON.stringify({ startTime: 0, endTime: 10 });
-        let url = _this.url + _this.simulateCmd + _this.sessionId;
+        var _this : CoeController = this;
+        var dat : string = JSON.stringify({ startTime: 0, endTime: 10 });
+        let url : string = _this.url + _this.simulateCmd + _this.sessionId;
 
         _this.setDebugMessage("Starting simulation");
         _this.setProgress(_this.progressState, "Simulating");
@@ -247,9 +246,9 @@ class CoeController {
 
     parseConfig(path: string): any {
 
-        var content = this.fs.readFileSync(path, "utf8");
+        var content : any = this.fs.readFileSync(path, "utf8");
         console.log("Asynchronous read: " + content.toString());
-        var cfg = JSON.parse(content.toString());
+        var cfg : any = JSON.parse(content.toString());
         console.log(cfg);
         return cfg;
     }
@@ -320,18 +319,18 @@ class SimulationCallbackHandler {
     public chart: Chart;
     connect(url: string) {
 
-        var websocket = new WebSocket(url);
-        let _this = this;
+        var websocket : WebSocket= new WebSocket(url);
+        let _this : SimulationCallbackHandler = this;
         websocket.onopen = function (evt) { _this.onOpen(evt) };
         websocket.onclose = function (evt) { _this.onClose(evt) };
         websocket.onmessage = function (evt) { _this.onMessage(evt) };
         websocket.onerror = function (evt) { _this.onError(evt) };
 
 
-        var style = document.createElement('style');
-        style.type = 'text/css';
-        style.innerHTML = '.string { color: green; } .number { color: darkorange; } .boolean { color: blue; } .null { color: magenta; } .key { color: red; } ';
-        document.getElementsByTagName('head')[0].appendChild(style);
+        var style : HTMLStyleElement = document.createElement("style");
+        style.type = "text/css";
+        style.innerHTML = ".string { color: green; } .number { color: darkorange; } .boolean { color: blue; } .null { color: magenta; } .key { color: red; } ";
+        document.getElementsByTagName("head")[0].appendChild(style);
     }
 
     onOpen(evt: any) {
@@ -339,7 +338,7 @@ class SimulationCallbackHandler {
     }
 
     onClose(evt: any) {
-        this.output('<span style="color: orange;">CLOSE: </span> ')
+        this.output("<span style='color: orange;'>CLOSE: </span> ")
         this.output("DISCONNECTED");
     }
 
@@ -352,14 +351,14 @@ class SimulationCallbackHandler {
     }
 
     onError(evt: any) {
-        this.output('<span style="color: red;">ERROR:</span> ' + evt.data);
+        this.output("<span style='color: red;'>ERROR:</span> " + evt.data);
     }
 
     output(inp: string) {
 
         let div = <HTMLInputElement>document.getElementById("coe-callback");
 
-        let pre = document.createElement('pre');
+        let pre = document.createElement("pre");
 
         /* pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; }
 .string { color: green; }
@@ -375,25 +374,25 @@ class SimulationCallbackHandler {
         pre.innerHTML = inp;
         div.appendChild(pre);
 
-        //document.body.appendChild(document.createElement('pre')).innerHTML = inp;
+        // document.body.appendChild(document.createElement('pre')).innerHTML = inp;
     }
 
     syntaxHighlight(json: string) {
-        json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        json = json.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
-            var cls = 'number';
+            var cls : String = "number";
             if (/^"/.test(match)) {
                 if (/:$/.test(match)) {
-                    cls = 'key';
+                    cls = "key";
                 } else {
-                    cls = 'string';
+                    cls = "string";
                 }
             } else if (/true|false/.test(match)) {
-                cls = 'boolean';
+                cls = "boolean";
             } else if (/null/.test(match)) {
-                cls = 'null';
+                cls = "null";
             }
-            return '<span class="' + cls + '">' + match + '</span>';
+            return "<span class='" + cls + "'>" + match + "</span>";
         });
     }
 }
