@@ -1,19 +1,20 @@
 {
-    "name": "intocps-ui",
-    "productName": "New INTO-CPS UI",
-    "version": "1.0.0",
-    "description": "New user inferface for the INTO-CPS app",
-    "license": "MIT",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/intocps/intocps-ui.git"
-    },
-    "author": {
-        "name": "INTO-CPS Project",
-        "email": "",
-        "url": "http://into-cps.au.dk/"
-    },
-    "dependencies": {
-        "bootstrap": "^3.3.6"
-    }
+  "name": "intocps-ui",
+  "productName": "New INTO-CPS UI",
+  "version": "1.0.0",
+  "description": "New user inferface for the INTO-CPS app",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/intocps/intocps-ui.git"
+  },
+  "author": {
+    "name": "INTO-CPS Project",
+    "email": "",
+    "url": "http://into-cps.au.dk/"
+  },
+  "dependencies": {
+    "bootstrap": "^3.3.6",
+    "Chart.js": "^2.0.2"
+  }
 }
