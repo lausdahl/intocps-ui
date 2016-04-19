@@ -1,5 +1,7 @@
+//TODO: DUMMY REFERENCE UNTIL CHART MAKES A TYPESCRIPT DEFINITION FILE!
+///<reference path="Chart.d.ts"/>
 class CoeController {
-
+    
     url: string = "http://localhost:8082/";
 
     statusCmd: string = "status/"
@@ -9,14 +11,17 @@ class CoeController {
     resultCmd: string = "result";
     resultCmdZipType: string = "zip";
     destroyCmd: string = "destroy";
-
     uploadCmd: string = "upload/";
 
     configButton: HTMLButtonElement;
     remote: Electron.Remote;
     dialog: Electron.Dialog;
-    // configFilePath: HTMLInputElement;
     projectRootPath: HTMLInputElement;
+
+    liveStreamCanvas: HTMLCanvasElement;
+    canvasContext: CanvasRenderingContext2D;
+    liveChart: any;
+
     configFileName = "config.json";
 
     config: Object;
@@ -32,11 +37,77 @@ class CoeController {
     }
 
     initialize() {
-
         this.projectRootPath = <HTMLInputElement>document.getElementById("projectRootPathText");
-        this.projectRootPath.value = "/Users/kel/data/into-cps/intocps-ui/test-sim";
+        this.projectRootPath.value = "C:\\source\\into-cps-public\\test-sim";
         this.setProgress(0, null);
+        this.initializeChart();
+    }
 
+    initializeChart() {
+        this.liveStreamCanvas = <HTMLCanvasElement>document.getElementById("liveStreamCanvas");
+        this.canvasContext = this.liveStreamCanvas.getContext("2d");
+        var lineData: any = {
+            labels: [],
+            datasets: [
+                {
+                    label: "X2 tank output",
+                    // Boolean - if true fill the area under the line
+                    fill: false,
+                    // String - the color to fill the area under the line with if fill is true
+                    backgroundColor: "rgba(220,220,220,0.2)",
+                    // The properties below allow an array to be specified to change the value of the item at the given index
+                    // String or array - Line color
+                    borderColor: "rgba(220,220,220,1)",
+                    // String - cap style of the line. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineCap
+                    borderCapStyle: 'butt',
+                    // Array - Length and spacing of dashes. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setLineDash
+                    borderDash: [],
+                    // Number - Offset for line dashes. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineDashOffset
+                    borderDashOffset: 0.0,
+                    // String - line join style. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineJoin
+                    borderJoinStyle: 'miter',
+                    // String or array - Point stroke color
+                    pointBorderColor: "rgba(220,220,220,1)",
+                    // String or array - Point fill color
+                    pointBackgroundColor: "#fff",
+                    // Number or array - Stroke width of point border
+                    pointBorderWidth: 1,
+                    // Number or array - Radius of point when hovered
+                    pointHoverRadius: 5,
+                    // String or array - point background color when hovered
+                    pointHoverBackgroundColor: "rgba(220,220,220,1)",
+                    // Point border color when hovered
+                    pointHoverBorderColor: "rgba(220,220,220,1)",
+                    // Number or array - border width of point when hovered
+                    pointHoverBorderWidth: 2,
+                    // Tension - bezier curve tension of the line. Set to 0 to draw straight Wlines connecting points
+                    tension: 0.1,
+                    // The actual data
+                    data: [],
+                }
+            ]
+        };
+        //Creating labels every 10th number
+        for (var i = 1; i <= 100; i++) {
+            if (i % 10 == 0)
+                lineData.labels.push(i);
+            else
+                lineData.labels.push("");
+        }
+        this.liveChart = new Chart(this.canvasContext, {
+            type: "line",
+            data: lineData,
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            suggestedMin: -3,
+                            suggestedMax: 3
+                        }
+                    }]
+                }
+            }
+        });
     }
 
     launchProjectExplorer() {
@@ -44,6 +115,7 @@ class CoeController {
         if (dialogResult != undefined) {
             this.projectRootPath.value = dialogResult[0];
         }
+
 
     }
 
@@ -145,6 +217,7 @@ class CoeController {
     simulate() {
 
         let callback = new SimulationCallbackHandler();
+        callback.chart = this.liveChart;
         callback.connect("ws://localhost:8082/attachSession/" + this.sessionId);
 
         var _this = this;
@@ -223,8 +296,6 @@ class CoeController {
 
     }
 
-
-
     progressState: number = 0;
 
     setProgress(progress: number, message: string) {
@@ -246,6 +317,7 @@ class CoeController {
 
 class SimulationCallbackHandler {
 
+    public chart: Chart;
     connect(url: string) {
 
         var websocket = new WebSocket(url);
@@ -272,9 +344,11 @@ class SimulationCallbackHandler {
     }
 
     onMessage(evt: any) {
-
-        var str = JSON.stringify(JSON.parse(evt.data), undefined, 4);
+        var jsonData = JSON.parse(evt.data);
+        var str = JSON.stringify(jsonData, undefined, 4);
         this.output(this.syntaxHighlight(str));
+        this.chart.data.datasets[0].data.push(jsonData["{x2}"]["tank"]["level"]);
+        this.chart.update();
     }
 
     onError(evt: any) {

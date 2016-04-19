@@ -1,29 +1,29 @@
 <div class="row">
     <div class="col-md-1"></div>
     <div class="col-md-10">
-        <label for="configFileText">
+
+        <div class="form-group">
+            <label for="projectRootPathText">
             Project root path:
         </label>
-
-
-
-        <div class="input-group">
-            <input type="text" class="form-control input-sm" id="projectRootPathText">
-            <span class="input-group-btn">
+            <div class="input-group">
+                <input type="text" class="form-control input-sm" id="projectRootPathText">
+                <span class="input-group-btn">
                  <button type="button" class="btn btn-default btn-sm" onclick="coeController.launchProjectExplorer()">
                      <span class="glyphicon glyphicon-file"></span> Folder
-            </button>
-            </span>
-
+                </button>
+                </span>
+            </div>
         </div>
 
-        <div style="width:100%">
-
-            <label for="configFileText">
+        <p><label for="launchSimBut">
             Simulation:
         </label>
+            <button type="button" id="launchSimBut" class="btn btn-default btn-sm" onclick="coeController.launch()">
+            Launch Simulation
+        </button></p>
 
-            <button type="button" class="btn btn-default btn-sm" onclick="coeController.launch()">Launch Simulation</button>
+        <div style="width:100%">
 
 
 
@@ -32,6 +32,9 @@
                     0%
                 </div>
             </p>
+            <div>
+                <canvas id="liveStreamCanvas" width="1200" height="300"></canvas>
+            </div>
             <p>
                 <label for="configFileText">
             Simulation Callback:
@@ -58,3 +61,4 @@
 
     </div>
 </div>
+<!--<script src="bower_components/chart.js"></script>-->
