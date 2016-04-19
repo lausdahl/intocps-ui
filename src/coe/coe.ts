@@ -1,7 +1,7 @@
 //TODO: DUMMY REFERENCE UNTIL CHART MAKES A TYPESCRIPT DEFINITION FILE!
 ///<reference path="Chart.d.ts"/>
 class CoeController {
-    
+
     url: string = "http://localhost:8082/";
 
     statusCmd: string = "status/"
@@ -28,6 +28,8 @@ class CoeController {
 
     sessionId = -1
 
+    public chartIds: string[] = [];
+
     // Here we import the File System module of node
     private fs = require('fs');
 
@@ -48,44 +50,7 @@ class CoeController {
         this.canvasContext = this.liveStreamCanvas.getContext("2d");
         var lineData: any = {
             labels: [],
-            datasets: [
-                {
-                    label: "X2 tank output",
-                    // Boolean - if true fill the area under the line
-                    fill: false,
-                    // String - the color to fill the area under the line with if fill is true
-                    backgroundColor: "rgba(220,220,220,0.2)",
-                    // The properties below allow an array to be specified to change the value of the item at the given index
-                    // String or array - Line color
-                    borderColor: "rgba(220,220,220,1)",
-                    // String - cap style of the line. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineCap
-                    borderCapStyle: 'butt',
-                    // Array - Length and spacing of dashes. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setLineDash
-                    borderDash: [],
-                    // Number - Offset for line dashes. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineDashOffset
-                    borderDashOffset: 0.0,
-                    // String - line join style. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineJoin
-                    borderJoinStyle: 'miter',
-                    // String or array - Point stroke color
-                    pointBorderColor: "rgba(220,220,220,1)",
-                    // String or array - Point fill color
-                    pointBackgroundColor: "#fff",
-                    // Number or array - Stroke width of point border
-                    pointBorderWidth: 1,
-                    // Number or array - Radius of point when hovered
-                    pointHoverRadius: 5,
-                    // String or array - point background color when hovered
-                    pointHoverBackgroundColor: "rgba(220,220,220,1)",
-                    // Point border color when hovered
-                    pointHoverBorderColor: "rgba(220,220,220,1)",
-                    // Number or array - border width of point when hovered
-                    pointHoverBorderWidth: 2,
-                    // Tension - bezier curve tension of the line. Set to 0 to draw straight Wlines connecting points
-                    tension: 0.1,
-                    // The actual data
-                    data: [],
-                }
-            ]
+            datasets: []
         };
         //Creating labels every 10th number
         for (var i = 1; i <= 100; i++) {
@@ -97,7 +62,9 @@ class CoeController {
         this.liveChart = new Chart(this.canvasContext, {
             type: "line",
             data: lineData,
+
             options: {
+
                 scales: {
                     yAxes: [{
                         ticks: {
@@ -108,6 +75,7 @@ class CoeController {
                 }
             }
         });
+
     }
 
     launchProjectExplorer() {
@@ -219,6 +187,7 @@ class CoeController {
         let callback = new SimulationCallbackHandler();
         callback.chart = this.liveChart;
         callback.connect("ws://localhost:8082/attachSession/" + this.sessionId);
+        callback.chartIds = this.chartIds;
 
         var _this = this;
 
@@ -247,11 +216,19 @@ class CoeController {
 
     parseConfig(path: string): any {
 
-        var content = this.fs.readFileSync(path, "utf8");
-        console.log("Asynchronous read: " + content.toString());
-        var cfg = JSON.parse(content.toString());
-        console.log(cfg);
-        return cfg;
+        try {
+            if (this.fs.accessSync(path, this.fs.R_OK)) {
+                return null;
+            }
+            var content = this.fs.readFileSync(path, "utf8");
+            console.log("Asynchronous read: " + content.toString());
+            var cfg = JSON.parse(content.toString());
+            console.log(cfg);
+            return cfg;
+        } catch (e) {
+        }
+        return null;
+
     }
 
     launch() {
@@ -262,11 +239,14 @@ class CoeController {
 
         var cfg = _this.parseConfig(_this.getConfigFile());
         if (cfg == null) {
+            alert("Could not read simulation config.json from project root");
             return console.error("Unable to parse config file: " + _this.getConfigFile());
 
         }
 
         _this.config = cfg;
+
+        _this.chartIds = _this.initializeChartDatasets(cfg.livestream);
 
         var divCoeFmus = <HTMLInputElement>document.getElementById("coe-fmus");
         $.each(cfg.fmus, function (i, item) {
@@ -296,6 +276,83 @@ class CoeController {
 
     }
 
+    get_random_color() {
+        function c() {
+            var hex = Math.floor(Math.random() * 256).toString(16);
+            return ("0" + String(hex)).substr(-2); // pad with zero
+        }
+        return "#" + c() + c() + c();
+    }
+
+
+    initializeChartDatasets(livestreams: any): string[] {
+        let _this = this;
+        var ids: string[] = [];
+
+        // $.each(livestreams, function (i, item) {
+
+        var keys = Object.keys(livestreams);
+
+        $.each(keys, function (j, key) {
+            if (key.indexOf("{") == 0) {
+                let preFix = key + ".";
+                $.each(livestreams[key], function (k, output) {
+                    let id = preFix + output;
+                    ids.push(id);
+                });
+            }
+        });
+
+        console.log(ids);
+        // _this.chartIds = ids;
+
+        var datasets: any[] = [];
+        $.each(ids, function (i, id) {
+            let color = _this.get_random_color();
+            datasets.push({
+                label: id,
+                // Boolean - if true fill the area under the line
+                fill: false,
+                // String - the color to fill the area under the line with if fill is true
+                backgroundColor: color/*"rgba(220,220,220,0.2)"*/,
+                // The properties below allow an array to be specified to change the value of the item at the given index
+                // String or array - Line color
+                borderColor: color/*"rgba(220,220,220,1)"*/,
+                // String - cap style of the line. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineCap
+                borderCapStyle: 'butt',
+                // Array - Length and spacing of dashes. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setLineDash
+                borderDash: [],
+                // Number - Offset for line dashes. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineDashOffset
+                borderDashOffset: 0.0,
+                // String - line join style. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineJoin
+                borderJoinStyle: 'miter',
+                // String or array - Point stroke color
+                pointBorderColor: "rgba(220,220,220,1)",
+                // String or array - Point fill color
+                pointBackgroundColor: "#fff",
+                // Number or array - Stroke width of point border
+                pointBorderWidth: 1,
+                // Number or array - Radius of point when hovered
+                pointHoverRadius: 5,
+                // String or array - point background color when hovered
+                pointHoverBackgroundColor: "rgba(220,220,220,1)",
+                // Point border color when hovered
+                pointHoverBorderColor: "rgba(220,220,220,1)",
+                // Number or array - border width of point when hovered
+                pointHoverBorderWidth: 2,
+
+                // Tension - bezier curve tension of the line. Set to 0 to draw straight Wlines connecting points
+                tension: 0.1,
+                // The actual data
+                data: [],
+            });
+            //    this.liveChart.data.datasets
+        });
+
+        this.liveChart.data.datasets = datasets;
+        return ids;
+    }
+
     progressState: number = 0;
 
     setProgress(progress: number, message: string) {
@@ -318,6 +375,7 @@ class CoeController {
 class SimulationCallbackHandler {
 
     public chart: Chart;
+    public chartIds: string[] = [];
     connect(url: string) {
 
         var websocket = new WebSocket(url);
@@ -344,10 +402,38 @@ class SimulationCallbackHandler {
     }
 
     onMessage(evt: any) {
+        let _this = this;
         var jsonData = JSON.parse(evt.data);
         var str = JSON.stringify(jsonData, undefined, 4);
         this.output(this.syntaxHighlight(str));
-        this.chart.data.datasets[0].data.push(jsonData["{x2}"]["tank"]["level"]);
+
+        //calculate id
+
+        $.each(Object.keys(jsonData), function (j, fmukey) {
+            if (fmukey.indexOf("{") == 0) {
+                let preFix = fmukey + ".";
+                $.each(Object.keys(jsonData[fmukey]), function (k, instanceKey) {
+                    let id = preFix + instanceKey + ".";
+                    $.each(Object.keys(jsonData[fmukey][instanceKey]), function (j, outputKey) {
+                        let key = id + outputKey;
+                        var value = jsonData[fmukey][instanceKey][outputKey];
+                        $.each(_this.chartIds, function (index, datasetKey) {
+                            if (datasetKey == key) {
+
+                                if (value == "true")
+                                { value = 1 }
+                                else if (value == "false")
+                                { value = 0; }
+
+                                _this.chart.data.datasets[index].data.push(value);
+
+                            }
+                        });
+                    });
+                });
+            }
+        });
+
         this.chart.update();
     }
 
@@ -362,11 +448,11 @@ class SimulationCallbackHandler {
         let pre = document.createElement('pre');
 
         /* pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; }
-.string { color: green; }
-.number { color: darkorange; }
-.boolean { color: blue; }
-.null { color: magenta; }
-.key { color: red; } */
+    .string { color: green; }
+    .number { color: darkorange; }
+    .boolean { color: blue; }
+    .null { color: magenta; }
+    .key { color: red; } */
         pre.style.outline = "1px solid #ccc";
         pre.style.padding = "5px";
         pre.style.margin = "5px";
