@@ -2,10 +2,11 @@ intocps-ui
 ---
 A new UI for the INTO-CPS application. 
 
+
 How to build
 ---
 The app is built with Electron and Node.js. You need
-npm (comes with Node.js). We use Gulp to manage tasks. Its easiest to 
+npm (comes with Node.js). We use Gulp to manag etasks. Its easiest to 
 have it installed globally (`npm install -g gulp`). 
 
 After checking out the repo...
@@ -16,11 +17,10 @@ After checking out the repo...
 5. To run it: `npm start`
 
 
-<!--The editor recommendation is hidden until the workshop so we can make a joke -->
-<!--Editor-->
-<!------->
-<!--Visual Studio Code works well, it is cross-platform and actually built on-->
-<!--top of Electron.-->
+Editor
+---
+[Visual Studio Code](https://code.visualstudio.com/) is a good choice. It's cross-platform and is actually built on top of Electron. That said, you can use whatever you want.
+
 
 About
 ---
