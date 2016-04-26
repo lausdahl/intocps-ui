@@ -1,5 +1,7 @@
 //TODO: DUMMY REFERENCE UNTIL CHART MAKES A TYPESCRIPT DEFINITION FILE!
 ///<reference path="Chart.d.ts"/>
+///<reference path="../../typings/browser/ambient/github-electron/index.d.ts"/>
+///<reference path="../../typings/browser/ambient/node/index.d.ts"/>
 class CoeController {
 
     url: string = "http://localhost:8082/";
