@@ -11,14 +11,8 @@ var outputPath = 'dist/',
     tsSrcs = ['src/**/*.ts', 'typings/browser/**/*.ts'],
     bowerFolder = 'bower_components',
     typingsFolder = 'typings',
-    cssSrcs = 'bower_components/bootstrap/dist/css/bootstrap.css',
-    bowerSrcs = [bowerFolder + '/jquery-layout/source/stable/jquery.layout.min.js', 
-        bowerFolder + '/jquery-layout/source/stable/layout-default.css',
-        bowerFolder + '/jquery-layout/source/jquery/jquery-ui-1.11.0.js',
-        bowerFolder + '/jquery-ui/ui/core.js',
-        bowerFolder + '/jquery-ui/ui/resizable.js',
-        bowerFolder + '/jquery-ui/ui/mouse.js',
-        bowerFolder + '/jquery-ui/ui/widget.js'];
+    cssSrcs = [bowerFolder + '/bootstrap/dist/css/bootstrap.css', bowerFolder + '/jquery-layout/source/stable/layout-default.css'],
+    bowerSrcs = bowerFolder + '/jquery-layout/source/stable/jquery.layout.min.js';
 
 // Tools.
 var gulp = require('gulp'),
