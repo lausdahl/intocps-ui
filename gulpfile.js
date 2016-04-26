@@ -24,8 +24,8 @@ var gulp = require('gulp'),
     filter = require('gulp-filter'),
     debug = require('gulp-debug'),
     typings = require('gulp-typings'),
+    watch = require('gulp-watch'),
     bower = require('gulp-bower');
-
 // Tasks
 
 // Install typings
@@ -102,6 +102,14 @@ gulp.task('init', ['install-ts-defs','install-bower-components']);
 
 //Build App
 gulp.task('build', ['compile-ts', 'copy-js', 'copy-html', 'copy-css', 'copy-bower', 'copy-fonts']);
+
+// Watch for changes and rebuild on the fly
+gulp.task('stream', function () {
+    return gulp.src(htmlSrcs)
+        .pipe(watch(htmlSrcs))
+        .pipe(gulp.dest(outputPath));
+});
+
 
 // Default task 
 gulp.task('default', ['build']);
