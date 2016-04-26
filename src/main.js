@@ -13,6 +13,7 @@ const userDataPath = app.getPath('userData')
 const intoCpsFolder = path.normalize(userDataPath + "/intocps-ui");
 const settingsFile = path.normalize(intoCpsFolder + "/settings.json");
 
+//TODO: Return promise from settings functions?
 global.intoCps = {
   data: {},
   getDefaultDirectory: function () {
