@@ -13,7 +13,7 @@ gulp`).
 After checking out the repo...
 
 1. To install node dependencies: `npm install`
-2. *(optional)* To install other resources: `gulp init`
+2. To install other resources: `gulp init`
 3. To build the UI: `gulp`
 4. To run it: `npm start`
 

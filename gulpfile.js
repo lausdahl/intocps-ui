@@ -101,7 +101,7 @@ gulp.task('copy-js', function() {
 gulp.task('init', ['install-ts-defs','install-bower-components']);
 
 //Build App
-gulp.task('build', ['init','compile-ts', 'copy-js', 'copy-html', 'copy-css', 'copy-bower', 'copy-fonts']);
+gulp.task('build', ['compile-ts', 'copy-js', 'copy-html', 'copy-css', 'copy-bower', 'copy-fonts']);
 
 // Default task 
 gulp.task('default', ['build']);
