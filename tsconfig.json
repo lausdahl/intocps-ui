@@ -6,7 +6,10 @@
     "exclude": [
         "node_modules",
         "typings/main.d.ts",
-        "typings/main"
+        "typings/main",
+        "dist",
+        "typings",
+        "bower_components"
     ]
 }
 
