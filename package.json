@@ -28,6 +28,7 @@
     "electron-prebuilt": "^0.36.0",
     "gulp": "^3.9.1",
     "gulp-bower": "0.0.13",
+    "gulp-concat": "^2.6.0",
     "gulp-debug": "^2.1.2",
     "gulp-filter": "^4.0.0",
     "gulp-inject": "^4.0.0",
@@ -37,6 +38,8 @@
     "gulp-typings": "^1.3.4",
     "gulp-watch": "^4.3.5",
     "main-bower-files": "^2.11.1",
+    "merge-stream": "^1.0.0",
+    "run-sequence": "^1.1.5",
     "tslint": "^3.7.0"
   }
 }
