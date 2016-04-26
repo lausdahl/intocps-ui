@@ -11,7 +11,14 @@ var outputPath = 'dist/',
     tsSrcs = ['src/**/*.ts', 'typings/browser/**/*.ts'],
     bowerFolder = 'bower_components',
     typingsFolder = 'typings',
-    cssSrcs = 'bower_components/bootstrap/dist/css/bootstrap.css';
+    cssSrcs = 'bower_components/bootstrap/dist/css/bootstrap.css',
+    bowerSrcs = [bowerFolder + '/jquery-layout/source/stable/jquery.layout.min.js', 
+        bowerFolder + '/jquery-layout/source/stable/layout-default.css',
+        bowerFolder + '/jquery-layout/source/jquery/jquery-ui-1.11.0.js',
+        bowerFolder + '/jquery-ui/ui/core.js',
+        bowerFolder + '/jquery-ui/ui/resizable.js',
+        bowerFolder + '/jquery-ui/ui/mouse.js',
+        bowerFolder + '/jquery-ui/ui/widget.js'];
 
 // Tools.
 var gulp = require('gulp'),
@@ -24,7 +31,9 @@ var gulp = require('gulp'),
     filter = require('gulp-filter'),
     debug = require('gulp-debug'),
     typings = require('gulp-typings'),
-    bower = require('gulp-bower');
+    bower = require('gulp-bower'),
+    runSequence = require('run-sequence'),
+    merge = require('merge-stream');
 
 // Tasks
 
@@ -66,10 +75,13 @@ gulp.task("compile-ts", function() {
 });
 
 // Copy important bower files to destination
+// mainBowerFiles does not take jquery-ui and jquery-layout
 gulp.task('copy-bower', function() {
-    return gulp.src(mainBowerFiles())
+    var path1= gulp.src(mainBowerFiles())
         .pipe(filter('**/*.js'))
         .pipe(gulp.dest(outputPath + bowerFolder));
+    var path2= gulp.src(bowerSrcs).pipe(debug()).pipe(gulp.dest(outputPath + bowerFolder));
+    return merge(path1, path2);
 });
 
 // Copy bootstrap fonts to destination
@@ -101,7 +113,7 @@ gulp.task('copy-js', function() {
 gulp.task('init', ['install-ts-defs','install-bower-components']);
 
 //Build App
-gulp.task('build', ['init','compile-ts', 'copy-js', 'copy-html', 'copy-css', 'copy-bower', 'copy-fonts']);
+gulp.task('build', function(){runSequence('init',['compile-ts', 'copy-js', 'copy-html', 'copy-css', 'copy-bower', 'copy-fonts'])});
 
 // Default task 
 gulp.task('default', ['build']);
