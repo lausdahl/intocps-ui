@@ -20,7 +20,10 @@ const userDataPath = function () {
 } ()
 const intoCpsFolder = path.normalize(userDataPath + "/intocps-ui");
 const settingsFile = path.normalize(intoCpsFolder + "/settings.json");
-//TODO: Return promise from settings functions?
+// TODO: Return promise from settings functions?
+// TODO: Split setting stuff into seperate module? https://nodejs.org/api/modules.html
+// The intoCps object can be retrieved by renderer processes by using electron remote as described here:
+// https://discuss.atom.io/t/how-to-set-global-variable-of-main-process/24833/7
 global.intoCps = {
   data: {},
   getDefaultDirectory: function () {
