@@ -39,6 +39,7 @@ class CoeController {
 
     constructor() {        
         this.remote = require("remote");
+        let test : Settings = this.remote.getGlobal("intoCpsApp").settings;
         this.dialog = this.remote.require("dialog");
     }
 
