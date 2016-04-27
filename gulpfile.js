@@ -27,7 +27,6 @@ var gulp = require('gulp'),
     typings = require('gulp-typings'),
     watch = require('gulp-watch'),
     bower = require('gulp-bower'),
-    runSequence = require('run-sequence'),
     merge = require('merge-stream');
 
 // Tasks
@@ -108,7 +107,7 @@ gulp.task('copy-js', function() {
 gulp.task('init', ['install-ts-defs','install-bower-components']);
 
 //Build App
-gulp.task('build', function(){runSequence('init',['compile-ts', 'copy-js', 'copy-html', 'copy-css', 'copy-bower', 'copy-fonts'])});
+gulp.task('build', ['compile-ts', 'copy-js', 'copy-html', 'copy-css', 'copy-bower', 'copy-fonts']);
 
 
 // Watch for changes and rebuild on the fly
