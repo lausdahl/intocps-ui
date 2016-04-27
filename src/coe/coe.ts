@@ -3,7 +3,7 @@
 ///<reference path="../../typings/browser/ambient/github-electron/index.d.ts"/>
 ///<reference path="../../typings/browser/ambient/node/index.d.ts"/>
 ///<reference path="../../typings/browser/ambient/jquery/index.d.ts"/>
-class CoeController {
+export class CoeController {
 
     url: string = "http://localhost:8082/";
 
