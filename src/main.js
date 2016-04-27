@@ -9,13 +9,14 @@ const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 
 // Path to userData
-const userDataPath = function(){
+const userDataPath = function () {
   if (app.getPath("exe").indexOf("electron-prebuilt") > -1) {
     console.log("Dev-mode: Using " + __dirname + " as user data path.")
     return __dirname;
   }
-  else
+  else {
     return app.getPath('userData');
+  }
 } ()
 const intoCpsFolder = path.normalize(userDataPath + "/intocps-ui");
 const settingsFile = path.normalize(intoCpsFolder + "/settings.json");
@@ -49,7 +50,6 @@ global.intoCps = {
     fs.readFile(settingsFile, (err, data) => {
       if (!err) {
         global.intoCps.data = JSON.parse(data);
-        console.log("Loaded settings: " + JSON.stringify(global.intoCps.data));
       }
       else {
         console.log("The error: " + err + " happened when attempting to load the file: " + settingsFile);
