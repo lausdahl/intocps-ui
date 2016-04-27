@@ -9,10 +9,16 @@ const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 
 // Path to userData
-const userDataPath = app.getPath('userData')
+const userDataPath = function(){
+  if (app.getPath("exe").indexOf("electron-prebuilt") > -1) {
+    console.log("Dev-mode: Using " + __dirname + " as user data path.")
+    return __dirname;
+  }
+  else
+    return app.getPath('userData');
+} ()
 const intoCpsFolder = path.normalize(userDataPath + "/intocps-ui");
 const settingsFile = path.normalize(intoCpsFolder + "/settings.json");
-
 //TODO: Return promise from settings functions?
 global.intoCps = {
   data: {},
