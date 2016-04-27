@@ -1,19 +1,41 @@
 import {CoeController} from  "./coe/coe";
 
-//Split layout in 2
-var myLayout;
-$(document).ready(function(){
-    myLayout = $(document.body).layout({
-        west__minSize:	50
-    });
-});
+// constants
+var mainViewId : string = "mainView";
 
-// Load project view in left view
-var left : HTMLDivElement = (<HTMLDivElement>document.getElementById("leftView"));
-$(left).load("proj/projbrowserview.html");
-
-// Load Co-Sim in view in the main view 
+// Initialise controllers so they persist
 var coeController = new CoeController();
-var div : HTMLDivElement = (<HTMLDivElement>document.getElementById("mainView"));
-$(div).load("coe/coe.html", (event : JQueryEventObject) => coeController.initialize());
+var myLayout;
 
+initLayout();
+
+
+// Initialise layout
+function initLayout(){
+    $(document).ready(function(){
+        myLayout = $(document.body).layout({
+            west__minSize:	50
+        });
+    });
+    var left : HTMLDivElement = (<HTMLDivElement>document.getElementById("leftView"));
+    $(left).load("proj/projbrowserview.html");
+    loadCoSim();
+}
+
+// Load DSE into main view
+function loadDse() {
+    var div : HTMLDivElement = (<HTMLDivElement>document.getElementById(mainViewId));
+    $(div).load("dse/dse.html") // fire initialise event here
+}
+
+// Load Co-Sim into main view
+function loadCoSim() {
+    var div : HTMLDivElement = (<HTMLDivElement>document.getElementById(mainViewId));
+    $(div).load("coe/coe.html",(event : JQueryEventObject) => coeController.initialize()); 
+}
+
+// Load MC into main view
+function loadMc() {
+    var div : HTMLDivElement = (<HTMLDivElement>document.getElementById(mainViewId));
+    $(div).load("mc/mc.html") // fire initialise event here
+}
