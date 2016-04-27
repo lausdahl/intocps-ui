@@ -1,16 +1,19 @@
-function brag(b : string) {
-    return "It's gonna be " + b +"!";
-}
-    var div : HTMLDivElement = (<HTMLDivElement>document.getElementById("topView"));
-    // Example of how to load a page and wait until it is loaded
-    $(div).load("top/topview.html");
+import {CoeController} from  "./coe/coe";
+
+//Split layout in 2
+var myLayout;
+$(document).ready(function(){
+    myLayout = $(document.body).layout({
+        west__minSize:	50
+    });
+});
+
+// Load project view in left view
+var left : HTMLDivElement = (<HTMLDivElement>document.getElementById("leftView"));
+$(left).load("proj/projbrowserview.html");
+
+// Load Co-Sim in view in the main view 
 var coeController = new CoeController();
-function clickme() {
-    var div : HTMLDivElement = (<HTMLDivElement>document.getElementById("mainViewDiv"));
-    // Example of how to load a page and wait until it is loaded
-    $(div).load("coe/coe.html", (event : JQueryEventObject) => coeController.initialize());
-}
+var div : HTMLDivElement = (<HTMLDivElement>document.getElementById("mainView"));
+$(div).load("coe/coe.html", (event : JQueryEventObject) => coeController.initialize());
 
-var adj = "awesome";
-
-document.write(brag(adj));
