@@ -25,6 +25,7 @@ var gulp = require('gulp'),
     filter = require('gulp-filter'),
     debug = require('gulp-debug'),
     typings = require('gulp-typings'),
+    watch = require('gulp-watch'),
     bower = require('gulp-bower'),
     runSequence = require('run-sequence'),
     merge = require('merge-stream');
@@ -56,7 +57,7 @@ gulp.task("lint-ts", function() {
     return gulp.src(lintTsSrcs).pipe(lint()).pipe(lint.report('prose', { emitError: false }));
 });
 
-// Compile TS->JS with sourcemaps 
+// Compile TS->JS with sourcemaps. Also move it into the outputfolder
 gulp.task("compile-ts", function() {
     var tsResult = gulp.src(tsSrcs)
         .pipe(sourcemap.init())
@@ -108,6 +109,15 @@ gulp.task('init', ['install-ts-defs','install-bower-components']);
 
 //Build App
 gulp.task('build', function(){runSequence('init',['compile-ts', 'copy-js', 'copy-html', 'copy-css', 'copy-bower', 'copy-fonts'])});
+
+
+// Watch for changes and rebuild on the fly
+gulp.task('stream', function () {
+    return gulp.src(htmlSrcs)
+        .pipe(watch(htmlSrcs))
+        .pipe(gulp.dest(outputPath));
+});
+
 
 // Default task 
 gulp.task('default', ['build']);

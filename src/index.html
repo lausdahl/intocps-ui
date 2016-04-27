@@ -1,40 +1,43 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>INTO CPS App</title>
-    <link rel="stylesheet" href="css/bootstrap.css">
-    <link rel="stylesheet" href="css/layout-default.css">
-    <!--This onload is necessary to include jquery. See this
-        http://stackoverflow.com/questions/32621988/electron-jquery-is-not-defined
-    -->
-    <script src="bower_components/jquery.js" onload="window.$ = window.jQuery = module.exports;"></script>
-    <script src="bower_components/bootstrap.js"></script>
-    <script src="bower_components/jquery-ui.js"></script>
-    <script src="bower_components/jquery.layout.min.js"></script>
-    <script type="text/javascript">
-	var myLayout;
-	$(document).ready(function(){
-		myLayout = $('body').layout({
-			west__minSize:	50
-		});
- 
- 	});
-	</script>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+<title>New INTO-CPS App</title>
+<link rel="stylesheet" href="css/bootstrap.css">
+<link rel="stylesheet" href="css/layout-default.css">
 </head>
 
 <body>
-    <div class="ui-layout-west">Project browser area</div>
+<div class="ui-layout-west" id="leftView">left</div>
+
 <div class="ui-layout-center">
-    <h1>Welcome to the INTO-CPS app</h1>
-    <br>
-    <button onclick="clickme()">Click me to open the COE page</button>
-    <div id="mainViewDiv"></div>
-    <div id="projectView"></div>
-    <div id="topView"> </div>
-    <script src="coe/coe.js"></script>
-    <script src="foo.js"></script>
-</div>
+    <!-- Static navbar -->
+    <nav class="navbar navbar-default navbar-static-top">
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#" onclick="loadCoSim();">Co-sim</a></li>
+                <li><a href="#" onclick="loadDse();">DSE</a></li>
+                <li><a href="#" onclick="loadMc();">MC/TDG</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container-fluid" id="mainView">main</div> 
+</div> 
+
+<!-- Bootstrap core JavaScript
+    ================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="bower_components/jquery.js" onload="window.$ = window.jQuery = module.exports;"></script>
+<script src="bower_components/bootstrap.js"></script>
+<script src="bower_components/jquery-ui.js"></script>
+<script src="bower_components/jquery.layout.min.js"></script>
+<script src="init.js"></script>
 </body>
 </html>
+
+
+
