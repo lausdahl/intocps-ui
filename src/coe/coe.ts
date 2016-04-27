@@ -3,6 +3,7 @@
 ///<reference path="../../typings/browser/ambient/github-electron/index.d.ts"/>
 ///<reference path="../../typings/browser/ambient/node/index.d.ts"/>
 ///<reference path="../../typings/browser/ambient/jquery/index.d.ts"/>
+import Settings from "./../main/Settings.ts"
 class CoeController {
 
     url: string = "http://localhost:8082/";
@@ -36,7 +37,7 @@ class CoeController {
     // Here we import the File System module of node
     private fs = require('fs');
 
-    constructor() {
+    constructor() {        
         this.remote = require("remote");
         this.dialog = this.remote.require("dialog");
     }

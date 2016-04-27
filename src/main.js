@@ -3,86 +3,17 @@
 const electron = require('electron');
 const fs = require('fs');
 const path = require('path');
+var settings = require("./main/Settings.js").default;
+
 // Module to control application life.
 const app = electron.app;
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow;
 
-// Path to userData
-const userDataPath = function () {
-  if (app.getPath("exe").indexOf("electron-prebuilt") > -1) {
-    console.log("Dev-mode: Using " + __dirname + " as user data path.")
-    return __dirname;
-  }
-  else {
-    return app.getPath('userData');
-  }
-} ()
-const intoCpsFolder = path.normalize(userDataPath + "/intocps-ui");
-const settingsFile = path.normalize(intoCpsFolder + "/settings.json");
-// TODO: Return promise from settings functions?
-// TODO: Split setting stuff into seperate module? https://nodejs.org/api/modules.html
-// The intoCps object can be retrieved by renderer processes by using electron remote as described here:
-// https://discuss.atom.io/t/how-to-set-global-variable-of-main-process/24833/7
-global.intoCps = {
-  data: {},
-  getDefaultDirectory: function () {
-    return userDataPath;
-  },
-  storeSettings: function () {
-    fs.open(settingsFile, "w", (err, fd) => {
-      if (err) {
-        "The error: " + err + " happened when attempting to open the file: " + settingsFile;
-      }
-      else {
-        fs.write(fd, JSON.stringify(global.intoCps.data), (err) => {
-          if (err) {
-            console.log("Failed to write settings to file: " + settingsFile);
-          }
-          fs.close(fd, (err) => {
-            if (err) {
-              console.log("Failed to close writing to the file: " + settingsFile);
-              throw err;
-            }
-          });
-        });
-      }
-    });
-  },
-  loadSettings: function () {
-    fs.readFile(settingsFile, (err, data) => {
-      if (!err) {
-        global.intoCps.data = JSON.parse(data);
-      }
-      else {
-        console.log("The error: " + err + " happened when attempting to load the file: " + settingsFile);
-        throw err;
-      }
-    });
-  }
+global.intoCpsApp = {
+  "settings": new settings(app)
 }
-
-function initializeSettings() {
-  // Check if file exists
-  fs.lstat(settingsFile, function (err, data) {
-    if (err || !data.isFile()) {
-      console.log("Settings file does not exist. Creating " + settingsFile);
-      fs.mkdir(intoCpsFolder, (err) => {
-        if (err) {
-          console.log("The error: " + err + " happened when attempting to create the directory: " + intoCpsFolder);
-          throw err;
-        }
-        else {
-          global.intoCps.storeSettings();
-        }
-      });
-    }
-    else {
-      global.intoCps.loadSettings();
-    }
-  });
-}
-initializeSettings();
+global.intoCpsApp.settings.initializeSettings();
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
