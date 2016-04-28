@@ -32,7 +32,8 @@ export class CoeController {
     sessionId = -1
 
     public chartIds: string[] = [];
-
+    
+    
     // Here we import the File System module of node
     private fs = require('fs');
 
@@ -194,7 +195,11 @@ export class CoeController {
 
         var _this = this;
 
-        var dat = JSON.stringify({ startTime: 0, endTime: 10 });
+
+        let startTime = +(<HTMLInputElement>document.getElementById("input-sim-time-start")).value;
+        let endTime = +(<HTMLInputElement>document.getElementById("input-sim-time-end")).value;
+
+        var dat = JSON.stringify({ startTime: startTime, endTime: endTime });
         let url = _this.url + _this.simulateCmd + _this.sessionId;
 
         _this.setDebugMessage("Starting simulation");
