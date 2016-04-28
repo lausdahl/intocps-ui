@@ -3,47 +3,21 @@
 const electron = require('electron');
 const fs = require('fs');
 const path = require('path');
+
 var settings = require("./main/Settings.js").default;
+var IntoCpsApp = require("./main/IntoCpsApp.js").default;
+//var IntoCpsApp = require('IntoCpsApp');
 
 // Module to control application life.
 const app = electron.app;
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow;
 
-// Create intoCpsApp folder
-const userPath = function () {
-  if (app.getPath("exe").indexOf("electron-prebuilt") > -1) {
 
-    console.log("Dev-mode: Using " + __dirname + " as user data path.")
-    return __dirname;
-  }
-  else {
-    return app.getPath('userData');
-  }
-} ();
-const intoCpsAppFolder = path.normalize(userPath + "/intoCpsApp");
 
-global.intoCpsApp = {
-  "settings": new settings(app, intoCpsAppFolder)
-}
+global.intoCpsApp = new IntoCpsApp(app);
 
-//Create intoCpsApp folder if it does not exist
-fs.lstat(intoCpsAppFolder, (err, data) => {
-  if (err || !data.isDirectory()) {
-    fs.mkdir(intoCpsAppFolder, (err) => {
-      if (err) {
-        console.log("The error: " + err + " occured when attempting to create the directory: " + this.intoCpsAppFolder  + ".");
-        throw err;
-      }
-      else {
-        global.intoCpsApp.settings.initializeSettings();
-      }
-    });
-  }
-  else {
-    global.intoCpsApp.settings.initializeSettings();
-  }
-});
+
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.

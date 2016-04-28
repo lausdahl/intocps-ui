@@ -3,6 +3,10 @@
 ///<reference path="../../typings/browser/ambient/github-electron/index.d.ts"/>
 ///<reference path="../../typings/browser/ambient/node/index.d.ts"/>
 ///<reference path="../../typings/browser/ambient/jquery/index.d.ts"/>
+
+import * as Main from  "../main/Settings.ts"
+import * as IntoCpsApp from  "../main/IntoCpsApp.ts"
+
 export class CoeController {
 
     url: string = "http://localhost:8082/";
@@ -33,6 +37,7 @@ export class CoeController {
 
     public chartIds: string[] = [];
     
+    app: IntoCpsApp.IntoCpsApp;
     
     // Here we import the File System module of node
     private fs = require('fs');
@@ -40,6 +45,7 @@ export class CoeController {
     constructor() {
         this.remote = require("remote");
         this.dialog = this.remote.require("dialog");
+        this.app = this.remote.getGlobal("intoCpsApp");
     }
 
     initialize() {
@@ -86,6 +92,7 @@ export class CoeController {
         let dialogResult: string[] = this.dialog.showOpenDialog({ properties: ["openDirectory"] });
         if (dialogResult != undefined) {
             this.projectRootPath.value = dialogResult[0];
+            this.app.createProject("my project",this.projectRootPath.value);
         }
 
 

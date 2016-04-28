@@ -80,3 +80,5 @@ export default class Settings implements ISettingsValues {
   }
 
 }
+
+export {Settings}
