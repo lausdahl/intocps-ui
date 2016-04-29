@@ -27,3 +27,6 @@ dist/
 bower_components/
 typings/
 .vscode/
+
+
+.DS_Store

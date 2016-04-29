@@ -12,7 +12,7 @@ export default class Settings implements ISettingsValues {
   userDataPath: string;
   intoCpsAppFolder: string;
   settingsFile: string;
-  intoCpsDataObject: any = { "dummy": "dummy" };
+  intoCpsDataObject: any = { "into-cps-settings-version": "0.0.1" };
 
   constructor(app: Electron.App, intoCpsAppFolder: string) {
     this.app = app;
@@ -32,6 +32,11 @@ export default class Settings implements ISettingsValues {
         this.loadSettings();
       }
     });
+  }
+  
+  public save()
+  {
+     this.storeSettings();
   }
 
   storeSettings() {
@@ -72,11 +77,11 @@ export default class Settings implements ISettingsValues {
   }
 
   setSetting(key: string, value: any) {
-    this.intoCpsDataObject.key = value;
+    this.intoCpsDataObject[key] = value;
   }
 
   getSetting(key: string): any {
-    return this.intoCpsDataObject.key;
+    return this.intoCpsDataObject[key];
   }
 
 }

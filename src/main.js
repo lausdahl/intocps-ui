@@ -4,8 +4,10 @@ const electron = require('electron');
 const fs = require('fs');
 const path = require('path');
 
+
 var settings = require("./main/Settings.js").default;
 var IntoCpsApp = require("./main/IntoCpsApp.js").default;
+var CreateProjectHandler = require("./main/CreateProjectHandler").default;
 //var IntoCpsApp = require('IntoCpsApp');
 
 // Module to control application life.
@@ -62,3 +64,7 @@ app.on('activate', function () {
     createWindow();
   }
 });
+
+
+var createProjectHandler = new CreateProjectHandler(global.intoCpsApp);
+createProjectHandler.install();

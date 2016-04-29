@@ -5,10 +5,10 @@
 import fs = require('fs');
 import Path = require('path');
 
- import {ISettingsValues} from "./ISettingsValues"
- import {Settings} from "./Settings"
- import {IProject} from "./IProject"
- import {Project} from "./Project"
+import {ISettingsValues} from "./ISettingsValues"
+import {Settings} from "./Settings"
+import {IProject} from "./IProject"
+import {Project} from "./Project"
 
 export default class IntoCpsApp {
     app: Electron.App;
@@ -20,6 +20,16 @@ export default class IntoCpsApp {
     constructor(app: Electron.App) {
         this.app = app;
 
+        const intoCpsAppFolder = this.createAppFolderRoot(app);
+
+        //create settings
+        this.settings = new Settings(app, intoCpsAppFolder);
+        this.loadSettings(intoCpsAppFolder);
+      
+    }
+
+
+    private createAppFolderRoot(app: Electron.App): string {
         const path = require('path');
         // Create intoCpsApp folder
         const userPath = function () {
@@ -32,18 +42,18 @@ export default class IntoCpsApp {
                 return app.getPath('userData');
             }
         } ();
-        const intoCpsAppFolder = path.normalize(userPath + "/intoCpsApp");
 
-        //create settings
+        return path.normalize(userPath + "/intoCpsApp");
+    }
 
-        this.settings = new Settings(app, intoCpsAppFolder);
 
+    private loadSettings(path: string) {
         //Create intoCpsApp folder if it does not exist
-        fs.lstat(intoCpsAppFolder, (err, data) => {
+        fs.lstat(path, (err, data) => {
             if (err || !data.isDirectory()) {
-                fs.mkdir(intoCpsAppFolder, (err) => {
+                fs.mkdir(path, (err) => {
                     if (err) {
-                        console.log("The error: " + err + " occured when attempting to create the directory: " + intoCpsAppFolder + ".");
+                        console.log("The error: " + err + " occured when attempting to create the directory: " + path + ".");
                         throw err;
                     }
                     else {
@@ -56,8 +66,8 @@ export default class IntoCpsApp {
             }
         });
 
-
     }
+
 
     public getSettings(): ISettingsValues {
         return this.settings;
@@ -69,6 +79,8 @@ export default class IntoCpsApp {
 
     public setActiveProject(project: IProject) {
         this.activeProject = project;
+        this.settings.setSetting("active-project",project.getProjectConfigFilePath());
+        this.settings.save();
     }
 
 
