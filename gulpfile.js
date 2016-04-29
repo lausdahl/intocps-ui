@@ -74,7 +74,7 @@ gulp.task('copy-bower', function() {
     var path1= gulp.src(mainBowerFiles())
         .pipe(filter('**/*.js'))
         .pipe(gulp.dest(outputPath + bowerFolder));
-    var path2= gulp.src(bowerSrcs).pipe(debug()).pipe(gulp.dest(outputPath + bowerFolder));
+    var path2= gulp.src(bowerSrcs).pipe(gulp.dest(outputPath + bowerFolder));
     return merge(path1, path2);
 });
 

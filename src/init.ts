@@ -1,3 +1,5 @@
+/// <reference path="../typings/browser/ambient/jquery.ui.layout/index.d.ts"/>"
+
 import {CoeController} from  "./coe/coe";
 
 // constants
@@ -5,7 +7,7 @@ var mainViewId : string = "mainView";
 
 // Initialise controllers so they persist
 var coeController = new CoeController();
-var myLayout;
+var myLayout : JQueryUILayout.Layout;
 
 
 /// Switch active tab marker
@@ -22,7 +24,7 @@ initLayout();
 
 
 // Initialise layout
-function initLayout(){
+function initLayout(){ 
     $(document).ready(function(){
         myLayout = $(document.body).layout({
             west__minSize:	50
