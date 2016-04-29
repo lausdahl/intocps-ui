@@ -5,10 +5,10 @@
 import fs = require('fs');
 import Path = require('path');
 
-import {ISettingsValues} from "./ISettingsValues.js"
-import {Settings} from "./Settings.js"
-import {IProject} from "./IProject.js"
-import {Project} from "./Project.js"
+ import {ISettingsValues} from "./ISettingsValues"
+ import {Settings} from "./Settings"
+ import {IProject} from "./IProject"
+ import {Project} from "./Project"
 
 export default class IntoCpsApp {
     app: Electron.App;
