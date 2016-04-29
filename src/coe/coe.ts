@@ -7,7 +7,7 @@ import {Fmu} from "./fmu"
 export class CoeController {
 
     url: string = "http://localhost:8082/";
-
+    fmuCounter: number = 0;
     statusCmd: string = "status/"
     createSessionCmd: string = "createSession";
     initializeSessionCmd: string = "initialize/";
@@ -28,7 +28,6 @@ export class CoeController {
     fmusDiv : HTMLDivElement;
     configFileName = "config.json";
     fmus : Fmu[] = [];
-
     config: Object;
 
     sessionId = -1
@@ -91,17 +90,21 @@ export class CoeController {
         // }
         this.addFmu();
     }
+    removeFmu(fmu: Fmu){
+        this.fmusDiv.removeChild(fmu.getHtml());
+        this.fmus.splice(this.fmus.indexOf(fmu),1);
+    };
     
     addFmu(){
-        $(this.fmusDiv).append($('<div>').load("coe/fmu.html", (event : JQueryEventObject) => {
-            let index : number = this.fmusDiv.children.length - 1;
-            let newFmu : Fmu = new Fmu(index, <HTMLDivElement>this.fmusDiv.lastChild, "{FMU" + index.toString()+ "}");
-            this.fmus.push(newFmu);
-        }))
-        // $("<div>").load("fmu.html", (event : JQueryEventObject) => {
-        //     this.fmusDiv.appendChild
-        // })
-        // let loadedContent = $(this.fmusDiv).append()
+        // https://forum.jquery.com/topic/load-but-append-data-instead-of-replace
+        let self = this;
+        $('<div>').load("coe/fmu.html", function(event : JQueryEventObject) {
+            let fmuHtml : HTMLElement = <HTMLElement>(<HTMLDivElement>this).firstChild;
+            let newFmu : Fmu = new Fmu(fmuHtml, self.removeFmu.bind(self), "{FMU" + self.fmuCounter + "}");
+            self.fmus.push(newFmu);
+            self.fmusDiv.appendChild(fmuHtml);
+            self.fmuCounter++;            
+        });
     }
 
     getConfigFile(): string {
