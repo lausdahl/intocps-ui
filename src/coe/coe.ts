@@ -3,6 +3,7 @@
 ///<reference path="../../typings/browser/ambient/github-electron/index.d.ts"/>
 ///<reference path="../../typings/browser/ambient/node/index.d.ts"/>
 ///<reference path="../../typings/browser/ambient/jquery/index.d.ts"/>
+import {Fmu} from "./fmu"
 export class CoeController {
 
     url: string = "http://localhost:8082/";
@@ -24,8 +25,9 @@ export class CoeController {
     liveStreamCanvas: HTMLCanvasElement;
     canvasContext: CanvasRenderingContext2D;
     liveChart: any;
-
+    fmusDiv : HTMLDivElement;
     configFileName = "config.json";
+    fmus : Fmu[] = [];
 
     config: Object;
 
@@ -43,6 +45,7 @@ export class CoeController {
 
     initialize() {
         this.projectRootPath = <HTMLInputElement>document.getElementById("projectRootPathText");
+        this.fmusDiv = <HTMLDivElement>document.getElementById("fmusDiv");
         this.projectRootPath.value = "C:\\source\\into-cps-public\\test-sim";
         this.setProgress(0, null);
         this.initializeChart();
@@ -82,12 +85,23 @@ export class CoeController {
     }
 
     launchProjectExplorer() {
-        let dialogResult: string[] = this.dialog.showOpenDialog({ properties: ["openDirectory"] });
-        if (dialogResult != undefined) {
-            this.projectRootPath.value = dialogResult[0];
-        }
-
-
+        // let dialogResult: string[] = this.dialog.showOpenDialog({ properties: ["openDirectory"] });
+        // if (dialogResult != undefined) {
+        //     this.projectRootPath.value = dialogResult[0];
+        // }
+        this.addFmu();
+    }
+    
+    addFmu(){
+        $(this.fmusDiv).append($('<div>').load("coe/fmu.html", (event : JQueryEventObject) => {
+            let index : number = this.fmusDiv.children.length - 1;
+            let newFmu : Fmu = new Fmu(index, <HTMLDivElement>this.fmusDiv.lastChild, "{FMU" + index.toString()+ "}");
+            this.fmus.push(newFmu);
+        }))
+        // $("<div>").load("fmu.html", (event : JQueryEventObject) => {
+        //     this.fmusDiv.appendChild
+        // })
+        // let loadedContent = $(this.fmusDiv).append()
     }
 
     getConfigFile(): string {

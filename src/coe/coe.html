@@ -1,11 +1,20 @@
+<style>
+    /*h3{
+        display: flex;
+        align-items: center;
+    }*/
+
+h2 > button,
+h2 > span {
+  vertical-align: middle;
+}
+</style>
 <div class="row">
     <div class="col-md-1"></div>
     <div class="col-md-10">
 
         <div class="form-group">
-            <label for="projectRootPathText">
-            Project root path:
-        </label>
+            <label for="projectRootPathText">Project root path:</label>
             <div class="input-group">
                 <input type="text" class="form-control input-sm" id="projectRootPathText">
                 <span class="input-group-btn">
@@ -15,6 +24,18 @@
                 </span>
             </div>
         </div>
+
+        <!-- FMUS AREA -->
+
+        <h2><span>FMUs</span>
+            <button type="button" class="btn btn-default btn-xs" onclick="coeController.addFmu()">
+                <span class="glyphicon glyphicon-plus"></span>
+            </button>
+        </h2>
+        <form class="form-horizontal">
+            <div id="fmusDiv">
+            </div>
+        </form>
 
         <p><label for="launchSimBut">
             Simulation:
