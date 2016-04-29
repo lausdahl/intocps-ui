@@ -6,6 +6,7 @@
 
 import * as Main from  "../main/Settings.ts"
 import * as IntoCpsApp from  "../main/IntoCpsApp.ts"
+import {IntoCpsAppEvents} from "../main/IntoCpsAppEvents";
 
 export class CoeController {
 
@@ -36,9 +37,9 @@ export class CoeController {
     sessionId = -1
 
     public chartIds: string[] = [];
-    
+
     app: IntoCpsApp.IntoCpsApp;
-    
+
     // Here we import the File System module of node
     private fs = require('fs');
 
@@ -53,6 +54,15 @@ export class CoeController {
         this.projectRootPath.value = "C:\\source\\into-cps-public\\test-sim";
         this.setProgress(0, null);
         this.initializeChart();
+
+
+        var remote = require('remote');
+        var Menu = remote.require('menu');
+        var ipc = require('electron').ipcRenderer;
+        ipc.on(IntoCpsAppEvents.PROJECT_CHANGED, function (event, arg) {
+            console.log("project-changed");  // prints "ping"
+
+        });
     }
 
     initializeChart() {
@@ -92,7 +102,7 @@ export class CoeController {
         let dialogResult: string[] = this.dialog.showOpenDialog({ properties: ["openDirectory"] });
         if (dialogResult != undefined) {
             this.projectRootPath.value = dialogResult[0];
-            this.app.createProject("my project",this.projectRootPath.value);
+            this.app.createProject("my project", this.projectRootPath.value);
         }
 
 

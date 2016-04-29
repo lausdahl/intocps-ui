@@ -6,48 +6,57 @@ import {IntoCpsAppEvents} from "./IntoCpsAppEvents"
 export default class CreateProjectHandler {
 
     controller: IntoCpsApp;
+    win: any = null;
 
     constructor(intoCpsApp: IntoCpsApp) {
         this.controller = intoCpsApp;
     }
 
     public install() {
-        let _this = this;
+
         const electron = require('electron');
 
         // Module to create native browser window.
         const BrowserWindow = electron.BrowserWindow;
 
-        var win: any = null;
+
         //IPC handlers
         var ipcMain = require('electron').ipcMain
         ipcMain.on(IntoCpsAppEvents.OPEN_CREATE_PROJECT_WINDOW, (event, arg) => {
             console.log(arg);  // prints "ping"
             //event.sender.send('asynchronous-reply', 'pong');
-            win = new BrowserWindow({ width: 300, height: 200, show: false });
-
-            // Open the DevTools.
-            //win.webContents.openDevTools();
-
-            win.on('closed', function () {
-                win = null;
-            });
-
-            win.loadURL('file://' + __dirname + '/../new-project.html');
-            win.show();
+            this.openCreateWindow();
         });
 
 
-        ipcMain.on('new-project-create', function (event, arg) {
+        ipcMain.on('new-project-create', (event, arg) => {
             console.log("new-project-create: Name: " + arg.name + " Path: " + arg.path);  // prints "ping"
-            _this.controller.createProject(arg.name, arg.path);
-            win.close();
+            this.controller.createProject(arg.name, arg.path);
+            this.win.close();
         });
 
 
     }
 
+    public openCreateWindow() {
 
+        const electron = require('electron');
+
+        // Module to create native browser window.
+        const BrowserWindow = electron.BrowserWindow;
+
+        this.win = new BrowserWindow({ width: 300, height: 200, show: false });
+
+        // Open the DevTools.
+        //win.webContents.openDevTools();
+
+        this.win.on('closed', function () {
+            this.win = null;
+        });
+
+        this.win.loadURL('file://' + __dirname + '/../new-project.html');
+        this.win.show();
+    }
 
 }
 export {CreateProjectHandler}

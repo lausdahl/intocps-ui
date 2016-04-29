@@ -19,6 +19,11 @@ let intoCpsApp = new IntoCpsApp(app);
 
 global.intoCpsApp = intoCpsApp;
 
+var createProjectHandler = new CreateProjectHandler(global.intoCpsApp);
+
+// Definitions needed for menu construction
+var defaultMenu = require('electron-default-menu')
+var Menu = require('menu')
 
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -34,8 +39,33 @@ function createWindow() {
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
-  
+
   intoCpsApp.setWindow(mainWindow);
+
+
+  // Get template for default menu 
+  var menu = defaultMenu()
+
+
+  let mw = mainWindow;
+
+  // Add custom menu 
+  menu.splice(4, 0, {
+    label: 'Into-Cps-App',
+    submenu: [
+
+      {
+        label: 'New Project',
+        click: function (item, focusedWindow) {
+          createProjectHandler.openCreateWindow();
+        }
+
+      }
+    ]
+  })
+
+  // Set top-level application menu, using modified template 
+  Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
@@ -68,5 +98,5 @@ app.on('activate', function () {
 });
 
 
-var createProjectHandler = new CreateProjectHandler(global.intoCpsApp);
+
 createProjectHandler.install();
