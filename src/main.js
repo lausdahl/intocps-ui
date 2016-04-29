@@ -15,9 +15,9 @@ const app = electron.app;
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow;
 
+let intoCpsApp = new IntoCpsApp(app);
 
-
-global.intoCpsApp = new IntoCpsApp(app);
+global.intoCpsApp = intoCpsApp;
 
 
 
@@ -34,6 +34,8 @@ function createWindow() {
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
+  
+  intoCpsApp.setWindow(mainWindow);
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {

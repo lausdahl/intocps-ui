@@ -11,28 +11,30 @@
     <link rel="stylesheet" href="css/layout-default.css">
     <!--Styles to fix issues with related to responsiveness and padding of ui-layout-->
     <style>
-        .no-top-padding{
+        .no-top-padding {
             margin-top: -10px;
         }
-        .full-width{
+        
+        .full-width {
             margin-left: -10px;
             margin-right: -10px;
         }
     </style>
-<script>
-    
-    var remote  = require('remote');
+
+    <script>
+        var remote  = require('remote');
 var Menu    = remote.require('menu');
 var ipc     = require('electron').ipcRenderer;
 
 var menu = Menu.buildFromTemplate([
+    {},
   {
     label: 'File',
     submenu: [
       {
         label: 'New Project',
         click: function() {
-          ipc.sendSync('menu-new-project');
+          ipc.send(/*IntoCpsAppEvents.OPEN_CREATE_PROJECT_WINDOW*/'open-create-project-window');
         }
       }
     ]
@@ -58,9 +60,7 @@ window.addEventListener('contextmenu', function (e) {
   // Set top-level application menu, using modified template 
  // Menu.setApplicationMenu(menu);
 
-    
-    
-</script>
+    </script>
 </head>
 
 <body>

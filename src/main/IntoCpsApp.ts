@@ -9,9 +9,11 @@ import {ISettingsValues} from "./ISettingsValues"
 import {Settings} from "./Settings"
 import {IProject} from "./IProject"
 import {Project} from "./Project"
+import {IntoCpsAppEvents} from "./IntoCpsAppEvents";
 
 export default class IntoCpsApp {
     app: Electron.App;
+    window: Electron.BrowserWindow;
 
     settings: Settings;
 
@@ -25,7 +27,12 @@ export default class IntoCpsApp {
         //create settings
         this.settings = new Settings(app, intoCpsAppFolder);
         this.loadSettings(intoCpsAppFolder);
-      
+
+
+    }
+
+    public setWindow(win: Electron.BrowserWindow) {
+        this.window = win;
     }
 
 
@@ -79,7 +86,14 @@ export default class IntoCpsApp {
 
     public setActiveProject(project: IProject) {
         this.activeProject = project;
-        this.settings.setSetting("active-project",project.getProjectConfigFilePath());
+
+
+        //Fire an event to inform all controlls on main window that the project has changed
+        this.window.webContents.send(IntoCpsAppEvents.PROJECT_CHANGED);
+        console.info("Window: " + this.window);
+        console.info("send event: project-changed");
+
+        this.settings.setSetting("active-project", project.getProjectConfigFilePath());
         this.settings.save();
     }
 
