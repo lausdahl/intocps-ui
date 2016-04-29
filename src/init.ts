@@ -1,4 +1,4 @@
-/// <reference path="../custom-typings/layout.d.ts"/>"
+/// <reference path="../typings/browser/ambient/jquery.ui.layout/index.d.ts"/>"
 
 import {CoeController} from  "./coe/coe";
 
@@ -7,7 +7,7 @@ var mainViewId : string = "mainView";
 
 // Initialise controllers so they persist
 var coeController = new CoeController();
-var myLayout : any;
+var myLayout : JQueryUILayout.Layout;
 
 
 /// Switch active tab marker
