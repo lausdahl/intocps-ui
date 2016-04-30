@@ -24,7 +24,8 @@ const userPath = function () {
 const intoCpsAppFolder = path.normalize(userPath + "/intoCpsApp");
 
 global.intoCpsApp = {
-  "settings": new settings(app, intoCpsAppFolder)
+  "settings": new settings(app, intoCpsAppFolder),
+  "platform" : process.platform
 }
 
 //Create intoCpsApp folder if it does not exist

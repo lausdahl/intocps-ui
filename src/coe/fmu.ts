@@ -5,9 +5,11 @@ export class Fmu {
     html: HTMLElement;
     pathTextField: HTMLInputElement
     dialog: Electron.Dialog;
+    platform: string;
     constructor(html: HTMLElement, removeCallBack: (fmu: Fmu) => void, fmuName?: string, path?: string) {
-        this.dialog = require("remote").require("dialog");
-
+        let remote: Electron.Remote = require("electron").remote;
+        this.dialog = remote.require("dialog");
+        this.platform = remote.getGlobal("intoCpsApp").platform;
         this.html = html;
 
         this.pathTextField = <HTMLInputElement>this.html.querySelector("#fmuPath");
@@ -19,11 +21,7 @@ export class Fmu {
         if (fmuName != null) {
             this.fmuName.innerText = fmuName;
         }
-        
-        let fileBrowseButton = <HTMLButtonElement>this.html.querySelector("#fmuFileBrowseBut");
-        Fmu.addBrowseOnClickHandler(fileBrowseButton, this.pathTextField, this.dialog, ['openFile']);
-        let dirBrowseButton = <HTMLButtonElement>this.html.querySelector("#fmuDirBrowseBut");
-        Fmu.addBrowseOnClickHandler(dirBrowseButton, this.pathTextField, this.dialog, ['openDirectory']);
+        this.addBrowseButtons();
         let removeButton = <HTMLButtonElement>this.html.querySelector("#fmuRemoveBut");
         Fmu.addRemoveOnClickHandler(removeButton, removeCallBack, this);
     }
@@ -46,12 +44,24 @@ export class Fmu {
         }
     }
 
-    private addButtons() {
-                let html = `<button type="button" class="btn btn-default btn-sm" id="browse1"><span class="glyphicon glyphicon-file"></span><span class="glyphicon glyphicon-file"></span></button>`
-                let element = document.createElement("div")
-                element.innerHTML = html;
-                let span: HTMLSpanElement = <HTMLSpanElement>this.html.querySelector("#fmuSpanBts")
-                span.insertBefore(element.firstChild, span.firstChild)
-            }
-        
+    private addBrowseButtons() {
+        let span: HTMLSpanElement = <HTMLSpanElement>this.html.querySelector("#fmuSpanBts");
+        if (this.platform !== "darwin") {
+            let html = `<button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-file"></span> File</button><button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-folder-open"></span> Folder </button>`
+            let element = document.createElement("div")
+            element.innerHTML = html;
+            Fmu.addBrowseOnClickHandler(<HTMLButtonElement>element.lastChild, this.pathTextField, this.dialog, ["openDirectory"])
+            span.insertBefore(element.lastChild, span.firstChild)
+            Fmu.addBrowseOnClickHandler(<HTMLButtonElement>element.firstChild, this.pathTextField, this.dialog, ["openFile"])
+            span.insertBefore(element.firstChild, span.firstChild)
+        }
+        else {
+            let html = `<button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-file"></span><span class="glyphicon glyphicon-folder-open"></span> File/Folder</button>`
+            let element = document.createElement("div")
+            element.innerHTML = html;
+            Fmu.addBrowseOnClickHandler(<HTMLButtonElement>element.firstChild, this.pathTextField, this.dialog, ["openFile", "openDirectory"])
+            span.insertBefore(element.firstChild, span.firstChild)
+        }
     }
+
+}
