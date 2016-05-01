@@ -60,6 +60,16 @@ function createWindow() {
           createProjectHandler.openCreateWindow();
         }
 
+      },
+      {
+        label: 'Settings',
+        click: function (item, focusedWindow) {
+          var settingsWin = new BrowserWindow({ width: 300, height: 600, show: false });
+          settingsWin.loadURL('file://' + __dirname + '/settings/settings.html');
+          //settingsWin.openDevTools();
+          settingsWin.show();
+        }
+
       }
     ]
   })
@@ -74,6 +84,16 @@ function createWindow() {
     // when you should delete the corresponding element.
     mainWindow = null;
   });
+
+  /* //We cannot fire any events indicating that the active project has been loaded since we dont know when all recievers are loaded and ready
+    mainWindow.on('minimize', function () {
+      //Activate project
+      console.info("Setting active project on show")
+      let p = global.intoCpsApp.getActiveProject();
+      console.info(p);
+      global.intoCpsApp.setActiveProject(p);
+  
+    });*/
 }
 
 // This method will be called when Electron has finished
