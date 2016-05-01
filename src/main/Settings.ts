@@ -20,23 +20,22 @@ export default class Settings implements ISettingsValues {
     this.settingsFile = path.normalize(this.intoCpsAppFolder + "/settings.json");
   }
 
-  initializeSettings() {
-    // Check if file exists
-    fs.lstat(this.settingsFile, (err, data) => {
-      if (err || !data.isFile()) {
-        console.log("Settings file does not exist. Creating the file " + this.settingsFile + ".");
-        this.storeSettings();
-      }
-      else {
-        console.log("Loading settings from" + this.settingsFile + ".");
-        this.loadSettings();
-      }
-    });
-  }
-  
-  public save()
-  {
-     this.storeSettings();
+  /* initializeSettings() {
+     // Check if file exists
+     fs.lstat(this.settingsFile, (err, data) => {
+       if (err || !data.isFile()) {
+         console.log("Settings file does not exist. Creating the file " + this.settingsFile + ".");
+         this.storeSettings();
+       }
+       else {
+         console.log("Loading settings from" + this.settingsFile + ".");
+         this.load();
+       }
+     });
+   }*/
+
+  public save() {
+    this.storeSettings();
   }
 
   storeSettings() {
@@ -49,7 +48,7 @@ export default class Settings implements ISettingsValues {
           if (err) {
             console.log("Failed to write settings in : " + this.settingsFile + ".");
           }
-          else{
+          else {
             console.log("Stored settings in : " + this.settingsFile + ".");
           }
           fs.close(fd, (err) => {
@@ -63,17 +62,41 @@ export default class Settings implements ISettingsValues {
     });
   }
 
-  loadSettings() {
-    fs.readFile(this.settingsFile, (err, data) => {
-      if (err) {
-        console.log("Failed to read settings from file: " + this.settingsFile + ".");
-        throw err;
+  load() {
+    try {
+
+      var initial = false;
+      try {
+        if (!fs.statSync(this.settingsFile).isFile()) {
+          initial = true;
+        }
+      } catch (e) {
+        initial = true;
       }
-      else {        
-        this.intoCpsDataObject = JSON.parse(data.toString());
-        console.log("Finished loading settings.")
+
+      if (initial) { //no settings file created yet, just use DOM
+        this.intoCpsDataObject = {};
+        return;
       }
-    });
+
+      this.intoCpsDataObject = JSON.parse(fs.readFileSync(this.settingsFile, "UTF-8"));
+    } catch (e) {
+      console.log("Failed to read settings from file: " + this.settingsFile + ".");
+      throw e;
+    }
+    console.info(this.intoCpsDataObject);
+    console.log("Finished loading settings.");
+    /* fs.readFile(this.settingsFile, (err, data) => {
+       if (err) {
+         console.log("Failed to read settings from file: " + this.settingsFile + ".");
+         throw err;
+       }
+       else {        
+         this.intoCpsDataObject = JSON.parse(data.toString());
+         console.info(this.intoCpsDataObject);
+         console.log("Finished loading settings.");
+       }
+     });*/
   }
 
   setSetting(key: string, value: any) {

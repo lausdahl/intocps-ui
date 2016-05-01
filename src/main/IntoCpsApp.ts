@@ -10,6 +10,7 @@ import {Settings} from "./Settings"
 import {IProject} from "./IProject"
 import {Project} from "./Project"
 import {IntoCpsAppEvents} from "./IntoCpsAppEvents";
+import {SettingKeys} from "./SettingKeys";
 
 export default class IntoCpsApp {
     app: Electron.App;
@@ -23,12 +24,24 @@ export default class IntoCpsApp {
         this.app = app;
 
         const intoCpsAppFolder = this.createAppFolderRoot(app);
-
+        this.createDirectoryStructure(intoCpsAppFolder);
         //create settings
         this.settings = new Settings(app, intoCpsAppFolder);
-        this.loadSettings(intoCpsAppFolder);
+        this.settings.load()
 
+        let fs = require('fs');
+        let activeProjectPath = this.settings.getSetting(SettingKeys.ACTIVE_PROJECT);
+        try {
+            if (!fs.accessSync(activeProjectPath, fs.R_OK)) {
 
+                this.activeProject = this.loadProject(activeProjectPath);
+            } else {
+                console.error("Could not read the active project path from settings: " + activeProjectPath);
+            }
+        } catch (e) {
+            console.warn(e);
+            console.warn("Unable to set active project from settings: " + activeProjectPath)
+        }
     }
 
     public setWindow(win: Electron.BrowserWindow) {
@@ -53,28 +66,13 @@ export default class IntoCpsApp {
         return path.normalize(userPath + "/intoCpsApp");
     }
 
-
-    private loadSettings(path: string) {
-        //Create intoCpsApp folder if it does not exist
-        fs.lstat(path, (err, data) => {
-            if (err || !data.isDirectory()) {
-                fs.mkdir(path, (err) => {
-                    if (err) {
-                        console.log("The error: " + err + " occured when attempting to create the directory: " + path + ".");
-                        throw err;
-                    }
-                    else {
-                        this.settings.initializeSettings();
-                    }
-                });
-            }
-            else {
-                this.settings.initializeSettings();
-            }
-        });
-
+    private createDirectoryStructure(path: string) {
+        try {
+            fs.mkdirSync(path);
+        } catch (e) {
+            //the path probably already existed
+        }
     }
-
 
     public getSettings(): ISettingsValues {
         return this.settings;
@@ -85,18 +83,30 @@ export default class IntoCpsApp {
     }
 
     public setActiveProject(project: IProject) {
+
+        if (project == null)
+            return;
+
         this.activeProject = project;
 
-
         //Fire an event to inform all controlls on main window that the project has changed
-        this.window.webContents.send(IntoCpsAppEvents.PROJECT_CHANGED);
-        console.info("Window: " + this.window);
-        console.info("send event: project-changed");
+        this.fireEvent(IntoCpsAppEvents.PROJECT_CHANGED);
 
-        this.settings.setSetting("active-project", project.getProjectConfigFilePath());
+
+        this.settings.setSetting(SettingKeys.ACTIVE_PROJECT, project.getProjectConfigFilePath());
         this.settings.save();
     }
 
+
+    // Fires an ipc event using the window webContent if defined
+    private fireEvent(event: string) {
+        if (this.window != undefined) {
+            //Fire an event to inform all controlls on main window that the project has changed
+            this.window.webContents.send(IntoCpsAppEvents.PROJECT_CHANGED);
+            // console.info("Window: " + this.window);
+            console.info("fire event: " + event);
+        }
+    }
 
 
     public createProject(name: string, path: string) {
@@ -106,30 +116,32 @@ export default class IntoCpsApp {
     }
 
     loadProject(path: string): IProject {
-        let config = Path.normalize(path + "/.project.json");
+        console.info("Loading project from: " + path)
+        let config = Path.normalize(path);
         var content = fs.readFileSync(config, "utf8");
         var project = SerializationHelper.toInstance(new Project("", "", ""), content.toString());
-        console.info("Project name is: " + project.getName());
-        this.setActiveProject(project);
+        //console.info("Loaded project: " + project);
+        //console.info("Project name is: " + project.getName());
         return project;
     }
 
 
 }
 
+// http://stackoverflow.com/questions/29758765/json-to-typescript-class-instance
 class SerializationHelper {
     static toInstance<T>(obj: T, json: string): T {
         var jsonObj = JSON.parse(json);
 
-        /*     if (typeof obj["fromJSON"] === "function") {
-                 obj["fromJSON"](jsonObj);
-             }
-             else {
-                 for (var propName in jsonObj) {
-                     obj[propName] = jsonObj[propName]
-                 }
-             }
-     */
+        if (typeof obj["fromJSON"] === "function") {
+            obj["fromJSON"](jsonObj);
+        }
+        else {
+            for (var propName in jsonObj) {
+                obj[propName] = jsonObj[propName]
+            }
+        }
+
         return obj;
     }
 }
