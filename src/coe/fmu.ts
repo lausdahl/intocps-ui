@@ -45,23 +45,26 @@ export class Fmu {
     }
 
     private addBrowseButtons() {
+        let getButtonFragment = (platform: string, range: Range) => {
+            if (platform !== "darwin") {
+                let html = `<button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-file"></span> File</button><button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-folder-open"></span> Folder </button>`
+                let docFragment = range.createContextualFragment(html);
+                Fmu.addBrowseOnClickHandler(<HTMLButtonElement>docFragment.lastChild, this.pathTextField, this.dialog, ["openDirectory"]);
+                Fmu.addBrowseOnClickHandler(<HTMLButtonElement>docFragment.firstChild, this.pathTextField, this.dialog, ["openFile"]);
+                return docFragment;
+            }
+            else {
+                let html = `<button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-file"></span><span class="glyphicon glyphicon-folder-open"></span> File/Folder</button>`
+                let docFragment = range.createContextualFragment(html);
+                Fmu.addBrowseOnClickHandler(<HTMLButtonElement>docFragment.firstChild, this.pathTextField, this.dialog, ["openFile", "openDirectory"])
+                return docFragment;
+            }
+        }
+
         let span: HTMLSpanElement = <HTMLSpanElement>this.html.querySelector("#fmuSpanBts");
-        if (this.platform !== "darwin") {
-            let html = `<button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-file"></span> File</button><button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-folder-open"></span> Folder </button>`
-            let element = document.createElement("div")
-            element.innerHTML = html;
-            Fmu.addBrowseOnClickHandler(<HTMLButtonElement>element.lastChild, this.pathTextField, this.dialog, ["openDirectory"])
-            span.insertBefore(element.lastChild, span.firstChild)
-            Fmu.addBrowseOnClickHandler(<HTMLButtonElement>element.firstChild, this.pathTextField, this.dialog, ["openFile"])
-            span.insertBefore(element.firstChild, span.firstChild)
-        }
-        else {
-            let html = `<button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-file"></span><span class="glyphicon glyphicon-folder-open"></span> File/Folder</button>`
-            let element = document.createElement("div")
-            element.innerHTML = html;
-            Fmu.addBrowseOnClickHandler(<HTMLButtonElement>element.firstChild, this.pathTextField, this.dialog, ["openFile", "openDirectory"])
-            span.insertBefore(element.firstChild, span.firstChild)
-        }
+        let range: Range = document.createRange();
+        let buttonFragment = getButtonFragment(this.platform, range);
+        span.insertBefore(buttonFragment, span.firstChild);
     }
 
 }
