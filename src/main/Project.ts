@@ -2,6 +2,7 @@
 ///<reference path="../../typings/browser/ambient/node/index.d.ts"/>
 
 import fs = require('fs');
+import Path = require('path');
 
 import {IProject} from "./IProject.ts"
 
@@ -28,6 +29,19 @@ export class Project implements IProject {
     public getProjectConfigFilePath(): string { return this.configPath }
 
     public save() {
+
+        let folders = ["FMUs", "Models", "Multi-models", "Design Space Explorations", "Connection maps"];
+
+        for (var i = 0; folders.length > i; i++) {
+            try {
+                var folder = folders[i];
+                let path = Path.normalize(this.rootPath+"/"+folder);
+                fs.mkdir(path,function (err){});
+            } catch (e) {
+                //already exists
+            }
+        }
+
         fs.open(this.configPath, "w", (err, fd) => {
             if (err) {
                 "The error: " + err + " happened when attempting to open the file: " + this.configPath + " for writing.";

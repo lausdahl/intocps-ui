@@ -3,10 +3,12 @@
 ///<reference path="../../typings/browser/ambient/github-electron/index.d.ts"/>
 ///<reference path="../../typings/browser/ambient/node/index.d.ts"/>
 ///<reference path="../../typings/browser/ambient/jquery/index.d.ts"/>
+/// <reference path="../../node_modules/typescript/lib/lib.es6.d.ts" />
 
 import * as Main from  "../main/Settings.ts"
 import * as IntoCpsApp from  "../main/IntoCpsApp.ts"
 import {IntoCpsAppEvents} from "../main/IntoCpsAppEvents";
+import * as Collections from 'typescript-collections';
 
 export class CoeController {
 
@@ -506,5 +508,66 @@ class SimulationCallbackHandler {
             }
             return '<span class="' + cls + '">' + match + '</span>';
         });
+    }
+}
+
+
+class CoeConfig {
+    //fmu ID to project relative file path
+    fmus: Map<String, String> = new Map<string, string>();
+    //final parameters for the COE
+    parameters: Map<String, any> = new Map<String, any>();
+    //connection mapping
+    connections: Map<String, Collections.LinkedList<String>> = new Map<String, Collections.LinkedList<String>>();
+    //optional livestream outputs
+    livestream: Map<String, Collections.LinkedList<String>> = new Map<String, Collections.LinkedList<String>>();
+    //TODO: algorithm
+    algorithm: string = null;
+
+
+    public loadFromMultiModel(path: string) {
+        let _this = this;
+        // Here we import the File System module of node
+        let fs = require('fs');
+        try {
+            if (fs.accessSync(path, fs.R_OK)) {
+                return;
+            }
+            var content = fs.readFileSync(path, "utf8");
+            console.log("Asynchronous read: " + content.toString());
+            var jsonData = JSON.parse(content.toString());
+            console.log(jsonData);
+
+            $.each(Object.keys(jsonData), function (j, key) {
+
+                if (key.indexOf("connections") == 0) {
+                    var connectionsEntry = jsonData[key];
+                    $.each(Object.keys(connectionsEntry), function (j, outputKey) {
+                        let inputList = connectionsEntry[outputKey];
+
+                        var inputs: Collections.LinkedList<String> = new Collections.LinkedList<String>();
+                        $.each(inputList, function (j, input) {
+                            inputs.add(input);
+                        });
+
+                        _this.connections.set(outputKey, inputs);
+                    });
+                }
+            });
+
+            console.info("Parsed mm: " + _this.connections);
+
+
+        } catch (e) {
+        }
+
+    }
+
+    public loadFromCoSim(path: string) {
+
+    }
+
+    public save() {
+
     }
 }
