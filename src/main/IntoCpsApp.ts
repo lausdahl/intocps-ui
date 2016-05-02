@@ -14,14 +14,16 @@ import {SettingKeys} from "./SettingKeys";
 
 export default class IntoCpsApp {
     app: Electron.App;
+    platform : String
     window: Electron.BrowserWindow;
 
     settings: Settings;
 
     activeProject: IProject = null;
 
-    constructor(app: Electron.App) {
+    constructor(app: Electron.App, processPlatform: String) {
         this.app = app;
+        this.platform = processPlatform;
 
         const intoCpsAppFolder = this.createAppFolderRoot(app);
         this.createDirectoryStructure(intoCpsAppFolder);

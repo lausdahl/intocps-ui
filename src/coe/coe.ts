@@ -5,15 +5,16 @@
 ///<reference path="../../typings/browser/ambient/jquery/index.d.ts"/>
 /// <reference path="../../node_modules/typescript/lib/lib.es6.d.ts" />
 
-import * as Main from  "../main/Settings.ts"
-import * as IntoCpsApp from  "../main/IntoCpsApp.ts"
+import * as Main from  "../main/Settings"
+import * as IntoCpsApp from  "../main/IntoCpsApp"
 import {IntoCpsAppEvents} from "../main/IntoCpsAppEvents";
+import {Fmu} from "./fmu"
 import * as Collections from 'typescript-collections';
 
 export class CoeController {
 
     url: string = "http://localhost:8082/";
-
+    fmuCounter: number = 0;
     statusCmd: string = "status/"
     createSessionCmd: string = "createSession";
     initializeSessionCmd: string = "initialize/";
@@ -31,9 +32,9 @@ export class CoeController {
     liveStreamCanvas: HTMLCanvasElement;
     canvasContext: CanvasRenderingContext2D;
     liveChart: any;
-
+    fmusDiv : HTMLDivElement;
     configFileName = "config.json";
-
+    fmus : Fmu[] = [];
     config: Object;
 
     sessionId = -1
@@ -53,6 +54,7 @@ export class CoeController {
 
     initialize() {
         this.projectRootPath = <HTMLInputElement>document.getElementById("projectRootPathText");
+        this.fmusDiv = <HTMLDivElement>document.getElementById("fmusDiv");
         this.projectRootPath.value = "C:\\source\\into-cps-public\\test-sim";
         this.setProgress(0, null);
         this.initializeChart();
@@ -106,8 +108,22 @@ export class CoeController {
             this.projectRootPath.value = dialogResult[0];
             this.app.createProject("my project", this.projectRootPath.value);
         }
-
-
+    }
+    removeFmu(fmu: Fmu){
+        this.fmusDiv.removeChild(fmu.getHtml());
+        this.fmus.splice(this.fmus.indexOf(fmu),1);
+    };
+    
+    addFmu(){
+        // https://forum.jquery.com/topic/load-but-append-data-instead-of-replace
+        let self = this;
+        $('<div>').load("coe/fmu.html", function(event : JQueryEventObject) {
+            let fmuHtml : HTMLElement = <HTMLElement>(<HTMLDivElement>this).firstChild;
+            let newFmu : Fmu = new Fmu(fmuHtml, self.removeFmu.bind(self), "{FMU" + self.fmuCounter + "}");
+            self.fmus.push(newFmu);
+            self.fmusDiv.appendChild(fmuHtml);
+            self.fmuCounter++;            
+        });
     }
 
     getConfigFile(): string {

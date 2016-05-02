@@ -1,3 +1,14 @@
+<style>
+    /*h3{
+        display: flex;
+        align-items: center;
+    }*/
+
+h2 > button,
+h2 > span {
+  vertical-align: middle;
+}
+</style>
 <div class="row">
     <div class="col-md-1"></div>
     <div class="col-md-10">
@@ -16,7 +27,9 @@
             </div>
         </div>
 
- <div class="form-group">
+
+
+         <div class="form-group">
             <label for="projectRootPathText">
             Simulation time:
         </label>
@@ -27,7 +40,18 @@
                End time: <input type="text" id="input-sim-time-end" class="form-control bfh-number" value="10" data-min="0.00000000000001"  data-wrap="true">
             </div>
         </div>
+        
+        <!-- FMUS AREA -->
 
+        <h2><span>FMUs</span>
+            <button type="button" class="btn btn-default btn-xs" onclick="coeController.addFmu()">
+                <span class="glyphicon glyphicon-plus"></span>
+            </button>
+        </h2>
+        <form class="form-horizontal">
+            <div id="fmusDiv">
+            </div>
+        </form>
 
         <p><label for="launchSimBut">
             Simulation:

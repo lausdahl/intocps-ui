@@ -3,19 +3,16 @@
 const electron = require('electron');
 const fs = require('fs');
 const path = require('path');
-
-
 var settings = require("./main/Settings.js").default;
-var IntoCpsApp = require("./main/IntoCpsApp.js").default;
+var IntoCpsApp = require("./main/IntoCpsApp").default;
 var CreateProjectHandler = require("./main/CreateProjectHandler").default;
-//var IntoCpsApp = require('IntoCpsApp');
 
 // Module to control application life.
 const app = electron.app;
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow;
 
-let intoCpsApp = new IntoCpsApp(app);
+let intoCpsApp = new IntoCpsApp(app, process.platform);
 
 global.intoCpsApp = intoCpsApp;
 
