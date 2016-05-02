@@ -5,7 +5,7 @@
 
 // Locations 
 var outputPath = 'dist/',
-    htmlSrcs = 'src/**/*.html',
+    htmlSrcs = ['src/**/*.html'],
     jsSrcs = 'src/**/*.js',
     lintTsSrcs = ['src/**/*.ts'],
     tsSrcs = ['src/**/*.ts', 'typings/browser/**/*.ts'],
@@ -25,7 +25,6 @@ var gulp = require('gulp'),
     filter = require('gulp-filter'),
     debug = require('gulp-debug'),
     typings = require('gulp-typings'),
-    watch = require('gulp-watch'),
     bower = require('gulp-bower'),
     merge = require('merge-stream');
 
@@ -111,10 +110,10 @@ gulp.task('build', ['compile-ts', 'copy-js', 'copy-html', 'copy-css', 'copy-bowe
 
 
 // Watch for changes and rebuild on the fly
-gulp.task('stream', function () {
-    return gulp.src(htmlSrcs)
-        .pipe(watch(htmlSrcs))
-        .pipe(gulp.dest(outputPath));
+gulp.task('watch', function () {
+    gulp.watch(htmlSrcs,['copy-html']);
+    gulp.watch(jsSrcs,['copy-js']);
+    gulp.watch(tsSrcs,['compile-ts']);
 });
 
 
