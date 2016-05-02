@@ -10,8 +10,11 @@ var outputPath = 'dist/',
     lintTsSrcs = ['src/**/*.ts'],
     tsSrcs = ['src/**/*.ts', 'typings/browser/**/*.ts'],
     bowerFolder = 'bower_components',
+    resourcesFolder = 'src/resources',
     typingsFolder = 'typings',
-    cssSrcs = [bowerFolder + '/bootstrap/dist/css/bootstrap.css', bowerFolder + '/jquery-layout/source/stable/layout-default.css'],
+    cssSrcs = [bowerFolder + '/bootstrap/dist/css/bootstrap.css',
+        bowerFolder + '/jquery-layout/source/stable/layout-default.css',
+        resourcesFolder + '/w2ui-1.5/w2ui.min.css'],
     bowerSrcs = bowerFolder + '/jquery-layout/source/stable/jquery.layout.min.js';
 
 // Tools.
@@ -31,19 +34,19 @@ var gulp = require('gulp'),
 // Tasks
 
 // Install typings
-gulp.task("install-ts-defs",function(){
+gulp.task("install-ts-defs", function () {
     gulp.src("./typings.json")
-        .pipe(typings()); 
+        .pipe(typings());
 });
 
 // Install bower components
-gulp.task('install-bower-components', function() {
-  return bower();
+gulp.task('install-bower-components', function () {
+    return bower();
 });
 
 // Clean everything!
-gulp.task("clean", function() {
-    return del( [
+gulp.task("clean", function () {
+    return del([
         outputPath,
         bowerFolder,
         typingsFolder
@@ -51,12 +54,12 @@ gulp.task("clean", function() {
 });
 
 // Lint TS (check for rule violations)
-gulp.task("lint-ts", function() {
+gulp.task("lint-ts", function () {
     return gulp.src(lintTsSrcs).pipe(lint()).pipe(lint.report('prose', { emitError: false }));
 });
 
 // Compile TS->JS with sourcemaps. Also move it into the outputfolder
-gulp.task("compile-ts", function() {
+gulp.task("compile-ts", function () {
     var tsResult = gulp.src(tsSrcs)
         .pipe(sourcemap.init())
         .pipe(ts(tsProject));
@@ -69,41 +72,41 @@ gulp.task("compile-ts", function() {
 
 // Copy important bower files to destination
 // mainBowerFiles does not take jquery-ui and jquery-layout
-gulp.task('copy-bower', function() {
-    var path1= gulp.src(mainBowerFiles())
+gulp.task('copy-bower', function () {
+    var path1 = gulp.src(mainBowerFiles())
         .pipe(filter('**/*.js'))
         .pipe(gulp.dest(outputPath + bowerFolder));
-    var path2= gulp.src(bowerSrcs).pipe(gulp.dest(outputPath + bowerFolder));
+    var path2 = gulp.src(bowerSrcs).pipe(gulp.dest(outputPath + bowerFolder));
     return merge(path1, path2);
 });
 
 // Copy bootstrap fonts to destination
-gulp.task('copy-fonts', function() {
-    return gulp.src(bowerFolder+'/bootstrap/fonts/**/*').pipe(gulp.dest(outputPath + 'fonts'))
+gulp.task('copy-fonts', function () {
+    return gulp.src(bowerFolder + '/bootstrap/fonts/**/*').pipe(gulp.dest(outputPath + 'fonts'))
 });
 
 
 // Copy css to app folder
-gulp.task('copy-css', function() {
+gulp.task('copy-css', function () {
     gulp.src(cssSrcs).pipe(gulp.dest(outputPath + 'css'));
 });
 
 // Copy html to app folder
-gulp.task('copy-html', function() {
+gulp.task('copy-html', function () {
     gulp.src(htmlSrcs)
         // process html here if needed
         .pipe(gulp.dest(outputPath));
 });
 
 // Copy js to app folder
-gulp.task('copy-js', function() {
+gulp.task('copy-js', function () {
     gulp.src(jsSrcs)
         // process js here if needed
         .pipe(gulp.dest(outputPath));
 });
 
 // Grab non-npm dependencies
-gulp.task('init', ['install-ts-defs','install-bower-components']);
+gulp.task('init', ['install-ts-defs', 'install-bower-components']);
 
 //Build App
 gulp.task('build', ['compile-ts', 'copy-js', 'copy-html', 'copy-css', 'copy-bower', 'copy-fonts']);
@@ -111,9 +114,9 @@ gulp.task('build', ['compile-ts', 'copy-js', 'copy-html', 'copy-css', 'copy-bowe
 
 // Watch for changes and rebuild on the fly
 gulp.task('watch', function () {
-    gulp.watch(htmlSrcs,['copy-html']);
-    gulp.watch(jsSrcs,['copy-js']);
-    gulp.watch(tsSrcs,['compile-ts']);
+    gulp.watch(htmlSrcs, ['copy-html']);
+    gulp.watch(jsSrcs, ['copy-js']);
+    gulp.watch(tsSrcs, ['compile-ts']);
 });
 
 
