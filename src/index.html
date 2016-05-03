@@ -6,47 +6,31 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>New INTO-CPS App</title>
+    <title>INTO-CPS App</title>
     <link rel="stylesheet" href="css/bootstrap.css">
-    <link rel="stylesheet" href="css/layout-default.css">
+    <link rel="stylesheet" href="css/w2ui.min.css">
     <!--Styles to fix issues with related to responsiveness and padding of ui-layout-->
     <style>
         .no-top-padding {
-            margin-top: -10px;
+            margin-top: -5px;
         }
         
         .full-width {
-            margin-left: -10px;
-            margin-right: -10px;
+            margin-left: -5px;
+            margin-right: -5px;
         }
     </style>
 </head>
 
-<body>
-    <div class="ui-layout-west" id="leftView">left</div>
-
-    <div class="ui-layout-center">
-        <!-- Static navbar -->
-        <nav class="no-top-padding full-width navbar navbar-default navbar-static-top">
-            <div id="navbar" class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li class="active"><a href="#" onclick="loadCoSim();">Co-sim</a></li>
-                    <li><a href="#" onclick="loadDse();">DSE</a></li>
-                    <li><a href="#" onclick="loadMc();">MC/TDG</a></li>
-                </ul>
-            </div>
-        </nav>
-
-        <div class="full-width container-fluid" id="mainView">main</div>
-    </div>
+<body style="margin: 0px">
+    <div id="layout" style="position: absolute; width: 100%; height: 100%;"></div>
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="bower_components/jquery.js" onload="window.$ = window.jQuery = module.exports;"></script>
     <script src="bower_components/bootstrap.js"></script>
-    <script src="bower_components/jquery-ui.js"></script>
-    <script src="bower_components/jquery.layout.min.js"></script>
+    <script src="resources/w2ui-1.5/w2ui.min.js"></script>
     <script src="init.js"></script>
 </body>
 

@@ -16,8 +16,7 @@
     "ambientDependencies": {
         "github-electron": "registry:dt/github-electron#0.37.4+20160412150407",
         "jquery": "registry:dt/jquery#2.0.0+20160303223636",
-        "jquery.ui.layout": "registry:dt/jquery.ui.layout#0.0.0+20160317120654",
-        "jqueryui": "registry:dt/jqueryui#1.9.0+20160317120654",
-        "node": "registry:dt/node#4.0.0+20160412142033"
+        "node": "registry:dt/node#4.0.0+20160412142033",
+        "w2ui": "registry:dt/w2ui#1.4.3+20160501154442"
     }
 }
