@@ -9,8 +9,7 @@ var mainViewId: string = "mainView";
 
 class InitializationController {
     layout: W2UI.W2Layout;
-    coeController: CoeController = new CoeController();
-    browserController: BrowserController = new BrowserController();
+
     title: HTMLTitleElement;
     mainView: HTMLDivElement;
     constructor() {
@@ -37,11 +36,11 @@ class InitializationController {
     private setTitle() {
         //Set the title to the project name
         this.title = <HTMLTitleElement>document.querySelector('title');
-        let app: IntoCpsApp.IntoCpsApp  = require("remote").getGlobal("intoCpsApp");
+        let app: IntoCpsApp.IntoCpsApp = require("remote").getGlobal("intoCpsApp");
         if (app.getActiveProject() != null) {
             this.title.innerText = "Project: " + app.getActiveProject().getName();
         }
-        let ipc : Electron.IpcRenderer = require('electron').ipcRenderer;
+        let ipc: Electron.IpcRenderer = require('electron').ipcRenderer;
         ipc.on(IntoCpsAppEvents.PROJECT_CHANGED, function (event, arg) {
             this.title.innerText = "Project: " + app.getActiveProject().getName();
         });
@@ -61,21 +60,24 @@ class InitializationController {
             this.loadCoSim();
         });
         this.layout.load("left", "proj/projbrowserview.html", "", () => {
-            this.browserController.initialize();
+            browserController.initialize();
         });
     }
-    loadDse(){
+    loadDse() {
         $(this.mainView).load("dse/dse.html");  // fire initialise event here
     }
-    
-    loadCoSim(){
-          $(this.mainView).load("coe/coe.html", (event: JQueryEventObject) => this.coeController.initialize());
+
+    loadCoSim() {
+        $(this.mainView).load("coe/coe.html", (event: JQueryEventObject) => coeController.initialize());
     }
-    
-    loadMc(){
+
+    loadMc() {
         $(this.mainView).load("mc/mc.html") // fire initialise event here
     }
 };
+
+var coeController: CoeController = new CoeController();
+var browserController: BrowserController = new BrowserController();
 
 // Initialise controllers so they persist
 var init = new InitializationController();
