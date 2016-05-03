@@ -4,19 +4,19 @@
 import fs = require('fs');
 import Path = require('path');
 
-import {IProject} from "./IProject.ts"
-import {Container} from "./Container.ts"
-import {Config} from "./Config.ts"
-import {ConMap} from "./ConMap.ts"
+import {IProject} from "./IProject"
+import {Container} from "./Container"
+import {Config} from "./Config"
+import {ConMap} from "./ConMap"
 
 export class Project implements IProject {
 
     name: string;
     rootPath: string;
     configPath: string;
-    containers : Array<Container>=[];
-    configs: Array<Config>=[];
-    conMaps: Array<ConMap>=[];
+    containers: Array<Container> = [];
+    configs: Array<Config> = [];
+    conMaps: Array<ConMap> = [];
 
 
     PATH_FMUS: String = "FMUs";
@@ -29,9 +29,9 @@ export class Project implements IProject {
         this.name = name;
         this.rootPath = rootPath;
         this.configPath = configPath;
-      //  this.containers = containers;
-       // this.configs= configs;
-       // this.conMaps = conMaps;
+        //  this.containers = containers;
+        // this.configs= configs;
+        // this.conMaps = conMaps;
     }
 
     public getName(): string {
@@ -44,15 +44,15 @@ export class Project implements IProject {
     public getFmusPath(): string { return Path.normalize(this.getRootFilePath() + "/" + this.PATH_FMUS); }
 
     public getContainers() {
-      return this.containers;
+        return this.containers;
     }
 
     public getConfigs() {
-      return this.configs;
+        return this.configs;
     }
 
     public getConMaps() {
-      return this.conMaps;
+        return this.conMaps;
     }
 
     //TODO: replace with proper folder struct
@@ -92,13 +92,13 @@ export class Project implements IProject {
             }
         });
 
-         for (let c of this.configs) {
-            c.save();
-        }
-
-        for (let c of this.conMaps) {
-            c.save();
-        }
+        /*    for (let c of this.configs) {
+               c.save();
+           }
+   
+           for (let c of this.conMaps) {
+               c.save();
+           }*/
     }
 
     public createMultiModel(name: String, jsonContent: String): String {

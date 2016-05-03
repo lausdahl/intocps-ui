@@ -2,7 +2,7 @@
 // Copyright UTRC 2016
 
 import fs = require('fs');
-import {Config} from "./Config.ts"
+import {Config} from "./Config"
 
 //Configuration container. Provides additional information
 export class ConMap {

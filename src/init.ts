@@ -40,8 +40,8 @@ class InitializationController {
         if (app.getActiveProject() != null) {
             this.title.innerText = "Project: " + app.getActiveProject().getName();
         }
-       let ipc : Electron.IpcRenderer = require('electron').ipcRenderer;
-        ipc.on(IntoCpsAppEvents.PROJECT_CHANGED, (event, arg) =>  {
+        let ipc: Electron.IpcRenderer = require('electron').ipcRenderer;
+        ipc.on(IntoCpsAppEvents.PROJECT_CHANGED, (event, arg) => {
             this.title.innerText = "Project: " + app.getActiveProject().getName();
         });
     }
@@ -77,7 +77,8 @@ class InitializationController {
 };
 
 var coeController: CoeController = new CoeController();
-var browserController: BrowserController = new BrowserController();
+var browserController: BrowserController = new BrowserController(coeController);
+
 
 // Initialise controllers so they persist
 var init = new InitializationController();

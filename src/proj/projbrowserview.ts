@@ -7,13 +7,26 @@
 
 import {IntoCpsAppEvents} from "../IntoCpsAppEvents";
 import * as IntoCpsApp from  "../IntoCpsApp"
+import {ContentProvider} from "../proj/ContentProvider";
+import {Container} from "../proj/Container";
+import {ContainerType} from "../proj/Container";
+
+import {CoeController} from "../coe/coe";
 
 export class BrowserController {
     private browser: HTMLDivElement;
     private tree: W2UI.W2Sidebar;
     private clickHandlers: Array<(event: JQueryEventObject) => void> = [];
     private dblClickHandlers: Array<(event: JQueryEventObject) => void> = [];
+
+    private coeController: CoeController = null;
+
+    constructor(coeController: CoeController) {
+        this.coeController = coeController;
+    }
+
     initialize() {
+        let _this2 = this;
         this.browser = <HTMLDivElement>document.querySelector("#browser");
         let remote = require("remote");
 
@@ -21,11 +34,22 @@ export class BrowserController {
             name: 'sidebar',
         });
 
-        this.exampleOfInitTreeNodes();
+        this.addDblClickHandler((event: JQueryEventObject) => {
+            console.info(event);
+
+            if ((event.target + "").indexOf('coe.json') >= 0) {
+                console.info("Coe config clicked");
+                _this2.coeController.load(event.target + "");
+            }
+        });
+
+        // this.exampleOfInitTreeNodes();
         this.addHandlers();
         let app: IntoCpsApp.IntoCpsApp = remote.getGlobal("intoCpsApp");
         if (app.getActiveProject() != null) {
-           //TODO: Set tree view browser
+            //TODO: Set tree view browser
+            let root = new Container(app.getActiveProject().getName(), app.getActiveProject().getRootFilePath(), ContainerType.Folder);
+            this.addToplevelNodes(this.buildProjectStructor(0, root));
         }
         var ipc = require('electron').ipcRenderer;
         ipc.on(IntoCpsAppEvents.PROJECT_CHANGED, function (event, arg) {
@@ -33,8 +57,57 @@ export class BrowserController {
         });
     }
 
+    private buildProjectStructor(level: number, root: Container): any {
+
+        let _this = this;
+        var items: any[] = [];
+        let contentProvider: ContentProvider = new ContentProvider();
+
+        contentProvider.getChildren(root).forEach((value: Container, index: number, array: Container[]) => {
+
+            var item: any = new Object();
+            item.id = value.filepath;
+            item.text = value.name;
+            item.expanded= true
+
+            if (level == 0)
+                item.group = true;
+
+
+            switch (value.type) {
+                case ContainerType.Folder:
+                    {
+                        item.img = 'icon-folder';
+                        item.nodes = _this.buildProjectStructor(level + 1, value);
+                         break;
+                    };
+                case ContainerType.FMU:
+                    {
+                        item.img = 'icon-page';
+                         break;
+                    };
+                case ContainerType.MultiModelConfig:
+                    {
+                        item.img = 'glyphicon glyphicon-briefcase';
+                         break;
+                    };
+                case ContainerType.CoeConfig:
+                    {
+                        item.img = 'glyphicon glyphicon-tasks';
+                        break;
+                    };
+
+            }
+
+            items.push(item);
+        });
+
+        console.info(items);
+        return items;
+    }
+
     private exampleOfInitTreeNodes() {
-        this.addToplevelNodes([            
+        this.addToplevelNodes([
             {
                 id: 'Models', text: 'Models', img: 'icon-folder', group: true
             },
@@ -98,17 +171,18 @@ export class BrowserController {
     }
 
     addToplevelNodes(nodes: Object | Object[]): Object {
-            return this.tree.add(nodes);
+        return this.tree.add(nodes);
     }
 
     addNodes(parentId: string, nodes: Object | Object[]): Object {
         return this.tree.add(parentId, nodes);
     }
-    
-    clearAll(){
-        let ids : string[] = this.tree.nodes.map((value: any) => {
-            return value.id});
-        this.tree.remove.apply(this.tree,ids);
+
+    clearAll() {
+        let ids: string[] = this.tree.nodes.map((value: any) => {
+            return value.id
+        });
+        this.tree.remove.apply(this.tree, ids);
     }
 
     addClickHandler(clickHandler: (event: JQueryEventObject) => void) {
@@ -127,14 +201,14 @@ export class BrowserController {
                 handler(event);
             })
         });
-        
+
         this.tree.on("click", (event: JQueryEventObject) => {
             this.clickHandlers.forEach(handler => {
                 handler(event);
             })
         });
     }
-    
+
     getSelectedId(): string {
         return this.tree.selected;
     }

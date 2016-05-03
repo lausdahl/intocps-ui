@@ -24,7 +24,7 @@ export class CoeController {
     configButton: HTMLButtonElement;
     remote: Electron.Remote;
     dialog: Electron.Dialog;
-    projectRootPath: HTMLInputElement;
+   // projectRootPath: HTMLInputElement;
 
     liveStreamCanvas: HTMLCanvasElement;
     canvasContext: CanvasRenderingContext2D;
@@ -43,7 +43,7 @@ export class CoeController {
     }
 
     initialize() {
-        this.projectRootPath = <HTMLInputElement>document.getElementById("projectRootPathText");
+       // this.projectRootPath = <HTMLInputElement>document.getElementById("projectRootPathText");
         this.fmusDiv = <HTMLDivElement>document.getElementById("fmusDiv");
 
         this.setProgress(0, null);
@@ -64,6 +64,7 @@ export class CoeController {
         if (activeProject == null) {
             console.warn("no active project cannot load coe config");
         }
+        this.initialize();
 
         this.fmus.forEach((value: Fmu, index: number, array: Fmu[]) => {
             this.removeFmu(value);
@@ -114,13 +115,13 @@ export class CoeController {
 
     }
 
-    launchProjectExplorer() {
+  /*  launchProjectExplorer() {
         let dialogResult: string[] = this.dialog.showOpenDialog({ properties: ["openFile"] });
         if (dialogResult != undefined) {
             this.projectRootPath.value = dialogResult[0];
             this.load(this.projectRootPath.value);
         }
-    }
+    }*/
 
 
     //Set the progress bar 
