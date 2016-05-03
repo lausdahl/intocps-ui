@@ -4,10 +4,9 @@
         "noImplicitAny": true,
         "outDir": "./dist/"
     },
+    "compileOnSave": false,
     "exclude": [
         "node_modules",
-        "typings/main.d.ts",
-        "typings/main",
         "dist",
         "typings",
         "bower_components"
