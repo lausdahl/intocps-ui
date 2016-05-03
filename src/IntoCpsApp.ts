@@ -112,7 +112,7 @@ export default class IntoCpsApp {
 
 
     public createProject(name: string, path: string) {
-        let project = new Project(name, path, Path.normalize(path + "/.project.json"));
+        let project = new Project(name, path, Path.normalize(path + "/.project.json"),[],[],[]);
         project.save();
         this.setActiveProject(project);
     }
@@ -121,7 +121,8 @@ export default class IntoCpsApp {
         console.info("Loading project from: " + path)
         let config = Path.normalize(path);
         var content = fs.readFileSync(config, "utf8");
-        var project = SerializationHelper.toInstance(new Project("", "", ""), content.toString());
+        //TODO load configuration containers and config files
+        var project = SerializationHelper.toInstance(new Project("", "", "",[],[],[]), content.toString());
         //console.info("Loaded project: " + project);
         //console.info("Project name is: " + project.getName());
         return project;
