@@ -5,19 +5,26 @@ import fs = require('fs');
 import Path = require('path');
 
 import {IProject} from "./IProject.ts"
+import {Container} from "./Container.ts"
+import {Config} from "./Config.ts"
+import {ConMap} from "./ConMap.ts"
 
 export class Project implements IProject {
 
     name: string;
     rootPath: string;
     configPath: string;
+    containers : Array<Container>;
+    configs: Array<Config>;
+    conMaps: Array<ConMap>;
 
-
-
-    constructor(name: string, rootPath: string, configPath: string) {
+    constructor(name: string, rootPath: string, configPath: string, containers:Array<Container>,configs:Array<Config>,conMaps:Array<ConMap>) {
         this.name = name;
         this.rootPath = rootPath;
         this.configPath = configPath;
+        this.containers = containers;
+        this.configs= configs;
+        this.conMaps = conMaps;
     }
 
     public getName(): string {
@@ -28,6 +35,19 @@ export class Project implements IProject {
     public getRootFilePath(): string { return this.rootPath; }
     public getProjectConfigFilePath(): string { return this.configPath }
 
+    public getContainers() {
+      return this.containers;
+    }
+
+    public getConfigs() {
+      return this.configs;
+    }
+
+    public getConMaps() {
+      return this.conMaps;
+    }
+
+    //TODO: replace with proper folder struct
     public save() {
 
         let folders = ["FMUs", "Models", "Multi-models", "Design Space Explorations", "Connection maps"];
@@ -63,7 +83,13 @@ export class Project implements IProject {
                 });
             }
         });
+
+        for (let c of this.configs) {
+            c.save();
+        }
+
+        for (let c of this.conMaps) {
+            c.save();
+        }
     }
 }
-
-
