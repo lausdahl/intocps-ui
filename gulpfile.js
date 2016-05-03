@@ -46,9 +46,7 @@ gulp.task('install-bower-components', function () {
 // Clean everything!
 gulp.task("clean", function () {
     return del([
-        outputPath,
-        bowerFolder,
-        typingsFolder
+    outputPath
     ]);
 });
 
