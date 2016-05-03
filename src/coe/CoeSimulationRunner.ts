@@ -5,10 +5,10 @@
 ///<reference path="../../typings/browser/ambient/jquery/index.d.ts"/>
 /// <reference path="../../node_modules/typescript/lib/lib.es6.d.ts" />
 
-import * as Main from  "../main/Settings"
-import * as IntoCpsApp from  "../main/IntoCpsApp"
-import {IntoCpsAppEvents} from "../main/IntoCpsAppEvents";
-import {IProject} from "../main/IProject";
+import * as Main from  "../settings/Settings"
+import * as IntoCpsApp from  "../IntoCpsApp"
+import {IntoCpsAppEvents} from "../IntoCpsAppEvents";
+import {IProject} from "../proj/IProject";
 import {Fmu} from "./fmu"
 import * as Collections from 'typescript-collections';
 import {CoeConfig} from './CoeConfig'

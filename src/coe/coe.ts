@@ -5,15 +5,15 @@
 ///<reference path="../../typings/browser/ambient/jquery/index.d.ts"/>
 /// <reference path="../../node_modules/typescript/lib/lib.es6.d.ts" />
 
-import * as Main from  "../main/Settings"
-import * as IntoCpsApp from  "../main/IntoCpsApp"
-import {IntoCpsAppEvents} from "../main/IntoCpsAppEvents";
+import * as Main from  "../settings/Settings"
+import * as IntoCpsApp from  "../IntoCpsApp"
+import {IntoCpsAppEvents} from "../IntoCpsAppEvents";
 import {Fmu} from "./fmu"
 import * as Collections from 'typescript-collections';
 import {CoeConfig} from './CoeConfig'
 import {CoeSimulationRunner} from './CoeSimulationRunner'
-import {IProject} from "../main/IProject";
-import {SettingKeys} from "../main/SettingKeys";
+import {IProject} from "../proj/IProject";
+import {SettingKeys} from "../settings/SettingKeys";
 
 export class CoeController {
 

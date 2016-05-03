@@ -1,8 +1,8 @@
 ///<reference path="../../typings/browser/ambient/github-electron/index.d.ts"/>
 ///<reference path="../../typings/browser/ambient/node/index.d.ts"/>
 
-import {IntoCpsApp} from "./IntoCpsApp"
-import {IntoCpsAppEvents} from "./IntoCpsAppEvents"
+import {IntoCpsApp} from "../IntoCpsApp"
+import {IntoCpsAppEvents} from "../IntoCpsAppEvents"
 export default class CreateProjectHandler {
 
     controller: IntoCpsApp;
@@ -54,7 +54,7 @@ export default class CreateProjectHandler {
             this.win = null;
         });
 
-        this.win.loadURL('file://' + __dirname + '/../new-project.html');
+        this.win.loadURL('file://' + __dirname + '/new-project.html');
         this.win.show();
     }
 

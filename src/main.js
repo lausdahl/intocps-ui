@@ -3,9 +3,9 @@
 const electron = require('electron');
 const fs = require('fs');
 const path = require('path');
-var settings = require("./main/Settings.js").default;
-var IntoCpsApp = require("./main/IntoCpsApp").default;
-var CreateProjectHandler = require("./main/CreateProjectHandler").default;
+var settings = require("./settings/Settings.js").default;
+var IntoCpsApp = require("./IntoCpsApp").default;
+var CreateProjectHandler = require("./proj/CreateProjectHandler").default;
 
 // Module to control application life.
 const app = electron.app;

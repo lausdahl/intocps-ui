@@ -5,8 +5,8 @@
 ///<reference path="../../typings/browser/ambient/jquery/index.d.ts"/>
 ///<reference path="../../typings/browser/ambient/w2ui/index.d.ts"/>
 
-import {IntoCpsAppEvents} from "../main/IntoCpsAppEvents";
-import * as IntoCpsApp from  "../main/IntoCpsApp"
+import {IntoCpsAppEvents} from "../IntoCpsAppEvents";
+import * as IntoCpsApp from  "../IntoCpsApp"
 
 export class BrowserController {
     private browser: HTMLDivElement;

@@ -5,12 +5,19 @@ import fs = require('fs');
 import Path = require('path');
 
 import {IProject} from "./IProject.ts"
+import {Container} from "./Container.ts"
+import {Config} from "./Config.ts"
+import {ConMap} from "./ConMap.ts"
 
 export class Project implements IProject {
 
     name: string;
     rootPath: string;
     configPath: string;
+    containers : Array<Container>=[];
+    configs: Array<Config>=[];
+    conMaps: Array<ConMap>=[];
+
 
     PATH_FMUS: String = "FMUs";
     PATH_MODELS: String = "Models";
@@ -22,6 +29,9 @@ export class Project implements IProject {
         this.name = name;
         this.rootPath = rootPath;
         this.configPath = configPath;
+      //  this.containers = containers;
+       // this.configs= configs;
+       // this.conMaps = conMaps;
     }
 
     public getName(): string {
@@ -33,6 +43,19 @@ export class Project implements IProject {
     public getProjectConfigFilePath(): string { return this.configPath }
     public getFmusPath(): string { return Path.normalize(this.getRootFilePath() + "/" + this.PATH_FMUS); }
 
+    public getContainers() {
+      return this.containers;
+    }
+
+    public getConfigs() {
+      return this.configs;
+    }
+
+    public getConMaps() {
+      return this.conMaps;
+    }
+
+    //TODO: replace with proper folder struct
     public save() {
 
         let folders = [this.PATH_CONNECTIONS, this.PATH_DSE, this.PATH_FMUS, this.PATH_MODELS, this.PATH_MULTI_MODELS];
@@ -68,6 +91,14 @@ export class Project implements IProject {
                 });
             }
         });
+
+         for (let c of this.configs) {
+            c.save();
+        }
+
+        for (let c of this.conMaps) {
+            c.save();
+        }
     }
 
     public createMultiModel(name: String, jsonContent: String): String {
