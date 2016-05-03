@@ -22,13 +22,20 @@ export class FmuInfo {
     }
 }
 
-export interface CoeAlgorithm { }
+export interface CoeAlgorithm { toJSON(): any; }
 
 export class FixedStepAlgorithm implements CoeAlgorithm {
     size: number = 0.1;
 
     constructor(size: number) {
         this.size = size;
+    }
+
+    toJSON() {
+        var oA: any = new Object();
+        oA["type"] = "fixed-step";
+        oA["size"] = this.size;
+        return oA;
     }
 }
 
@@ -82,7 +89,7 @@ export class CoeConfig {
                     let fmus = jsonData[key];
                     $.each(Object.keys(fmus), function (j, key) {
                         let description = fmus[key];
-                        _this.fmus.set(key, new FmuInfo(description, null));
+                        _this.fmus.set(key, new FmuInfo(description, description));
                     });
                 }
             });
@@ -214,5 +221,54 @@ export class CoeConfig {
 
     public save() {
 
+    }
+
+
+    public toJSON(): string {
+
+
+        var dto: any = new Object();
+
+        //FMUS
+        var ofmu: any = new Object();
+        this.fmus.forEach((value: FmuInfo, index: String, map: Map<String, FmuInfo>) => {
+            ofmu[index + ""] = value.path;
+        });
+        dto["fmus"] = ofmu;
+
+        //Parameters
+        var oParameters: any = new Object();
+        this.parameters.forEach((value: any, index: String, map: Map<String, any>) => {
+            oParameters[index + ""] = value;
+        });
+        dto["parameters"] = oParameters;
+
+        //algorithm
+        if (this.algorithm != null) {
+            dto["algorithm"] = this.algorithm.toJSON();
+        }
+
+        //connections
+        var oConn: any = new Object();
+        this.connections.forEach((value: Collections.LinkedList<String>, index: String, map: Map<String, Collections.LinkedList<String>>) => {
+            var oIn: any[] = [];
+            value.forEach((id) => { oIn.push(id); });
+            oConn[index + ""] = oIn;
+        });
+        dto["connections"] = oConn;
+
+        //live stream
+        var oConn: any = new Object();
+        this.livestream.forEach((value: Collections.LinkedList<String>, index: String, map: Map<String, Collections.LinkedList<String>>) => {
+            var oIn: any[] = [];
+            value.forEach((id) => { oIn.push(id); });
+            oConn[index + ""] = oIn;
+        });
+        dto["livestream"] = oConn;
+
+
+        let jsonData = JSON.stringify(dto);
+        console.info(jsonData);
+        return jsonData;
     }
 }

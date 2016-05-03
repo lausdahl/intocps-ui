@@ -6,6 +6,8 @@ export interface IProject {
     getName():string;
     getRootFilePath():string;
     getProjectConfigFilePath():string;
+    
+    getFmusPath():string;
 }
 
 

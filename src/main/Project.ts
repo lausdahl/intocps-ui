@@ -31,6 +31,7 @@ export class Project implements IProject {
 
     public getRootFilePath(): string { return this.rootPath; }
     public getProjectConfigFilePath(): string { return this.configPath }
+    public getFmusPath(): string { return Path.normalize(this.getRootFilePath() + "/" + this.PATH_FMUS); }
 
     public save() {
 
