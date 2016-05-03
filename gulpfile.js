@@ -13,9 +13,8 @@ var outputPath = 'dist/',
     resourcesFolder = 'src/resources',
     typingsFolder = 'typings',
     cssSrcs = [bowerFolder + '/bootstrap/dist/css/bootstrap.css',
-        bowerFolder + '/jquery-layout/source/stable/layout-default.css',
         resourcesFolder + '/w2ui-1.5/w2ui.min.css'],
-    bowerSrcs = bowerFolder + '/jquery-layout/source/stable/jquery.layout.min.js';
+    bowerSrcs = "";
 
 // Tools.
 var gulp = require('gulp'),
