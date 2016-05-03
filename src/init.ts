@@ -13,8 +13,22 @@ var myLayout: JQueryUILayout.Layout;
 var layout: HTMLDivElement;
 
 
-
+import {IntoCpsAppEvents} from "./main/IntoCpsAppEvents";
+import * as IntoCpsApp from  "./main/IntoCpsApp"
 $(document).ready(function () {
+    //Set the title to the project name
+    let title: HTMLTitleElement = <HTMLTitleElement>document.querySelector('title');
+    let remote = require("remote");
+    let app: IntoCpsApp.IntoCpsApp = remote.getGlobal("intoCpsApp");
+    if (app.getActiveProject() != null) {
+        title.innerText = "Project: " + app.getActiveProject().getName();
+    }
+    var ipc = require('electron').ipcRenderer;
+    ipc.on(IntoCpsAppEvents.PROJECT_CHANGED, function (event, arg) {
+title.innerText = "Project: " + app.getActiveProject().getName();
+    });
+
+
     layout = <HTMLDivElement>document.querySelector("#layout");
     var pstyle = 'border: 1px solid #dfdfdf; padding: 5px; background-color: #FFFFFF';
     var topHtml = ""
@@ -40,7 +54,6 @@ $(document).ready(function () {
     });
     w2ui['layout'].load("left", "proj/projbrowserview.html", "", function () {
         browserController.initialize();
-
     });
 });
 

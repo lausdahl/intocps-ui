@@ -13,36 +13,28 @@ export class BrowserController {
     private tree: W2UI.W2Sidebar;
     private clickHandlers: Array<(event: JQueryEventObject) => void> = [];
     private dblClickHandlers: Array<(event: JQueryEventObject) => void> = [];
-
     initialize() {
         this.browser = <HTMLDivElement>document.querySelector("#browser");
         let remote = require("remote");
 
-
         this.tree = $(this.browser).w2sidebar({
             name: 'sidebar',
-            topHTML: '<h1 id="current-project-header"> Project Browser</h1>'
         });
 
         this.exampleOfInitTreeNodes();
         this.addHandlers();
-
         let app: IntoCpsApp.IntoCpsApp = remote.getGlobal("intoCpsApp");
         if (app.getActiveProject() != null) {
-            var element = <HTMLElement>document.getElementById("current-project-header");
-            element.innerText = "Project: " + app.getActiveProject().getName();
+           //TODO: Set tree view browser
         }
         var ipc = require('electron').ipcRenderer;
         ipc.on(IntoCpsAppEvents.PROJECT_CHANGED, function (event, arg) {
-            var element = <HTMLElement>document.getElementById("current-project-header");
-            element.innerText = "Project: " + app.getActiveProject().getName();
+            //TODO: Set tree view browser
         });
-
-
     }
 
     private exampleOfInitTreeNodes() {
-        this.initTreeNodes([
+        this.addToplevelNodes([            
             {
                 id: 'Models', text: 'Models', img: 'icon-folder', group: true
             },
@@ -105,12 +97,18 @@ export class BrowserController {
         this.addNodes(parent, node);
     }
 
-    initTreeNodes(nodes: Object | Object[]): Object {
-        return this.tree.add(nodes);
+    addToplevelNodes(nodes: Object | Object[]): Object {
+            return this.tree.add(nodes);
     }
 
     addNodes(parentId: string, nodes: Object | Object[]): Object {
         return this.tree.add(parentId, nodes);
+    }
+    
+    clearAll(){
+        let ids : string[] = this.tree.nodes.map((value: any) => {
+            return value.id});
+        this.tree.remove.apply(this.tree,ids);
     }
 
     addClickHandler(clickHandler: (event: JQueryEventObject) => void) {
