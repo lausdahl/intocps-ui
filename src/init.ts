@@ -40,8 +40,8 @@ class InitializationController {
         if (app.getActiveProject() != null) {
             this.title.innerText = "Project: " + app.getActiveProject().getName();
         }
-        let ipc: Electron.IpcRenderer = require('electron').ipcRenderer;
-        ipc.on(IntoCpsAppEvents.PROJECT_CHANGED, function (event, arg) {
+       let ipc : Electron.IpcRenderer = require('electron').ipcRenderer;
+        ipc.on(IntoCpsAppEvents.PROJECT_CHANGED, (event, arg) =>  {
             this.title.innerText = "Project: " + app.getActiveProject().getName();
         });
     }
