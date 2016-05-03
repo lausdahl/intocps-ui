@@ -3,13 +3,15 @@
 ///<reference path="../../typings/browser/ambient/github-electron/index.d.ts"/>
 ///<reference path="../../typings/browser/ambient/node/index.d.ts"/>
 ///<reference path="../../typings/browser/ambient/jquery/index.d.ts"/>
-///<reference path="../../typings/browser/ambient/jstree/index.d.ts"/>
+///<reference path="../../typings/browser/ambient/w2ui/index.d.ts"/>
 
 import {IntoCpsAppEvents} from "../main/IntoCpsAppEvents";
 import * as IntoCpsApp from  "../main/IntoCpsApp"
 
 export class BrowserController {
     browser: HTMLDivElement;
+    tree: W2UI.W2Sidebar;
+    
     initialize() {
         this.browser = <HTMLDivElement>document.querySelector("#browser");
         let remote = require("remote");
@@ -26,18 +28,18 @@ export class BrowserController {
         this.initializeTree(this.browser);
     }
     initializeTree(browser: HTMLDivElement) {
-        $(browser).w2sidebar({
+        this.tree = $(browser).w2sidebar({
             name: 'sidebar',
-            topHTML: '<h1 id="current-project-header"> Project Browser</h1>',
+            topHTML: '<h1 id="current-project-header"> Project Browser</h1><button onclick="browserController.exampleOfAddingNode()">Add Node</button>',
             nodes: [
                 {
-                    id: 'Models', text: 'Models', img: 'icon-folder', expanded: true, group: true
+                    id: 'Models', text: 'Models', img: 'icon-folder', group: true
                 },
                 {
-                    id: 'FMUs', text: 'FMUs', img: 'icon-folder', expanded: true, group: true
+                    id: 'FMUs', text: 'FMUs', img: 'icon-folder', group: true
                 },
                 {
-                    id: 'Connections', text: 'Connections', img: 'icon-folder', expanded: true, group: true
+                    id: 'Connections', text: 'Connections', img: 'icon-folder', group: true
                 },
                 {
                     id: 'Multi-Models', text: 'Multi-Models', img: 'icon-folder', expanded: true, group: true,
@@ -70,7 +72,7 @@ export class BrowserController {
                                 {
                                     id: 'Multi-Models-2-1', text: 'SimWithControllerModeK', icon: 'glyphicon glyphicon-file',
                                     nodes: [
-                                        { id: 'MM-1-1-1', text: 'Timestamp', icon: 'icon-page' }]
+                                        { id: 'MM-2-1-1', text: 'Timestamp', icon: 'icon-page' }]
                                 }]
 
                         }
@@ -83,8 +85,28 @@ export class BrowserController {
                         nodes: [{ id: 'DSE-1-1', text: 'Timestamp', icon: 'icon-page' }]
                     }]
                 }
-                
+
             ]
         });
+        this.tree.on('dblClick',(event: JQueryEventObject)=>{
+            //Make the folder not auto expand on dbl click
+            event.preventDefault();
+        });
+    }
+    exampleOfAddingNode(){
+        let node: any = {id: 'fmu-waterTank', text: 'Water tank fmu', img: 'icon-folder'};
+        let parent = "FMUs";
+        this.tree.add(parent,node);
+    }
+    
+    addClickHandler(clickHandler : (event: JQueryEventObject) => void) {
+        this.tree.on("")
+    }
+    private addHandler(){
+        
+    }
+    addDblClickHandler(clickHandler : (event: JQueryEventObject) => void)
+    {
+        
     }
 }

@@ -12,14 +12,7 @@ var browserController = new BrowserController();
 var myLayout: JQueryUILayout.Layout;
 var layout: HTMLDivElement;
 
-/// Switch active tab marker
-$('.navbar li').click(function (e) {
-    $('.navbar li.active').removeClass('active');
-    var $this = $(this);
-    if (!$this.hasClass('active')) {
-        $this.addClass('active');
-    }
-});
+
 
 $(document).ready(function () {
     layout = <HTMLDivElement>document.querySelector("#layout");
@@ -29,34 +22,27 @@ $(document).ready(function () {
         name: 'layout',
         padding: 4,
         panels: [
-            { type: 'left', size: 200, resizable: true, style: pstyle},
+            { type: 'left', size: 200, resizable: true, style: pstyle },
             { type: 'main', style: pstyle },
         ]
     });
     //Load the main view
     w2ui['layout'].load("main", "main.html", "", function () {
+                /// Switch active tab marker
+        $('.navbar li').click(function (e) {
+            $('.navbar li.active').removeClass('active');
+            var $this = $(this);
+            if (!$this.hasClass('active')) {
+                $this.addClass('active');
+            }
+        });
         loadCoSim();
     });
-    w2ui['layout'].load("left", "proj/projbrowserview.html", "",function () {
+    w2ui['layout'].load("left", "proj/projbrowserview.html", "", function () {
         browserController.initialize();
+
     });
 });
-
-
-//initLayout();
-
-
-// Initialise layout
-function initLayout() {
-    $(document).ready(function () {
-        myLayout = $(document.body).layout({
-            west__minSize: 50
-        });
-    });
-    var left: HTMLDivElement = (<HTMLDivElement>document.getElementById("leftView"));
-    $(left).load("proj/projbrowserview.html", (event: JQueryEventObject) => browserController.initialize());
-    loadCoSim();
-}
 
 // Load DSE into main view
 function loadDse() {
