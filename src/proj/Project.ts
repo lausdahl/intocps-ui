@@ -50,7 +50,7 @@ export class Project implements IProject {
     //TODO: replace with proper folder struct
     public save() {
 
-        let folders = ["FMUs", "Models", "Multi-models", "Design Space Explorations", "Connection maps"];
+        let folders = ["sysml", "models", "fmus","conmaps","configs","results"];
 
         for (var i = 0; folders.length > i; i++) {
             try {
