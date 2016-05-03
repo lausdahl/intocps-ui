@@ -9,8 +9,6 @@ var mainViewId: string = "mainView";
 
 class InitializationController {
     layout: W2UI.W2Layout;
-    coeController: CoeController = new CoeController();
-    browserController: BrowserController = new BrowserController();
     title: HTMLTitleElement;
     mainView: HTMLDivElement;
     constructor() {
@@ -42,7 +40,7 @@ class InitializationController {
             this.title.innerText = "Project: " + app.getActiveProject().getName();
         }
         let ipc : Electron.IpcRenderer = require('electron').ipcRenderer;
-        ipc.on(IntoCpsAppEvents.PROJECT_CHANGED, function (event, arg) {
+        ipc.on(IntoCpsAppEvents.PROJECT_CHANGED, (event, arg) =>  {
             this.title.innerText = "Project: " + app.getActiveProject().getName();
         });
     }
@@ -61,7 +59,7 @@ class InitializationController {
             this.loadCoSim();
         });
         this.layout.load("left", "proj/projbrowserview.html", "", () => {
-            this.browserController.initialize();
+            browserController.initialize();
         });
     }
     loadDse(){
@@ -69,7 +67,7 @@ class InitializationController {
     }
     
     loadCoSim(){
-          $(this.mainView).load("coe/coe.html", (event: JQueryEventObject) => this.coeController.initialize());
+          $(this.mainView).load("coe/coe.html", (event: JQueryEventObject) => coeController.initialize());
     }
     
     loadMc(){
@@ -78,4 +76,7 @@ class InitializationController {
 };
 
 // Initialise controllers so they persist
+var coeController: CoeController = new CoeController();
+var browserController: BrowserController = new BrowserController();
 var init = new InitializationController();
+
