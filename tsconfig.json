@@ -1,7 +1,8 @@
 {
     "compilerOptions": {
         "sourceMap": true,
-        "noImplicitAny": true
+        "noImplicitAny": true,
+        "outDir": "./dist/"
     },
     "exclude": [
         "node_modules",
@@ -12,4 +13,3 @@
         "bower_components"
     ]
 }
-
