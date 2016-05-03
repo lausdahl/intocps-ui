@@ -55,8 +55,8 @@ export class Project implements IProject {
         for (var i = 0; folders.length > i; i++) {
             try {
                 var folder = folders[i];
-                let path = Path.normalize(this.rootPath+"/"+folder);
-                fs.mkdir(path,function (err){});
+                let path = Path.normalize(this.rootPath + "/" + folder);
+                fs.mkdir(path, function (err) { });
             } catch (e) {
                 //already exists
             }
@@ -92,4 +92,31 @@ export class Project implements IProject {
             c.save();
         }
     }
+
+    public createMultiModel(name: String, jsonContent: String): String {
+        let path = Path.normalize(this.rootPath + "/" + name);
+
+        fs.mkdirSync(path);
+
+        let fullpath = Path.normalize(path + "/" + name + ".mm.json");
+
+        fs.writeFileSync(fullpath, jsonContent == null ? "{}" : jsonContent, "UTF-8");
+
+        return fullpath;
+    }
+
+
+    public createCoeConfig(multimodelConfigPath: string, name: String, jsonContent: String): String {
+        let mmDir = Path.dirname(multimodelConfigPath);
+        let path = Path.normalize(mmDir + "/" + name);
+
+        fs.mkdirSync(path);
+
+        let fullpath = Path.normalize(path + "/" + name + ".coe.json");
+
+        fs.writeFileSync(fullpath, jsonContent == null ? "{}" : jsonContent, "UTF-8");
+
+        return fullpath;
+    }
 }
+

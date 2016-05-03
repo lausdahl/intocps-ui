@@ -3,11 +3,11 @@
         display: flex;
         align-items: center;
     }*/
-
-h2 > button,
-h2 > span {
-  vertical-align: middle;
-}
+    
+    h2 > button,
+    h2 > span {
+        vertical-align: middle;
+    }
 </style>
 <div class="row">
     <div class="col-md-1"></div>
@@ -15,13 +15,13 @@ h2 > span {
 
         <div class="form-group">
             <label for="projectRootPathText">
-            Project root path:
+           "Development only" Select COE config file:
         </label>
             <div class="input-group">
                 <input type="text" class="form-control input-sm" id="projectRootPathText">
                 <span class="input-group-btn">
                  <button type="button" class="btn btn-default btn-sm" onclick="coeController.launchProjectExplorer()">
-                     <span class="glyphicon glyphicon-file"></span> Folder
+                     <span class="glyphicon glyphicon-file"></span> File
                 </button>
                 </span>
             </div>
@@ -29,18 +29,19 @@ h2 > span {
 
 
 
-         <div class="form-group">
-            <label for="projectRootPathText">
-            Simulation time:
-        </label>
+        <div class="form-group">
+            <label for="input-sim-time-start">Simulation time:</label>
             <div class="input-group">
-              Start time: <input type="text" id="input-sim-time-start" class="form-control bfh-number" value="0" data-min="0"  data-wrap="true">
+                <label for="input-sim-time-start">Start time:</label>
+                <input type="text" id="input-sim-time-start" class="form-control bfh-number input-sm" value="0" data-min="0" data-wrap="true">
             </div>
-             <div class="input-group">
-               End time: <input type="text" id="input-sim-time-end" class="form-control bfh-number" value="10" data-min="0.00000000000001"  data-wrap="true">
+            <div class="input-group">
+                <label for="input-sim-time-end">End time:</label>
+                <input type="text" id="input-sim-time-end" class="form-control bfh-number input-sm" value="10" data-min="0.00000000000001"
+                    data-wrap="true">
             </div>
         </div>
-        
+
         <!-- FMUS AREA -->
 
         <h2><span>FMUs</span>

@@ -10,8 +10,11 @@ import * as IntoCpsApp from  "../IntoCpsApp"
 import {IntoCpsAppEvents} from "../IntoCpsAppEvents";
 import {Fmu} from "./fmu"
 import * as Collections from 'typescript-collections';
+import {CoeConfig} from './CoeConfig'
 
 export class CoeController {
+    
+    coeConfig : CoeConfig = new CoeConfig();
 
     url: string = "http://localhost:8082/";
     fmuCounter: number = 0;
@@ -55,7 +58,7 @@ export class CoeController {
     initialize() {
         this.projectRootPath = <HTMLInputElement>document.getElementById("projectRootPathText");
         this.fmusDiv = <HTMLDivElement>document.getElementById("fmusDiv");
-        this.projectRootPath.value = "C:\\source\\into-cps-public\\test-sim";
+ 
         this.setProgress(0, null);
         this.initializeChart();
 
@@ -67,6 +70,25 @@ export class CoeController {
             console.log("project-changed");  // prints "ping"
 
         });
+    }
+    
+    public load(path: string)
+    {
+        let activeProject = this.app.getActiveProject();
+        if(activeProject==null)
+        {
+            console.warn("no active project cannot load coe config");
+        }
+        
+        this.coeConfig.load(path,activeProject.getRootFilePath());
+        
+        //until bind is implemented we do this manual sync
+        (<HTMLInputElement>document.getElementById("input-sim-time-start")).value = this.coeConfig.startTime+"";
+        (<HTMLInputElement>document.getElementById("input-sim-time-end")).value=this.coeConfig.endTime+"";
+        
+         this.coeConfig.fmus.forEach(  (value, index,map) =>{
+             this.addFmu(index+"");
+         });
     }
 
     initializeChart() {
@@ -103,10 +125,10 @@ export class CoeController {
     }
 
     launchProjectExplorer() {
-        let dialogResult: string[] = this.dialog.showOpenDialog({ properties: ["openDirectory"] });
+        let dialogResult: string[] = this.dialog.showOpenDialog({ properties: ["openFile"] });
         if (dialogResult != undefined) {
             this.projectRootPath.value = dialogResult[0];
-            this.app.createProject("my project", this.projectRootPath.value);
+            this.load(this.projectRootPath.value);
         }
     }
     removeFmu(fmu: Fmu){
@@ -114,12 +136,13 @@ export class CoeController {
         this.fmus.splice(this.fmus.indexOf(fmu),1);
     };
     
-    addFmu(){
+    addFmu(fmuName: string){
         // https://forum.jquery.com/topic/load-but-append-data-instead-of-replace
         let self = this;
         $('<div>').load("coe/fmu.html", function(event : JQueryEventObject) {
             let fmuHtml : HTMLElement = <HTMLElement>(<HTMLDivElement>this).firstChild;
-            let newFmu : Fmu = new Fmu(fmuHtml, self.removeFmu.bind(self), "{FMU" + self.fmuCounter + "}");
+            let name = fmuName==null? "{FMU" + self.fmuCounter + "}" : fmuName;
+            let newFmu : Fmu = new Fmu(fmuHtml, self.removeFmu.bind(self), name);
             self.fmus.push(newFmu);
             self.fmusDiv.appendChild(fmuHtml);
             self.fmuCounter++;            
@@ -528,62 +551,3 @@ class SimulationCallbackHandler {
 }
 
 
-class CoeConfig {
-    //fmu ID to project relative file path
-    fmus: Map<String, String> = new Map<string, string>();
-    //final parameters for the COE
-    parameters: Map<String, any> = new Map<String, any>();
-    //connection mapping
-    connections: Map<String, Collections.LinkedList<String>> = new Map<String, Collections.LinkedList<String>>();
-    //optional livestream outputs
-    livestream: Map<String, Collections.LinkedList<String>> = new Map<String, Collections.LinkedList<String>>();
-    //TODO: algorithm
-    algorithm: string = null;
-
-
-    public loadFromMultiModel(path: string) {
-        let _this = this;
-        // Here we import the File System module of node
-        let fs = require('fs');
-        try {
-            if (fs.accessSync(path, fs.R_OK)) {
-                return;
-            }
-            var content = fs.readFileSync(path, "utf8");
-            console.log("Asynchronous read: " + content.toString());
-            var jsonData = JSON.parse(content.toString());
-            console.log(jsonData);
-
-            $.each(Object.keys(jsonData), function (j, key) {
-
-                if (key.indexOf("connections") == 0) {
-                    var connectionsEntry = jsonData[key];
-                    $.each(Object.keys(connectionsEntry), function (j, outputKey) {
-                        let inputList = connectionsEntry[outputKey];
-
-                        var inputs: Collections.LinkedList<String> = new Collections.LinkedList<String>();
-                        $.each(inputList, function (j, input) {
-                            inputs.add(input);
-                        });
-
-                        _this.connections.set(outputKey, inputs);
-                    });
-                }
-            });
-
-            console.info("Parsed mm: " + _this.connections);
-
-
-        } catch (e) {
-        }
-
-    }
-
-    public loadFromCoSim(path: string) {
-
-    }
-
-    public save() {
-
-    }
-}
