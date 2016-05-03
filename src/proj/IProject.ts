@@ -6,6 +6,5 @@ export interface IProject {
     getName():string;
     getRootFilePath():string;
     getProjectConfigFilePath():string;
+    getSources():Array<string>;
 }
-
-

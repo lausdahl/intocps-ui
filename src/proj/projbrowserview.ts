@@ -4,8 +4,8 @@
 ///<reference path="../../typings/browser/ambient/node/index.d.ts"/>
 ///<reference path="../../typings/browser/ambient/jquery/index.d.ts"/>
 
-import {IntoCpsAppEvents} from "./main/IntoCpsAppEvents";
-import * as IntoCpsApp from  "./main/IntoCpsApp"
+import {IntoCpsAppEvents} from "../IntoCpsAppEvents";
+import * as IntoCpsApp from  "../IntoCpsApp"
 
 let remote = require("remote");
 let app: IntoCpsApp.IntoCpsApp = remote.getGlobal("intoCpsApp");
