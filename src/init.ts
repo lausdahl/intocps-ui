@@ -28,7 +28,7 @@ $(document).ready(function () {
     });
     //Load the main view
     w2ui['layout'].load("main", "main.html", "", function () {
-                /// Switch active tab marker
+        /// Switch active tab marker
         $('.navbar li').click(function (e) {
             $('.navbar li.active').removeClass('active');
             var $this = $(this);
