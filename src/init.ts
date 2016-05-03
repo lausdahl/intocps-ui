@@ -1,6 +1,6 @@
 
-import {IntoCpsAppEvents} from "./main/IntoCpsAppEvents";
-import * as IntoCpsApp from  "./main/IntoCpsApp"
+import {IntoCpsAppEvents} from "./IntoCpsAppEvents";
+import * as IntoCpsApp from  "./IntoCpsApp"
 import {CoeController} from  "./coe/coe";
 import {BrowserController} from "./proj/projbrowserview"
 

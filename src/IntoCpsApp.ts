@@ -1,16 +1,16 @@
-///<reference path="../../typings/browser/ambient/github-electron/index.d.ts"/>
-///<reference path="../../typings/browser/ambient/node/index.d.ts"/>
+///<reference path="../typings/browser/ambient/github-electron/index.d.ts"/>
+///<reference path="../typings/browser/ambient/node/index.d.ts"/>
 
 
 import fs = require('fs');
 import Path = require('path');
 
-import {ISettingsValues} from "./ISettingsValues"
-import {Settings} from "./Settings"
-import {IProject} from "./IProject"
-import {Project} from "./Project"
+import {ISettingsValues} from "./settings/ISettingsValues"
+import {Settings} from "./settings/Settings"
+import {IProject} from "./proj/IProject"
+import {Project} from "./proj/Project"
 import {IntoCpsAppEvents} from "./IntoCpsAppEvents";
-import {SettingKeys} from "./SettingKeys";
+import {SettingKeys} from "./settings//SettingKeys";
 
 export default class IntoCpsApp {
     app: Electron.App;
@@ -112,7 +112,7 @@ export default class IntoCpsApp {
 
 
     public createProject(name: string, path: string) {
-        let project = new Project(name, path, Path.normalize(path + "/.project.json"));
+        let project = new Project(name, path, Path.normalize(path + "/.project.json"),[],[],[]);
         project.save();
         this.setActiveProject(project);
     }
@@ -121,7 +121,8 @@ export default class IntoCpsApp {
         console.info("Loading project from: " + path)
         let config = Path.normalize(path);
         var content = fs.readFileSync(config, "utf8");
-        var project = SerializationHelper.toInstance(new Project("", "", ""), content.toString());
+        //TODO load configuration containers and config files
+        var project = SerializationHelper.toInstance(new Project("", "", "",[],[],[]), content.toString());
         //console.info("Loaded project: " + project);
         //console.info("Project name is: " + project.getName());
         return project;
