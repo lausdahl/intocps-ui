@@ -33,6 +33,10 @@ export class BrowserController {
 
         this.tree = $(this.browser).w2sidebar({
             name: 'sidebar',
+             menu: [
+                {id: "Duplicate", text: "Duplicate", icon: 'glyphicon glyphicon-duplicate'},
+                {id: "Delete", text: "Delete", icon: 'glyphicon glyphicon-remove'},
+            ]
         });
 
         this.addDblClickHandler((event: JQueryEventObject) => {
