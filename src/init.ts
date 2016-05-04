@@ -2,7 +2,9 @@
 import {IntoCpsAppEvents} from "./IntoCpsAppEvents";
 import * as IntoCpsApp from  "./IntoCpsApp"
 import {CoeController} from  "./coe/coe";
+import {MmController} from  "./multimodel/MmController";
 import {BrowserController} from "./proj/projbrowserview"
+import {IntoCpsAppMenuHandler} from "./IntoCpsAppMenuHandler"
 
 // constants
 var mainViewId: string = "mainView";
@@ -35,12 +37,12 @@ class InitializationController {
     private setTitle() {
         //Set the title to the project name
         this.title = <HTMLTitleElement>document.querySelector('title');
-        let app: IntoCpsApp.IntoCpsApp  = require("remote").getGlobal("intoCpsApp");
+        let app: IntoCpsApp.IntoCpsApp = require("remote").getGlobal("intoCpsApp");
         if (app.getActiveProject() != null) {
             this.title.innerText = "Project: " + app.getActiveProject().getName();
         }
-        let ipc : Electron.IpcRenderer = require('electron').ipcRenderer;
-        ipc.on(IntoCpsAppEvents.PROJECT_CHANGED, (event, arg) =>  {
+        let ipc: Electron.IpcRenderer = require('electron').ipcRenderer;
+        ipc.on(IntoCpsAppEvents.PROJECT_CHANGED, (event, arg) => {
             this.title.innerText = "Project: " + app.getActiveProject().getName();
         });
     }
@@ -75,12 +77,33 @@ class InitializationController {
     }
 };
 
-var coeController: CoeController = new CoeController();
-var browserController: BrowserController = new BrowserController(coeController);
+
+
 
 
 // Initialise controllers so they persist
-var coeController: CoeController = new CoeController();
-var browserController: BrowserController = new BrowserController(coeController);
+let coeController: CoeController = new CoeController();
+let mmController: MmController = new MmController();
+
+let menuHandler: IntoCpsAppMenuHandler = new IntoCpsAppMenuHandler();
+
+
+
+var browserController: BrowserController = new BrowserController(menuHandler);
 var init = new InitializationController();
+
+menuHandler.openCoeView = (path) => {
+    $(init.mainView).load("coe/coe.html", (event: JQueryEventObject) => {
+        coeController.initialize();
+        coeController.load(path);
+    });
+
+};
+
+menuHandler.openMultiModel = (path) => {
+    $(init.mainView).load("multimodel/multimodel.html", (event: JQueryEventObject) => {
+        mmController.initialize();
+        mmController.load(path);
+    });
+};
 

@@ -11,7 +11,8 @@ import {ContentProvider} from "../proj/ContentProvider";
 import {Container} from "../proj/Container";
 import {ContainerType} from "../proj/Container";
 
-import {CoeController} from "../coe/coe";
+import {IntoCpsAppMenuHandler} from "../IntoCpsAppMenuHandler";
+
 
 export class BrowserController {
     private browser: HTMLDivElement;
@@ -19,10 +20,10 @@ export class BrowserController {
     private clickHandlers: Array<(event: JQueryEventObject) => void> = [];
     private dblClickHandlers: Array<(event: JQueryEventObject) => void> = [];
 
-    private coeController: CoeController = null;
+    private menuHandler: IntoCpsAppMenuHandler = null;
 
-    constructor(coeController: CoeController) {
-        this.coeController = coeController;
+    constructor(menuHandler: IntoCpsAppMenuHandler) {
+        this.menuHandler = menuHandler;
     }
 
     initialize() {
@@ -39,7 +40,11 @@ export class BrowserController {
 
             if ((event.target + "").indexOf('coe.json') >= 0) {
                 console.info("Coe config clicked");
-                _this2.coeController.load(event.target + "");
+                _this2.menuHandler.openCoeView(event.target + "");
+            }
+            if ((event.target + "").indexOf('mm.json') >= 0) {
+                console.info("MM config clicked");
+                _this2.menuHandler.openMultiModel(event.target + "");
             }
         });
 
@@ -68,7 +73,7 @@ export class BrowserController {
             var item: any = new Object();
             item.id = value.filepath;
             item.text = value.name;
-            item.expanded= true
+            item.expanded = true
 
             if (level == 0)
                 item.group = true;
@@ -79,19 +84,24 @@ export class BrowserController {
                     {
                         item.img = 'icon-folder';
                         item.nodes = _this.buildProjectStructor(level + 1, value);
-                         break;
+                        break;
                     };
                 case ContainerType.FMU:
                     {
                         item.img = 'icon-page';
-                         break;
+                        break;
                     };
                 case ContainerType.MultiModelConfig:
                     {
                         item.img = 'glyphicon glyphicon-briefcase';
-                         break;
+                        break;
                     };
                 case ContainerType.CoeConfig:
+                    {
+                        item.img = 'glyphicon glyphicon-copyright-mark';
+                        break;
+                    };
+                case ContainerType.SysMLExport:
                     {
                         item.img = 'glyphicon glyphicon-tasks';
                         break;
