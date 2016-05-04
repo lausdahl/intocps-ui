@@ -24,6 +24,8 @@ export class ContentProvider {
                                 children.push(new Container(name, filePath, ContainerType.MultiModelConfig));
                             if (filePath.indexOf('.fmu') >= 0)
                                 children.push(new Container(name, filePath, ContainerType.FMU));
+                                 if (filePath.indexOf('.sysml.json') >= 0)
+                                children.push(new Container(name, filePath, ContainerType.SysMLExport));
 
                         } else if (stat.isDirectory()) {
                             children.push(new Container(name, filePath, ContainerType.Folder));
