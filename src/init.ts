@@ -9,7 +9,6 @@ var mainViewId: string = "mainView";
 
 class InitializationController {
     layout: W2UI.W2Layout;
-
     title: HTMLTitleElement;
     mainView: HTMLDivElement;
     constructor() {
@@ -36,12 +35,12 @@ class InitializationController {
     private setTitle() {
         //Set the title to the project name
         this.title = <HTMLTitleElement>document.querySelector('title');
-        let app: IntoCpsApp.IntoCpsApp = require("remote").getGlobal("intoCpsApp");
+        let app: IntoCpsApp.IntoCpsApp  = require("remote").getGlobal("intoCpsApp");
         if (app.getActiveProject() != null) {
             this.title.innerText = "Project: " + app.getActiveProject().getName();
         }
-        let ipc: Electron.IpcRenderer = require('electron').ipcRenderer;
-        ipc.on(IntoCpsAppEvents.PROJECT_CHANGED, (event, arg) => {
+        let ipc : Electron.IpcRenderer = require('electron').ipcRenderer;
+        ipc.on(IntoCpsAppEvents.PROJECT_CHANGED, (event, arg) =>  {
             this.title.innerText = "Project: " + app.getActiveProject().getName();
         });
     }
@@ -81,4 +80,7 @@ var browserController: BrowserController = new BrowserController(coeController);
 
 
 // Initialise controllers so they persist
+var coeController: CoeController = new CoeController();
+var browserController: BrowserController = new BrowserController(coeController);
 var init = new InitializationController();
+
