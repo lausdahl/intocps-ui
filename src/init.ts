@@ -58,7 +58,7 @@ class InitializationController {
                 }
             });
             this.mainView = (<HTMLDivElement>document.getElementById(mainViewId));
-            this.loadCoSim();
+            //this.loadCoSim();
         });
         this.layout.load("left", "proj/projbrowserview.html", "", () => {
             browserController.initialize();
@@ -105,5 +105,13 @@ menuHandler.openMultiModel = (path) => {
         mmController.initialize();
         mmController.load(path);
     });
+};
+
+menuHandler.openSysMlExport = ()=>{
+     $(init.mainView).load("sysmlexport/sysmlexport.html");
+};
+
+menuHandler.openFmu = ()=>{
+     $(init.mainView).load("fmus/fmus.html");
 };
 

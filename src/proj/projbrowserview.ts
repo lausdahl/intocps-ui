@@ -39,12 +39,17 @@ export class BrowserController {
             console.info(event);
 
             if ((event.target + "").indexOf('coe.json') >= 0) {
-                console.info("Coe config clicked");
+
                 _this2.menuHandler.openCoeView(event.target + "");
-            }
-            if ((event.target + "").indexOf('mm.json') >= 0) {
-                console.info("MM config clicked");
+            } else if ((event.target + "").indexOf('mm.json') >= 0) {
+
                 _this2.menuHandler.openMultiModel(event.target + "");
+            } else if ((event.target + "").indexOf('sysml.json') >= 0) {
+
+                _this2.menuHandler.openSysMlExport(event.target + "");
+            } else if ((event.target + "").indexOf('.fmu') >= 0) {
+
+                _this2.menuHandler.openFmu(event.target + "");
             }
         });
 
@@ -70,9 +75,14 @@ export class BrowserController {
 
         contentProvider.getChildren(root).forEach((value: Container, index: number, array: Container[]) => {
 
+            var name = value.name;
+            if (name.indexOf('.') > 0) {
+                name = name.substring(0, name.indexOf('.'));
+            }
+
             var item: any = new Object();
             item.id = value.filepath;
-            item.text = value.name;
+            item.text = name;
             item.expanded = true
 
             if (level == 0)
