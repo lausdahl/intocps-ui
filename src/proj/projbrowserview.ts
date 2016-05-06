@@ -7,9 +7,13 @@
 
 import {IntoCpsAppEvents} from "../IntoCpsAppEvents";
 import * as IntoCpsApp from  "../IntoCpsApp"
-import {ContentProvider} from "../proj/ContentProvider";
-import {Container} from "../proj/Container";
-import {ContainerType} from "../proj/Container";
+import {ContentProvider} from "./ContentProvider";
+import {Container, ContainerType} from "./Container";
+import {Project} from "./Project";
+import {IProject} from "./IProject";
+import fs = require('fs');
+import Path = require('path');
+
 
 import {IntoCpsAppMenuHandler} from "../IntoCpsAppMenuHandler";
 
@@ -33,9 +37,9 @@ export class BrowserController {
 
         this.tree = $(this.browser).w2sidebar({
             name: 'sidebar',
-             menu: [
-                {id: "Duplicate", text: "Duplicate", icon: 'glyphicon glyphicon-duplicate'},
-                {id: "Delete", text: "Delete", icon: 'glyphicon glyphicon-remove'},
+            menu: [
+                { id: "Duplicate", text: "Duplicate", icon: 'glyphicon glyphicon-duplicate' },
+                { id: "Delete", text: "Delete", icon: 'glyphicon glyphicon-remove' },
             ]
         });
 
@@ -63,7 +67,7 @@ export class BrowserController {
         if (app.getActiveProject() != null) {
             //TODO: Set tree view browser
             let root = new Container(app.getActiveProject().getName(), app.getActiveProject().getRootFilePath(), ContainerType.Folder);
-            this.addToplevelNodes(this.buildProjectStructor(0, root));
+            this.addToplevelNodes(this.buildProjectStructor(app.getActiveProject(), 0, root, 3));
         }
         var ipc = require('electron').ipcRenderer;
         ipc.on(IntoCpsAppEvents.PROJECT_CHANGED, function (event, arg) {
@@ -71,7 +75,7 @@ export class BrowserController {
         });
     }
 
-    private buildProjectStructor(level: number, root: Container): any {
+    private buildProjectStructor(project: IProject, level: number, root: Container, expandToLevel: number): any {
 
         let _this = this;
         var items: any[] = [];
@@ -84,20 +88,44 @@ export class BrowserController {
                 name = name.substring(0, name.indexOf('.'));
             }
 
+            var modifiedExpandLevel = expandToLevel;
+
             var item: any = new Object();
             item.id = value.filepath;
             item.text = name;
             item.expanded = true
 
-            if (level == 0)
+            if (level == 0) {
                 item.group = true;
 
+                if (value.name.toLowerCase().indexOf(project.getSysMlFolderName().toLowerCase() + "") == 0) {
+                    modifiedExpandLevel = 2;//modify expand level for SysML
+                }
+            }
 
             switch (value.type) {
                 case ContainerType.Folder:
                     {
                         item.img = 'icon-folder';
-                        item.nodes = _this.buildProjectStructor(level + 1, value);
+
+                        if (level >= 5) {
+                            //truncate content
+                            item.nodes = [
+                                {
+                                    id: item.id + 'truncated', text: 'content truncated', img: 'glyphicon glyphicon-option-horizontal', group: false
+                                }];
+                        } else {
+                            item.nodes = _this.buildProjectStructor(project, level + 1, value, modifiedExpandLevel);
+                        }
+
+                        if (level >= modifiedExpandLevel) {
+                            item.expanded = false;
+                        }
+
+                        if (_this.isOvertureProject(value)) {
+                            item.img = 'glyphicon glyphicon-leaf';
+                            item.expanded = false;
+                        }
                         break;
                     };
                 case ContainerType.FMU:
@@ -120,6 +148,18 @@ export class BrowserController {
                         item.img = 'glyphicon glyphicon-tasks';
                         break;
                     };
+                case ContainerType.EMX:
+                    {
+                        item.img = 'glyphicon glyphicon-tree-conifer';
+                        break;
+                    };
+                case ContainerType.MO:
+                    {
+                        item.img = 'glyphicon glyphicon-tree-deciduous';
+                        break;
+                    };
+
+
 
             }
 
@@ -236,4 +276,25 @@ export class BrowserController {
     getSelectedId(): string {
         return this.tree.selected;
     }
+
+
+    /*
+    Utility function to determin if the container holds an Overture Project. TODO: Should this be annotated in the container instead.
+     */
+    private isOvertureProject(container: Container): boolean {
+
+        let projectFile = Path.normalize(container.getFilePath() + "/" + ".project");
+
+        try {
+            if (!fs.accessSync(projectFile, fs.R_OK)) {
+                let content = fs.readFileSync(projectFile, "UTF-8");
+                return content.indexOf("org.overture.ide.vdmrt.core.nature") >= 0;
+
+            }
+        } catch (e) {
+
+        }
+        return false;
+    }
+
 }

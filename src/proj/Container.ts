@@ -28,4 +28,4 @@ export class Container {
 
 };
 
-export enum ContainerType {SysML,VDM,Modelica,TSim,FMU,Result, Folder,CoeConfig,MultiModelConfig,SysMLExport};
+export enum ContainerType {SysML,VDM,Modelica,TSim,FMU,Result, Folder,CoeConfig,MultiModelConfig,SysMLExport,EMX,MO};

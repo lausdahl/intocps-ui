@@ -23,7 +23,8 @@ export class Project implements IProject {
     PATH_MODELS: String = "Models";
     PATH_MULTI_MODELS: String = "Multi-models";
     PATH_DSE: String = "Design Space Explorations";
-    PATH_CONNECTIONS: String = "SysML Connections";
+    //PATH_CONNECTIONS: String = "SysML Connections";
+    PATH_SYSML:String="SysML";
 
     constructor(name: string, rootPath: string, configPath: string) {
         this.name = name;
@@ -54,11 +55,16 @@ export class Project implements IProject {
     public getConMaps() {
         return this.conMaps;
     }
+    
+    public getSysMlFolderName():String
+    {
+        return this.PATH_SYSML;
+    }
 
     //TODO: replace with proper folder struct
     public save() {
 
-        let folders = [this.PATH_CONNECTIONS, this.PATH_DSE, this.PATH_FMUS, this.PATH_MODELS, this.PATH_MULTI_MODELS];
+        let folders = [this.PATH_SYSML, this.PATH_DSE, this.PATH_FMUS, this.PATH_MODELS, this.PATH_MULTI_MODELS];
 
         for (var i = 0; folders.length > i; i++) {
             try {

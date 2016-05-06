@@ -6,12 +6,13 @@ import {Config} from "./Config"
 import {ConMap} from "./ConMap"
 
 export interface IProject {
-    getName():string;
-    getRootFilePath():string;
-    getProjectConfigFilePath():string;
-     getFmusPath():string;
-    
-    getContainers():Array<Container>;
-    getConfigs():Array<Config>;
-    getConMaps():Array<ConMap>;
+    getName(): string;
+    getRootFilePath(): string;
+    getProjectConfigFilePath(): string;
+    getFmusPath(): string;
+    getSysMlFolderName(): String;
+
+    getContainers(): Array<Container>;
+    getConfigs(): Array<Config>;
+    getConMaps(): Array<ConMap>;
 }
