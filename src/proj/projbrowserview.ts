@@ -26,6 +26,16 @@ export class BrowserController {
 
     private menuHandler: IntoCpsAppMenuHandler = null;
 
+    private CTXT_DUBLICATE_ID: string = "Duplicate";
+    private CTXT_DELETE_ID: string = "Duplicate";
+    private CTXT_CREATE_MULTI_MODEL_ID: string = "create-multi-model";
+    private CTXT_CREATE_CO_SIM_CONFIG_ID: string = "create-co-sim-config";
+    private CTXT_IMPORT_ID: string = "import";
+    private CTXT_EXPORT_ID: string = "export";
+
+
+
+
     constructor(menuHandler: IntoCpsAppMenuHandler) {
         this.menuHandler = menuHandler;
     }
@@ -38,10 +48,46 @@ export class BrowserController {
         this.tree = $(this.browser).w2sidebar({
             name: 'sidebar',
             menu: [
-                { id: "Duplicate", text: "Duplicate", icon: 'glyphicon glyphicon-duplicate' },
-                { id: "Delete", text: "Delete", icon: 'glyphicon glyphicon-remove' },
+                { id: this.CTXT_DUBLICATE_ID, text: "Duplicate", icon: 'glyphicon glyphicon-duplicate' },
+                { id: this.CTXT_DELETE_ID, text: "Delete", icon: 'glyphicon glyphicon-remove' },
+                { id: this.CTXT_CREATE_MULTI_MODEL_ID, text: "Create Multi-Model", icon: 'glyphicon glyphicon-briefcase' },
+                { id: this.CTXT_CREATE_CO_SIM_CONFIG_ID, text: "Create Co-Simulation Configuration", icon: 'glyphicon glyphicon-copyright-mark' },
+                { id: this.CTXT_IMPORT_ID, text: "Import", icon: 'glyphicon glyphicon-import' },
+                { id: this.CTXT_EXPORT_ID, text: "Export", icon: 'glyphicon glyphicon-export' },
             ]
         });
+
+        /* this.tree.on("contextMenu", (event: Object) => {
+            console.log(event);
+        });*/
+
+        this.tree.on("menuClick", (event: any) => {
+
+            var id: string = "";
+
+            if (event.menuItem != undefined) {
+                id = event.menuItem.id;
+            }
+
+            if (id.indexOf(this.CTXT_CREATE_MULTI_MODEL_ID) == 0) {
+                if (event.target.indexOf('sysml.json') >= 0) {
+                    console.info("Create new multimodel for: " + event.target);
+                    this.menuHandler.createMultiModel(event.target + "");
+                } else {
+                    const { dialog } = require('electron').remote;
+                    dialog.showErrorBox("Cannot create multi-model", "A multi-model cannot be created based on the selected resource.")
+                }
+            } else if (id.indexOf(this.CTXT_CREATE_CO_SIM_CONFIG_ID) == 0) {
+                if (event.target.indexOf('mm.json') >= 0) {
+                    console.info("Create new cosim config for: " + event.target);
+                    this.menuHandler.createCoSimConfiguration(event.target + "");
+                } else {
+                    const { dialog } = require('electron').remote;
+                    dialog.showErrorBox("Cannot create co-simulation configuration", "A co-simulation configuration cannot be created based on the selected resource.")
+                }
+            }
+        });
+
 
         this.addDblClickHandler((event: JQueryEventObject) => {
             console.info(event);
@@ -61,18 +107,24 @@ export class BrowserController {
             }
         });
 
-        // this.exampleOfInitTreeNodes();
         this.addHandlers();
+
+        this.refreshProjectBrowser();
+
+        var ipc = require('electron').ipcRenderer;
+        ipc.on(IntoCpsAppEvents.PROJECT_CHANGED, function (event, arg) {
+            this.refreshProjectBrowser();
+        });
+    }
+
+    //set and refresh the prowser content
+    private refreshProjectBrowser() {
+        let remote = require("remote");
         let app: IntoCpsApp.IntoCpsApp = remote.getGlobal("intoCpsApp");
         if (app.getActiveProject() != null) {
-            //TODO: Set tree view browser
             let root = new Container(app.getActiveProject().getName(), app.getActiveProject().getRootFilePath(), ContainerType.Folder);
             this.addToplevelNodes(this.buildProjectStructor(app.getActiveProject(), 0, root, 3));
         }
-        var ipc = require('electron').ipcRenderer;
-        ipc.on(IntoCpsAppEvents.PROJECT_CHANGED, function (event, arg) {
-            //TODO: Set tree view browser
-        });
     }
 
     private buildProjectStructor(project: IProject, level: number, root: Container, expandToLevel: number): any {
@@ -168,70 +220,6 @@ export class BrowserController {
 
         console.info(items);
         return items;
-    }
-
-    private exampleOfInitTreeNodes() {
-        this.addToplevelNodes([
-            {
-                id: 'Models', text: 'Models', img: 'icon-folder', group: true
-            },
-            {
-                id: 'FMUs', text: 'FMUs', img: 'icon-folder', group: true
-            },
-            {
-                id: 'Connections', text: 'Connections', img: 'icon-folder', group: true
-            },
-            {
-                id: 'Multi-Models', text: 'Multi-Models', img: 'icon-folder', expanded: true, group: true,
-                nodes: [{
-                    id: 'Multi-Models-1', text: 'Multi-Model1', icon: 'glyphicon glyphicon-folder-open',
-                    nodes: [
-                        {
-                            id: 'Multi-Models-1-1', text: 'SimWithControllerModeX', icon: 'glyphicon glyphicon-file',
-                            nodes: [
-                                { id: 'MM-1-1-1', text: 'Timestamp', icon: 'icon-page' },
-                                { id: 'MM-1-1-2', text: 'Timestamp', icon: 'icon-page' }]
-                        },
-                        {
-                            id: 'Multi-Models-1-2', text: 'SimWithControllerModeZ', icon: 'glyphicon glyphicon-file',
-                            nodes: [
-                                { id: 'MM-1-2-1', text: 'Timestamp', icon: 'icon-page' },
-                                { id: 'MM-1-2-2', text: 'Timestamp', icon: 'icon-page' }]
-                        },
-                        {
-                            id: 'Multi-Models-1-3', text: 'SimWithControllerModeY', icon: 'glyphicon glyphicon-file',
-                            nodes: [
-                                { id: 'MM-1-3-1', text: 'Timestamp', icon: 'icon-page' },
-                                { id: 'MM-1-3-2', text: 'Timestamp', icon: 'icon-page' }]
-                        }]
-
-                },
-                    {
-                        id: 'Multi-Models-2', text: 'Multi-Model2', icon: 'glyphicon glyphicon-folder-open',
-                        nodes: [
-                            {
-                                id: 'Multi-Models-2-1', text: 'SimWithControllerModeK', icon: 'glyphicon glyphicon-file',
-                                nodes: [
-                                    { id: 'MM-2-1-1', text: 'Timestamp', icon: 'icon-page' }]
-                            }]
-
-                    }
-                ]
-            },
-            {
-                id: 'Design Space Explorations', text: 'Design Space Explorations', img: 'icon-folder', expanded: true, group: true,
-                nodes: [{
-                    id: 'DSE-1', text: 'SimWithControllerX', icon: 'glyphicon glyphicon-file',
-                    nodes: [{ id: 'DSE-1-1', text: 'Timestamp', icon: 'icon-page' }]
-                }]
-            }
-        ]);
-    }
-
-    private exampleOfAddingNode() {
-        let node: any = { id: 'fmu-waterTank', text: 'Water tank fmu', img: 'icon-folder' };
-        let parent = "FMUs";
-        this.addNodes(parent, node);
     }
 
     addToplevelNodes(nodes: Object | Object[]): Object {

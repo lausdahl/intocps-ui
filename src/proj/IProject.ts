@@ -12,6 +12,9 @@ export interface IProject {
     getFmusPath(): string;
     getSysMlFolderName(): String;
 
+    createMultiModel(name: String, jsonContent: String): String;
+    createCoSimConfig(multimodelConfigPath: string, name: String, jsonContent: String): String;
+
     getContainers(): Array<Container>;
     getConfigs(): Array<Config>;
     getConMaps(): Array<ConMap>;
