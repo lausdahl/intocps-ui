@@ -39,6 +39,8 @@ export class ContentProvider {
                             }
                             else if (filePath.indexOf('.mo') >= 0) {
                                 children.push(new Container(name, filePath, ContainerType.MO));
+                            } else if (filePath.indexOf('.csv') >= 0) {
+                                children.push(new Container(name, filePath, ContainerType.CSV));
                             }
 
                         } else if (stat.isDirectory()) {

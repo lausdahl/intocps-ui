@@ -13,7 +13,9 @@ import {Fmu} from "./fmu"
 import * as Collections from 'typescript-collections';
 import {CoeConfig} from './CoeConfig'
 import {SimulationCallbackHandler} from './SimulationCallbackHandler'
+
 import Path = require('path');
+import fs = require('fs');
 
 
 export class CoeSimulationRunner {
@@ -27,7 +29,7 @@ export class CoeSimulationRunner {
     private createSessionCmd: string = "createSession";
     private initializeSessionCmd: string = "initialize/";
     private simulateCmd: string = "simulate/";
-    private resultCmd: string = "result";
+    private resultCmd: string = "result/";
     private resultCmdZipType: string = "zip";
     private destroyCmd: string = "destroy";
     private uploadCmd: string = "upload/";
@@ -213,6 +215,7 @@ export class CoeSimulationRunner {
             contentType: "application/json; charset=utf-8",
             success: function () {
                 _this.setProgress(100, "Simulation done.");
+                _this.downloadResults();
             }
         }).fail(function () {
 
@@ -222,6 +225,25 @@ export class CoeSimulationRunner {
 
     }
 
+    private downloadResults() {
+        let _this = this;
+        let currentDir = Path.dirname(this.coeConfig.sourcePath);
+        let resultDirPath = Path.normalize(currentDir + "/R_" + new Date().toLocaleString().replace(/\//gi, "-").replace(/,/gi, "").replace(/ /gi, "_").replace(/:/gi, "-"));
+
+        fs.mkdir(resultDirPath, (err) => {
+
+            if (err)
+                return;
+
+            let url = _this.getHttpUrl() + _this.resultCmd + _this.sessionId;
+
+            $.get(url, function (data) {
+                fs.writeFile(Path.normalize(resultDirPath + "/log.csv"), data);
+            });
+
+        });
+
+    }
 
     //show debug message
     private setDebugMessage(message: string) {

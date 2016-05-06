@@ -177,6 +177,8 @@ export class BrowserController {
                         if (_this.isOvertureProject(value)) {
                             item.img = 'glyphicon glyphicon-leaf';
                             item.expanded = false;
+                        } else if (name.indexOf("R_") == 0) {
+                            item.img = 'glyphicon glyphicon-barcode';
                         }
                         break;
                     };
@@ -208,6 +210,11 @@ export class BrowserController {
                 case ContainerType.MO:
                     {
                         item.img = 'glyphicon glyphicon-tree-deciduous';
+                        break;
+                    };
+                case ContainerType.CSV:
+                    {
+                        item.img = 'glyphicon glyphicon-th-list';
                         break;
                     };
 
