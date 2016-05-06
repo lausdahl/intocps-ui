@@ -93,16 +93,12 @@ export class BrowserController {
             console.info(event);
 
             if ((event.target + "").indexOf('coe.json') >= 0) {
-
                 _this2.menuHandler.openCoeView(event.target + "");
             } else if ((event.target + "").indexOf('mm.json') >= 0) {
-
                 _this2.menuHandler.openMultiModel(event.target + "");
             } else if ((event.target + "").indexOf('sysml.json') >= 0) {
-
                 _this2.menuHandler.openSysMlExport(event.target + "");
             } else if ((event.target + "").indexOf('.fmu') >= 0) {
-
                 _this2.menuHandler.openFmu(event.target + "");
             }
         });
@@ -123,17 +119,21 @@ export class BrowserController {
         let app: IntoCpsApp.IntoCpsApp = remote.getGlobal("intoCpsApp");
         if (app.getActiveProject() != null) {
             let root = new Container(app.getActiveProject().getName(), app.getActiveProject().getRootFilePath(), ContainerType.Folder);
-            this.addToplevelNodes(this.buildProjectStructor(app.getActiveProject(), 0, root, 3));
+            this.addToplevelNodes(this.buildProjectStructor(app.getActiveProject(), 0, root, 3, []));
         }
     }
 
-    private buildProjectStructor(project: IProject, level: number, root: Container, expandToLevel: number): any {
+    private buildProjectStructor(project: IProject, level: number, root: Container, expandToLevel: number, skipContainers: Container[]): any {
 
         let _this = this;
         var items: any[] = [];
         let contentProvider: ContentProvider = new ContentProvider();
 
         contentProvider.getChildren(root).forEach((value: Container, index: number, array: Container[]) => {
+
+            if (skipContainers.indexOf(value) >= 0) {
+                return;
+            }
 
             var name = value.name;
             if (name.indexOf('.') > 0) {
@@ -160,6 +160,19 @@ export class BrowserController {
                     {
                         item.img = 'icon-folder';
 
+                        //merge MultiModelConfig and folder
+                        var autoRemoveChild = _this.getChildContainer(value, ContainerType.MultiModelConfig);
+                        if (autoRemoveChild != null) {
+                            item.img = 'glyphicon glyphicon-briefcase';
+                            item.id = autoRemoveChild.filepath;
+                        }
+                        //merge CosimConfig
+                        autoRemoveChild = _this.getChildContainer(value, ContainerType.CoeConfig);
+                        if (autoRemoveChild != null) {
+                            item.img = 'glyphicon glyphicon-copyright-mark';
+                            item.id = autoRemoveChild.filepath;
+                        }
+
                         if (level >= 5) {
                             //truncate content
                             item.nodes = [
@@ -167,7 +180,8 @@ export class BrowserController {
                                     id: item.id + 'truncated', text: 'content truncated', img: 'glyphicon glyphicon-option-horizontal', group: false
                                 }];
                         } else {
-                            item.nodes = _this.buildProjectStructor(project, level + 1, value, modifiedExpandLevel);
+                            let autoremoveList: Container[] = autoRemoveChild == null ? [] : [autoRemoveChild];
+                            item.nodes = _this.buildProjectStructor(project, level + 1, value, modifiedExpandLevel, autoremoveList);
                         }
 
                         if (level >= modifiedExpandLevel) {
@@ -290,6 +304,18 @@ export class BrowserController {
 
         }
         return false;
+    }
+
+    private getChildContainer(root: Container, type: ContainerType) {
+        let contentProvider: ContentProvider = new ContentProvider();
+
+        let children = contentProvider.getChildren(root).filter((value) => { return value.getType() == type });
+
+        if (children.length > 0)
+            return children[0];
+
+        return null;
+
     }
 
 }
