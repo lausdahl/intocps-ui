@@ -89,7 +89,11 @@ let mmController: MmController = new MmController();
 
 let menuHandler: IntoCpsAppMenuHandler = new IntoCpsAppMenuHandler();
 
-
+//EMITTER EXAMPLE
+import {eventEmitter} from "./Emitter";
+eventEmitter.on("testEvent", (arg1 : string, arg2: string) => {
+    console.log("Argument1: " + arg1 + ". Argument2: " + arg2);
+});
 
 var browserController: BrowserController = new BrowserController(menuHandler);
 var init = new InitializationController();

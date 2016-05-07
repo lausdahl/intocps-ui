@@ -17,6 +17,8 @@ import Path = require('path');
 
 import {IntoCpsAppMenuHandler} from "../IntoCpsAppMenuHandler";
 
+//EMITTER EXAMPLE
+import {eventEmitter} from "../Emitter";
 
 export class BrowserController {
     private browser: HTMLDivElement;
@@ -41,6 +43,7 @@ export class BrowserController {
     }
 
     initialize() {
+        eventEmitter.emit("testEvent","arg1", "arg2");
         let _this2 = this;
         this.browser = <HTMLDivElement>document.querySelector("#browser");
         let remote = require("remote");
