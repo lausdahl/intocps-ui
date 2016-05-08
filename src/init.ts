@@ -8,6 +8,8 @@ import {IntoCpsAppMenuHandler} from "./IntoCpsAppMenuHandler"
 
 import fs = require('fs');
 
+import {eventEmitter} from "./Emitter";
+
 // constants
 var mainViewId: string = "mainView";
 
@@ -89,11 +91,7 @@ let mmController: MmController = new MmController();
 
 let menuHandler: IntoCpsAppMenuHandler = new IntoCpsAppMenuHandler();
 
-//EMITTER EXAMPLE
-import {eventEmitter} from "./Emitter";
-eventEmitter.on("testEvent", (arg1 : string, arg2: string) => {
-    console.log("Argument1: " + arg1 + ". Argument2: " + arg2);
-});
+
 
 var browserController: BrowserController = new BrowserController(menuHandler);
 var init = new InitializationController();
@@ -134,6 +132,7 @@ menuHandler.createMultiModel = (path) => {
             let content = fs.readFileSync(path, "UTF-8");
             let mmPath = project.createMultiModel("mm-" + Math.floor(Math.random() * 100), content);
             mmController.load(mmPath + "");
+            eventEmitter.emit(IntoCpsAppEvents.PROJECT_CHANGED);
 
         }
 
@@ -154,7 +153,7 @@ menuHandler.createCoSimConfiguration = (path) => {
             let coePath = project.createCoSimConfig(path + "", "co-sim-" + Math.floor(Math.random() * 100), null);
            
             coeController.load(coePath+"");
-
+            eventEmitter.emit(IntoCpsAppEvents.PROJECT_CHANGED);
         }
 
 

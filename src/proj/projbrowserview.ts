@@ -15,6 +15,8 @@ import fs = require('fs');
 import Path = require('path');
 
 
+
+
 import {IntoCpsAppMenuHandler} from "../IntoCpsAppMenuHandler";
 
 //EMITTER EXAMPLE
@@ -43,26 +45,61 @@ export class BrowserController {
     }
 
     initialize() {
-        eventEmitter.emit("testEvent","arg1", "arg2");
+        eventEmitter.emit("testEvent", "arg1", "arg2");
         let _this2 = this;
         this.browser = <HTMLDivElement>document.querySelector("#browser");
         let remote = require("remote");
 
+        let DEFAULT_MENU = [
+           // { id: this.CTXT_DUBLICATE_ID, text: "Duplicate", icon: 'glyphicon glyphicon-duplicate' },
+            { id: this.CTXT_DELETE_ID, text: "Delete", icon: 'glyphicon glyphicon-remove' },
+           // { id: this.CTXT_CREATE_MULTI_MODEL_ID, text: "Create Multi-Model", icon: 'glyphicon glyphicon-briefcase' },
+           // { id: this.CTXT_CREATE_CO_SIM_CONFIG_ID, text: "Create Co-Simulation Configuration", icon: 'glyphicon glyphicon-copyright-mark' },
+            { id: this.CTXT_IMPORT_ID, text: "Import", icon: 'glyphicon glyphicon-import' },
+            { id: this.CTXT_EXPORT_ID, text: "Export", icon: 'glyphicon glyphicon-export' },
+        ];
+
         this.tree = $(this.browser).w2sidebar({
             name: 'sidebar',
-            menu: [
-                { id: this.CTXT_DUBLICATE_ID, text: "Duplicate", icon: 'glyphicon glyphicon-duplicate' },
-                { id: this.CTXT_DELETE_ID, text: "Delete", icon: 'glyphicon glyphicon-remove' },
-                { id: this.CTXT_CREATE_MULTI_MODEL_ID, text: "Create Multi-Model", icon: 'glyphicon glyphicon-briefcase' },
-                { id: this.CTXT_CREATE_CO_SIM_CONFIG_ID, text: "Create Co-Simulation Configuration", icon: 'glyphicon glyphicon-copyright-mark' },
-                { id: this.CTXT_IMPORT_ID, text: "Import", icon: 'glyphicon glyphicon-import' },
-                { id: this.CTXT_EXPORT_ID, text: "Export", icon: 'glyphicon glyphicon-export' },
-            ]
+            menu: DEFAULT_MENU
         });
 
-        /* this.tree.on("contextMenu", (event: Object) => {
+        let MM_MENU = [
+            { id: this.CTXT_DUBLICATE_ID, text: "Duplicate", icon: 'glyphicon glyphicon-duplicate' },
+            { id: this.CTXT_DELETE_ID, text: "Delete", icon: 'glyphicon glyphicon-remove' },
+            { id: this.CTXT_CREATE_CO_SIM_CONFIG_ID, text: "Create Co-Simulation Configuration", icon: 'glyphicon glyphicon-copyright-mark' },
+            { id: this.CTXT_IMPORT_ID, text: "Import", icon: 'glyphicon glyphicon-import' },
+            { id: this.CTXT_EXPORT_ID, text: "Export", icon: 'glyphicon glyphicon-export' },
+        ];
+
+        let COSIM_MENU = [
+            { id: this.CTXT_DUBLICATE_ID, text: "Duplicate", icon: 'glyphicon glyphicon-duplicate' },
+            { id: this.CTXT_DELETE_ID, text: "Delete", icon: 'glyphicon glyphicon-remove' },
+            { id: this.CTXT_IMPORT_ID, text: "Import", icon: 'glyphicon glyphicon-import' },
+            { id: this.CTXT_EXPORT_ID, text: "Export", icon: 'glyphicon glyphicon-export' },
+        ];
+
+        let SYSML_EX_MENU = [
+            { id: this.CTXT_CREATE_MULTI_MODEL_ID, text: "Create Multi-Model", icon: 'glyphicon glyphicon-briefcase' },
+            { id: this.CTXT_DELETE_ID, text: "Delete", icon: 'glyphicon glyphicon-remove' },
+            { id: this.CTXT_IMPORT_ID, text: "Import", icon: 'glyphicon glyphicon-import' },
+            { id: this.CTXT_EXPORT_ID, text: "Export", icon: 'glyphicon glyphicon-export' },
+        ];
+
+        this.tree.on("contextMenu", (event: any) => {
             console.log(event);
-        });*/
+            let id:String = event.target+"";
+            if (id.indexOf('mm.json') >= 0) {
+                this.tree.menu = MM_MENU;
+            } else if (id.indexOf('coe.json') >= 0) {
+                this.tree.menu = COSIM_MENU;
+            } else if (id.indexOf('sysml.json') >= 0) {
+                this.tree.menu = SYSML_EX_MENU;
+            }else
+            {
+                this.tree.menu = DEFAULT_MENU;
+            }
+        });
 
         this.tree.on("menuClick", (event: any) => {
 
@@ -111,7 +148,11 @@ export class BrowserController {
         this.refreshProjectBrowser();
 
         var ipc = require('electron').ipcRenderer;
-        ipc.on(IntoCpsAppEvents.PROJECT_CHANGED, function (event, arg) {
+        ipc.on(IntoCpsAppEvents.PROJECT_CHANGED, (event, arg) => {
+            this.refreshProjectBrowser();
+        });
+
+        eventEmitter.on(IntoCpsAppEvents.PROJECT_CHANGED, () => {
             this.refreshProjectBrowser();
         });
     }
@@ -122,6 +163,7 @@ export class BrowserController {
         let app: IntoCpsApp.IntoCpsApp = remote.getGlobal("intoCpsApp");
         if (app.getActiveProject() != null) {
             let root = new Container(app.getActiveProject().getName(), app.getActiveProject().getRootFilePath(), ContainerType.Folder);
+            this.clearAll();
             this.addToplevelNodes(this.buildProjectStructor(app.getActiveProject(), 0, root, 3, []));
         }
     }
