@@ -119,7 +119,7 @@ export class Project implements IProject {
     }
 
 
-    public createCoSimConfig(multimodelConfigPath: string, name: String, jsonContent: String): String {
+    public createCoSimConfig(multimodelConfigPath: string, name: String, jsonContent: String): string {
         let mmDir = Path.dirname(multimodelConfigPath);
         let path = Path.normalize(mmDir + "/" + name);
 

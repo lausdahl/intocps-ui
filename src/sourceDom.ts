@@ -1,6 +1,6 @@
 export class SourceDom {
     private path: string;
-    data: any
+    data: any;
 
     constructor(path: string) {
         this.path = path;
@@ -8,7 +8,7 @@ export class SourceDom {
     }
 
     public save(): void {
-        //TODO: Implement save functionality
+        // TODO: Implement save functionality
     }
 
     public discard(): void {
@@ -16,7 +16,7 @@ export class SourceDom {
     }
 
     private load(path: string) : any {
-        let fs = require('fs');
+        let fs = require("fs");
         try {
             if (fs.accessSync(path, fs.R_OK)) {
                 return;

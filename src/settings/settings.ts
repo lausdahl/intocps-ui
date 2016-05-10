@@ -1,11 +1,11 @@
-///<reference path="../../typings/browser/ambient/github-electron/index.d.ts"/>
-///<reference path="../../typings/browser/ambient/node/index.d.ts"/>
+/// <reference path="../../typings/browser/ambient/github-electron/index.d.ts"/>
+/// <reference path="../../typings/browser/ambient/node/index.d.ts"/>
 /**
  * Settings
  */
-import fs = require('fs');
-import path = require('path');
-import {ISettingsValues} from "./ISettingsValues.ts"
+import fs = require("fs");
+import path = require("path");
+import {ISettingsValues} from "./ISettingsValues.ts";
 
 export default class Settings implements ISettingsValues {
   app: Electron.App;
@@ -19,20 +19,6 @@ export default class Settings implements ISettingsValues {
     this.intoCpsAppFolder = intoCpsAppFolder;
     this.settingsFile = path.normalize(this.intoCpsAppFolder + "/settings.json");
   }
-
-  /* initializeSettings() {
-     // Check if file exists
-     fs.lstat(this.settingsFile, (err, data) => {
-       if (err || !data.isFile()) {
-         console.log("Settings file does not exist. Creating the file " + this.settingsFile + ".");
-         this.storeSettings();
-       }
-       else {
-         console.log("Loading settings from" + this.settingsFile + ".");
-         this.load();
-       }
-     });
-   }*/
 
   public save() {
     this.storeSettings();
@@ -65,7 +51,7 @@ export default class Settings implements ISettingsValues {
   load() {
     try {
 
-      var initial = false;
+      let initial = false;
       try {
         if (!fs.statSync(this.settingsFile).isFile()) {
           initial = true;
@@ -74,7 +60,7 @@ export default class Settings implements ISettingsValues {
         initial = true;
       }
 
-      if (initial) { //no settings file created yet, just use DOM
+      if (initial) { // no settings file created yet, just use DOM
         this.intoCpsDataObject = {};
         return;
       }

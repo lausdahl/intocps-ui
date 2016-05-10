@@ -13,7 +13,7 @@ export interface IProject {
     getSysMlFolderName(): String;
 
     createMultiModel(name: String, jsonContent: String): String;
-    createCoSimConfig(multimodelConfigPath: string, name: String, jsonContent: String): String;
+    createCoSimConfig(multimodelConfigPath: string, name: String, jsonContent: String): string;
 
     getContainers(): Array<Container>;
     getConfigs(): Array<Config>;

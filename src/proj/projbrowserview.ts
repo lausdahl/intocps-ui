@@ -1,5 +1,3 @@
-//TODO: DUMMY REFERENCE UNTIL CHART MAKES A TYPESCRIPT DEFINITION FILE!
-
 ///<reference path="../../typings/browser/ambient/github-electron/index.d.ts"/>
 ///<reference path="../../typings/browser/ambient/node/index.d.ts"/>
 ///<reference path="../../typings/browser/ambient/jquery/index.d.ts"/>
@@ -14,12 +12,7 @@ import {IProject} from "./IProject";
 import fs = require('fs');
 import Path = require('path');
 
-
-
-
 import {IntoCpsAppMenuHandler} from "../IntoCpsAppMenuHandler";
-
-//EMITTER EXAMPLE
 import {eventEmitter} from "../Emitter";
 
 export class BrowserController {
@@ -37,16 +30,11 @@ export class BrowserController {
     private CTXT_IMPORT_ID: string = "import";
     private CTXT_EXPORT_ID: string = "export";
 
-
-
-
     constructor(menuHandler: IntoCpsAppMenuHandler) {
         this.menuHandler = menuHandler;
     }
 
     initialize() {
-        eventEmitter.emit("testEvent", "arg1", "arg2");
-        let _this2 = this;
         this.browser = <HTMLDivElement>document.querySelector("#browser");
         let remote = require("remote");
 
@@ -132,13 +120,13 @@ export class BrowserController {
             console.info(event);
             let path = Path.normalize(event.target + "");
             if (path.indexOf('coe.json') >= 0) {
-                _this2.menuHandler.openCoeView(path);
+                this.menuHandler.openCoeView(path);
             } else if (path.indexOf('mm.json') >= 0) {
-                _this2.menuHandler.openMultiModel(path);
+                this.menuHandler.openMultiModel(path);
             } else if (path.indexOf('sysml.json') >= 0) {
-                _this2.menuHandler.openSysMlExport(path);
+                this.menuHandler.openSysMlExport(path);
             } else if (path.indexOf('.fmu') >= 0) {
-                _this2.menuHandler.openFmu(path);
+                this.menuHandler.openFmu(path);
             }
         });
 
@@ -314,7 +302,7 @@ export class BrowserController {
 
     private addHandlers() {
         this.tree.on("dblClick", (event: JQueryEventObject) => {
-            //Remove auto expansion on when double clicking
+            //Remove auto expansion on double click
             event.preventDefault();
             this.dblClickHandlers.forEach(handler => {
                 handler(event);

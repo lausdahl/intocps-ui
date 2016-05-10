@@ -58,8 +58,7 @@ export class CoeController extends IViewController {
         let activeProject = this.app.getActiveProject();
         if (activeProject == null) {
             console.warn("no active project cannot load coe config");
-        }
-
+    }
         this.coeConfig = new CoeConfig();
         this.coeConfig.load(sourceDom.getPath(), activeProject.getRootFilePath());
 
