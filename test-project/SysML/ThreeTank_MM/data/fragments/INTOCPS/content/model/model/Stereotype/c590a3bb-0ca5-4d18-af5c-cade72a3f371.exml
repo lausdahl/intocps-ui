@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="Physical" version="4">
+  <OBJECT>
+    <ID name="Physical" mc="Standard.Stereotype" uid="c590a3bb-0ca5-4d18-af5c-cade72a3f371"/>
+    <PID name="INTOCPS" mc="Standard.Profile" uid="25337a0e-7f00-4647-ac49-414f8597ba57"/>
+    <ATTRIBUTES>
+      <ATT name="Image"></ATT>
+      <ATT name="Icon"><![CDATA[res/icons/physical.png]]></ATT>
+      <ATT name="IsHidden">false</ATT>
+      <ATT name="LabelKey"><![CDATA[%stereotype.physical.label]]></ATT>
+      <ATT name="BaseClassName"><![CDATA[Class]]></ATT>
+      <ATT name="Name"><![CDATA[Physical]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES></DEPENDENCIES>
+  </OBJECT>
+</EXT>

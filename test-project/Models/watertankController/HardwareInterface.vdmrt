@@ -1,0 +1,25 @@
+-- Generated class
+class HardwareInterface
+
+values
+	-- @ interface: type = parameter, name="minlevel";
+	public minlevel : real = 1.0;
+	-- @ interface: type = parameter, name="maxlevel";
+	public maxlevel : real = 2.0;
+
+
+instance variables
+	-- @ interface: type = input, name="level";
+	public level : real := 0.0;
+
+
+instance variables
+	-- @ interface: type = output, name="valveState";
+	public valveState : bool := false;
+
+
+  -- @ interface: type = input, name="ACCactive";
+public  ACCactive : bool := false;
+  
+end HardwareInterface
+

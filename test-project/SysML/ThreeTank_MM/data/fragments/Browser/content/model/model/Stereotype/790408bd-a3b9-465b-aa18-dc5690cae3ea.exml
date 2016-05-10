@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="Root" version="4">
+  <OBJECT>
+    <ID name="Root" mc="Standard.Stereotype" uid="790408bd-a3b9-465b-aa18-dc5690cae3ea"/>
+    <PID name="Browser" mc="Standard.Profile" uid="ce871cb0-61c7-4118-8b54-9990e79af00a"/>
+    <ATTRIBUTES>
+      <ATT name="Image"></ATT>
+      <ATT name="Icon"></ATT>
+      <ATT name="IsHidden">false</ATT>
+      <ATT name="LabelKey"><![CDATA[root]]></ATT>
+      <ATT name="BaseClassName"><![CDATA[Package]]></ATT>
+      <ATT name="Name"><![CDATA[Root]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <COMP relation="DefinedTagType">
+        <OBJECT>
+          <ID name="Root_filepath" mc="Standard.TagType" uid="3bf934f7-9529-4913-a002-16ce575a7985"/>
+          <ATTRIBUTES>
+            <ATT name="ParamNumber"><![CDATA[1]]></ATT>
+            <ATT name="IsQualified">false</ATT>
+            <ATT name="BelongToPrototype">false</ATT>
+            <ATT name="IsHidden">false</ATT>
+            <ATT name="LabelKey"><![CDATA[filePath]]></ATT>
+            <ATT name="Name"><![CDATA[Root_filepath]]></ATT>
+            <ATT name="status">1970354901745664</ATT>
+          </ATTRIBUTES>
+          <DEPENDENCIES></DEPENDENCIES>
+        </OBJECT>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>

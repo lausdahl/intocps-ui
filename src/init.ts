@@ -6,6 +6,10 @@ import {MmController} from  "./multimodel/MmController";
 import {BrowserController} from "./proj/projbrowserview"
 import {IntoCpsAppMenuHandler} from "./IntoCpsAppMenuHandler"
 
+import fs = require('fs');
+
+import {eventEmitter} from "./Emitter";
+
 // constants
 var mainViewId: string = "mainView";
 
@@ -107,11 +111,51 @@ menuHandler.openMultiModel = (path) => {
     });
 };
 
-menuHandler.openSysMlExport = ()=>{
-     $(init.mainView).load("sysmlexport/sysmlexport.html");
+menuHandler.openSysMlExport = () => {
+    $(init.mainView).load("sysmlexport/sysmlexport.html");
 };
 
-menuHandler.openFmu = ()=>{
-     $(init.mainView).load("fmus/fmus.html");
+menuHandler.openFmu = () => {
+    $(init.mainView).load("fmus/fmus.html");
 };
 
+
+menuHandler.createMultiModel = (path) => {
+    $(init.mainView).load("multimodel/multimodel.html", (event: JQueryEventObject) => {
+        mmController.initialize();
+
+        let remote = require("remote");
+        let app: IntoCpsApp.IntoCpsApp = remote.getGlobal("intoCpsApp");
+
+        let project = app.getActiveProject();
+        if (project != null) {
+            let content = fs.readFileSync(path, "UTF-8");
+            let mmPath = project.createMultiModel("mm-" + Math.floor(Math.random() * 100), content);
+            mmController.load(mmPath + "");
+            eventEmitter.emit(IntoCpsAppEvents.PROJECT_CHANGED);
+
+        }
+
+
+    });
+};
+
+menuHandler.createCoSimConfiguration = (path) => {
+    $(init.mainView).load("coe/coe.html", (event: JQueryEventObject) => {
+        coeController.initialize();
+
+        let remote = require("remote");
+        let app: IntoCpsApp.IntoCpsApp = remote.getGlobal("intoCpsApp");
+
+        let project = app.getActiveProject();
+        if (project != null) {
+
+            let coePath = project.createCoSimConfig(path + "", "co-sim-" + Math.floor(Math.random() * 100), null);
+           
+            coeController.load(coePath+"");
+            eventEmitter.emit(IntoCpsAppEvents.PROJECT_CHANGED);
+        }
+
+
+    });
+};

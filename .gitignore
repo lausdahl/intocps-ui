@@ -35,3 +35,5 @@ test-create
 demo-project
 test-sim
 test-vdmsim
+target
+test-project/Models/watertankController/generated

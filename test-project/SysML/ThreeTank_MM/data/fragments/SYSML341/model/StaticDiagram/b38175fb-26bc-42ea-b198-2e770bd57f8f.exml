@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="Items and Flows diagram" version="4">
+  <OBJECT>
+    <ID name="Items and Flows diagram" mc="Standard.StaticDiagram" uid="b38175fb-26bc-42ea-b198-2e770bd57f8f"/>
+    <PID name="Items and Flows" mc="Standard.Package" uid="37cc246c-2388-4f3f-84ac-cf29d9a8aa79"/>
+    <ATTRIBUTES>
+      <ATT name="UiDataVersion">130</ATT>
+      <ATT name="UiData"><![CDATA[eJyNUdtuwjAM/ZUo7wToxsqkAg+wTWjsoiHtdUoalwVyQYm59O/Xri3amFbxFNvx8fE5TiZHo8kefFDOjmif9SiZjJMXsYYUiZJFiRLMtzCizq+YcRK0ckwqvvLcMJAKnWcBOaoNAw0GLIYqT5umB7P8zmdVTonha+c/TqQ9Ok5evduCx5xYbgouzXO3wxlHXvy9c72Degm705p2x0m3AfyBLjHXQH9JiNokhLI/sNR5YBX2gv2mPKRcgmzI7o74BtmFLM/FiBpJ4IgzMS92/A7LIOTBnEvsVmLaZHvQHEEWW5w59lSWyL6slOb8OAQRV8N+PMhEJ7oRaec6At4R/dthJ4I47gk5iLNh1m625gEfrTvYBRegz5iX6JVdnbjnCCYQbiW51+4QSG1NO4F3GuZ26szWBYXFOdo52odNP5WWHsoZCxVKO+vnX8RC2U1oaW8O8wWwYyXU]]></ATT>
+      <ATT name="PdeProperties"></ATT>
+      <ATT name="Name"><![CDATA[Items and Flows diagram]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <LINK relation="Extension">
+        <FOREIGNID name="BlockDiagram" mc="Standard.Stereotype" uid="00bc42ac-0000-1016-0000-000000000000"/>
+      </LINK>
+      <COMP relation="Descriptor">
+        <OBJECT>
+          <ID name="" mc="Standard.Note" uid="a3648e5d-5f45-4915-941a-9f55a336d385"/>
+          <ATTRIBUTES>
+            <ATT name="Content"><![CDATA[The Block Diagram in SysML might be use for defining the type of available connection i.e. existing flow, item flow and interfaces and their properties. ]]></ATT>
+            <ATT name="MimeType"></ATT>
+            <ATT name="Name"></ATT>
+            <ATT name="status">1970354901745664</ATT>
+          </ATTRIBUTES>
+          <DEPENDENCIES>
+            <LINK relation="Model">
+              <FOREIGNID name="description" mc="Standard.NoteType" uid="00000000-0000-3e81-0000-000000000000"/>
+            </LINK>
+          </DEPENDENCIES>
+        </OBJECT>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>

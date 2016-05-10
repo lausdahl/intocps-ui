@@ -1,0 +1,16 @@
+class LevelSensor
+
+
+instance variables
+
+handle : bool->real;
+
+operations
+
+public LevelSensor: bool->real ==> LevelSensor
+LevelSensor(h) == handle := h;
+
+public getLevel: () ==> real
+getLevel()==return handle(true);
+
+end LevelSensor

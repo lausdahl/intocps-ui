@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="DType" version="4">
+  <OBJECT>
+    <ID name="DType" mc="Standard.Stereotype" uid="9999783b-351d-447a-8673-a1c782c2e1ae"/>
+    <PID name="INTOCPS" mc="Standard.Profile" uid="25337a0e-7f00-4647-ac49-414f8597ba57"/>
+    <ATTRIBUTES>
+      <ATT name="Image"></ATT>
+      <ATT name="Icon"><![CDATA[res/icons/dtype.png]]></ATT>
+      <ATT name="IsHidden">false</ATT>
+      <ATT name="LabelKey"><![CDATA[%stereotype.dtype.label]]></ATT>
+      <ATT name="BaseClassName"><![CDATA[DataType]]></ATT>
+      <ATT name="Name"><![CDATA[DType]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <COMP relation="DefinedTagType">
+        <OBJECT>
+          <ID name="DType_super" mc="Standard.TagType" uid="bbf9f862-71f6-49f8-a868-eed03c502336"/>
+          <ATTRIBUTES>
+            <ATT name="ParamNumber"><![CDATA[1]]></ATT>
+            <ATT name="IsQualified">false</ATT>
+            <ATT name="BelongToPrototype">false</ATT>
+            <ATT name="IsHidden">false</ATT>
+            <ATT name="LabelKey"><![CDATA[%tagtype.dtype.super.label]]></ATT>
+            <ATT name="Name"><![CDATA[DType_super]]></ATT>
+            <ATT name="status">1970354901745664</ATT>
+          </ATTRIBUTES>
+          <DEPENDENCIES></DEPENDENCIES>
+        </OBJECT>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>
