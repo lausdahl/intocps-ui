@@ -10,6 +10,8 @@ import fs = require('fs');
 
 // constants
 var mainViewId: string = "mainView";
+let topBarNameId : string = "activeTabTitle";
+
 
 class InitializationController {
     layout: W2UI.W2Layout;
@@ -81,6 +83,10 @@ class InitializationController {
 
 
 
+function setTopName(s:string){
+  var mainName = (<HTMLSpanElement>document.getElementById(topBarNameId));
+  mainName.innerText = s;
+};
 
 
 // Initialise controllers so they persist
