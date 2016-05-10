@@ -9,7 +9,6 @@ import * as Main from  "../settings/settings"
 import * as IntoCpsApp from  "../IntoCpsApp"
 import {IntoCpsAppEvents} from "../IntoCpsAppEvents";
 import {IProject} from "../proj/IProject";
-import {Fmu} from "./fmu"
 import * as Collections from 'typescript-collections';
 import {CoeConfig} from './CoeConfig'
 import {SimulationCallbackHandler} from './SimulationCallbackHandler'

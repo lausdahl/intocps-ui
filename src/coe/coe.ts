@@ -8,14 +8,11 @@
 import * as Main from  "../settings/settings"
 import * as IntoCpsApp from  "../IntoCpsApp"
 import {IntoCpsAppEvents} from "../IntoCpsAppEvents";
-import {Fmu} from "./fmu"
 import * as Collections from 'typescript-collections';
 import {CoeConfig, FixedStepAlgorithm} from './CoeConfig'
 import {CoeSimulationRunner} from './CoeSimulationRunner'
 import {IProject} from "../proj/IProject";
 import {SettingKeys} from "../settings/SettingKeys";
-import {Input} from "./input";
-import {Output} from "./output";
 import {SourceDom} from "../SourceDom"
 import {IViewController} from "../IViewController"
 
