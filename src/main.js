@@ -3,7 +3,7 @@
 const electron = require('electron');
 const fs = require('fs');
 const path = require('path');
-var settings = require("./settings/Settings.js").default;
+var settings = require("./settings/settings").default;
 var IntoCpsApp = require("./IntoCpsApp").default;
 var CreateProjectHandler = require("./proj/CreateProjectHandler").default;
 
