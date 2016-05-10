@@ -18,12 +18,19 @@ After checking out the repo...
 4. To run it: `npm start`
 
 
-Editor
+Development
 ---
-[Visual Studio Code](https://code.visualstudio.com/) is a good choice. It's
+For an editor, [Visual Studio Code](https://code.visualstudio.com/) is a good choice. It's
 cross-platform and is actually built on top of Electron. That said, you can use
 whatever you want.
 
+When developing, `gulp watch` is a useful command. It will automatically detect
+when you save a file and run the corresponding build task so you only have to
+refresh the app when developing.
+
+If new dependencies have been introduced, you will have to rerun
+`npm install` (for changes to `package.json`) or `gulp init` (for changes to
+`typings.json` or `bower.json`).
 
 About
 ---
