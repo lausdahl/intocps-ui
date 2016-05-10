@@ -15,12 +15,12 @@ import {IProject} from "../proj/IProject";
 import {SettingKeys} from "../settings/SettingKeys";
 import {Input} from "../coe/input";
 import {Output} from "../coe/output";
+import {IViewController} from "../iViewController";
+import {SourceDom} from "../SourceDom";
 import Path = require('path');
 
 
-export class MmController {
-
-
+export class MmController extends IViewController {
     coeConfig: CoeConfig = new CoeConfig();
 
     private fmuCounter: number = 0;
@@ -36,16 +36,20 @@ export class MmController {
     private connections: any = [];
     private selectedOutput: Output;
 
-private parametersDiv: HTMLDivElement;
+    private parametersDiv: HTMLDivElement;
 
-    initialize() {
-      
+    constructor(mainViewDiv: HTMLDivElement) {
+        super(mainViewDiv);
+    }
+    
+    initialize(sourceDom: SourceDom) {
+        
         this.fmusDiv = <HTMLDivElement>document.getElementById("fmusDiv");
-         this.parametersDiv = <HTMLDivElement>document.getElementById("parametersDiv");
+        this.parametersDiv = <HTMLDivElement>document.getElementById("parametersDiv");
         this.outputList = <HTMLUListElement>document.getElementById("connections-outputs");
         this.inputList = <HTMLUListElement>document.getElementById("connections-inputs");
 
-this.parametersDiv.innerHTML="";
+        this.parametersDiv.innerHTML = "";
 
         var remote = require('remote');
         var Menu = remote.require('menu');
@@ -58,12 +62,11 @@ this.parametersDiv.innerHTML="";
         this.allInputs = [];
         this.allOutputs = [];
         this.connections = [];
+        
+        this.load(sourceDom.getPath());
     }
 
     public load(path: string) {
-
-        this.initialize();
-
         this.fmus.forEach((value: Fmu, index: number, array: Fmu[]) => {
             this.removeFmu(value);
         });
@@ -80,9 +83,9 @@ this.parametersDiv.innerHTML="";
         this.connections = this.extractConnections(this.coeConfig.connections);
         this.extractOuputsAndInputs(this.coeConfig.fmus, this.getDefinedInstances(this.coeConfig.connections));
 
-this.coeConfig.parameters.forEach((value:any,index:String)=>{
-    this.parametersDiv.innerHTML+=""+index+" = "+value+"<br/>";
-});
+        this.coeConfig.parameters.forEach((value: any, index: String) => {
+            this.parametersDiv.innerHTML += "" + index + " = " + value + "<br/>";
+        });
 
     }
 
@@ -109,7 +112,7 @@ this.coeConfig.parameters.forEach((value:any,index:String)=>{
     }
 
     private extractOuputsAndInputs(fmus: any, instances: string[]) {
-        fmus.forEach((value:any, index:any, map:any) => {
+        fmus.forEach((value: any, index: any, map: any) => {
 
             let SESSION_PREFIX = "session:/";
             var p = value.path;
@@ -136,11 +139,11 @@ this.coeConfig.parameters.forEach((value:any,index:String)=>{
         var fs = require("fs");
 
         // read a zip file
-        fs.readFile(path, function (err:any, data:any) {
+        fs.readFile(path, function (err: any, data: any) {
             if (err) throw err;
             var zip = new JSZip();
 
-            zip.loadAsync(data).then(function (k:any) {
+            zip.loadAsync(data).then(function (k: any) {
                 let md = zip.file("modelDescription.xml").async("string")
                     .then(function (content: string) {
                         // use content

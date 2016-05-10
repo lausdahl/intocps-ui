@@ -5,11 +5,14 @@ import {CoeController} from  "./coe/coe";
 import {MmController} from  "./multimodel/MmController";
 import {BrowserController} from "./proj/projbrowserview"
 import {IntoCpsAppMenuHandler} from "./IntoCpsAppMenuHandler"
+import {SourceDom} from "./SourceDom"
+import {IViewController} from "./IViewController"
 
 // constants
 var mainViewId: string = "mainView";
 
 class InitializationController {
+    coeController: CoeController;
     layout: W2UI.W2Layout;
     title: HTMLTitleElement;
     mainView: HTMLDivElement;
@@ -69,7 +72,10 @@ class InitializationController {
     }
 
     loadCoSim() {
-        $(this.mainView).load("coe/coe.html", (event: JQueryEventObject) => coeController.initialize());
+        $(this.mainView).load("coe/coe.html", (event: JQueryEventObject) => {
+            let coeController = new CoeController(this.mainView);
+            coeController.initialize(null);
+        });
     }
 
     loadMc() {
@@ -78,40 +84,38 @@ class InitializationController {
 };
 
 
-
-
-
 // Initialise controllers so they persist
-let coeController: CoeController = new CoeController();
-let mmController: MmController = new MmController();
-
+let mmController: MmController;
 let menuHandler: IntoCpsAppMenuHandler = new IntoCpsAppMenuHandler();
-
-
-
 var browserController: BrowserController = new BrowserController(menuHandler);
 var init = new InitializationController();
+let coeController: CoeController;
+let controller : IViewController;
+
+function test (path: string, controllerPar: new (mainDiv: HTMLDivElement) => IViewController){
+    controller = new this.controllerPar(init.mainView);
+    controller.initialize(new SourceDom(path));
+}
 
 menuHandler.openCoeView = (path) => {
+    let app: IntoCpsApp.IntoCpsApp = require("remote").getGlobal("intoCpsApp");
     $(init.mainView).load("coe/coe.html", (event: JQueryEventObject) => {
-        coeController.initialize();
-        coeController.load(path);
+        test(path, CoeController);
     });
-
 };
 
 menuHandler.openMultiModel = (path) => {
     $(init.mainView).load("multimodel/multimodel.html", (event: JQueryEventObject) => {
-        mmController.initialize();
-        mmController.load(path);
+        mmController = new MmController(init.mainView);
+        mmController.initialize(new SourceDom(path));
     });
 };
 
-menuHandler.openSysMlExport = ()=>{
-     $(init.mainView).load("sysmlexport/sysmlexport.html");
+menuHandler.openSysMlExport = () => {
+    $(init.mainView).load("sysmlexport/sysmlexport.html");
 };
 
-menuHandler.openFmu = ()=>{
-     $(init.mainView).load("fmus/fmus.html");
+menuHandler.openFmu = () => {
+    $(init.mainView).load("fmus/fmus.html");
 };
 
