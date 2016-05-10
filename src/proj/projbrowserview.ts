@@ -51,10 +51,10 @@ export class BrowserController {
         let remote = require("remote");
 
         let DEFAULT_MENU = [
-           // { id: this.CTXT_DUBLICATE_ID, text: "Duplicate", icon: 'glyphicon glyphicon-duplicate' },
+            // { id: this.CTXT_DUBLICATE_ID, text: "Duplicate", icon: 'glyphicon glyphicon-duplicate' },
             { id: this.CTXT_DELETE_ID, text: "Delete", icon: 'glyphicon glyphicon-remove' },
-           // { id: this.CTXT_CREATE_MULTI_MODEL_ID, text: "Create Multi-Model", icon: 'glyphicon glyphicon-briefcase' },
-           // { id: this.CTXT_CREATE_CO_SIM_CONFIG_ID, text: "Create Co-Simulation Configuration", icon: 'glyphicon glyphicon-copyright-mark' },
+            // { id: this.CTXT_CREATE_MULTI_MODEL_ID, text: "Create Multi-Model", icon: 'glyphicon glyphicon-briefcase' },
+            // { id: this.CTXT_CREATE_CO_SIM_CONFIG_ID, text: "Create Co-Simulation Configuration", icon: 'glyphicon glyphicon-copyright-mark' },
             { id: this.CTXT_IMPORT_ID, text: "Import", icon: 'glyphicon glyphicon-import' },
             { id: this.CTXT_EXPORT_ID, text: "Export", icon: 'glyphicon glyphicon-export' },
         ];
@@ -88,15 +88,14 @@ export class BrowserController {
 
         this.tree.on("contextMenu", (event: any) => {
             console.log(event);
-            let id:String = event.target+"";
+            let id: String = event.target + "";
             if (id.indexOf('mm.json') >= 0) {
                 this.tree.menu = MM_MENU;
             } else if (id.indexOf('coe.json') >= 0) {
                 this.tree.menu = COSIM_MENU;
             } else if (id.indexOf('sysml.json') >= 0) {
                 this.tree.menu = SYSML_EX_MENU;
-            }else
-            {
+            } else {
                 this.tree.menu = DEFAULT_MENU;
             }
         });
@@ -131,15 +130,15 @@ export class BrowserController {
 
         this.addDblClickHandler((event: JQueryEventObject) => {
             console.info(event);
-
-            if ((event.target + "").indexOf('coe.json') >= 0) {
-                _this2.menuHandler.openCoeView(event.target + "");
-            } else if ((event.target + "").indexOf('mm.json') >= 0) {
-                _this2.menuHandler.openMultiModel(event.target + "");
-            } else if ((event.target + "").indexOf('sysml.json') >= 0) {
-                _this2.menuHandler.openSysMlExport(event.target + "");
-            } else if ((event.target + "").indexOf('.fmu') >= 0) {
-                _this2.menuHandler.openFmu(event.target + "");
+            let path = Path.normalize(event.target + "");
+            if (path.indexOf('coe.json') >= 0) {
+                _this2.menuHandler.openCoeView(path);
+            } else if (path.indexOf('mm.json') >= 0) {
+                _this2.menuHandler.openMultiModel(path);
+            } else if (path.indexOf('sysml.json') >= 0) {
+                _this2.menuHandler.openSysMlExport(path);
+            } else if (path.indexOf('.fmu') >= 0) {
+                _this2.menuHandler.openFmu(path);
             }
         });
 
@@ -280,8 +279,10 @@ export class BrowserController {
 
 
             }
-
-            items.push(item);
+            if (!(value.type == ContainerType.CoeConfig || value.type == ContainerType.MultiModelConfig)) {
+                item.id = item.id.replace(/\\/g, "/");
+                items.push(item)
+            };
         });
 
         console.info(items);
