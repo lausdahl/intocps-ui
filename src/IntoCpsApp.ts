@@ -6,7 +6,7 @@ import fs = require('fs');
 import Path = require('path');
 
 import {ISettingsValues} from "./settings/ISettingsValues"
-import {Settings} from "./settings/Settings"
+import {Settings} from "./settings/settings"
 import {IProject} from "./proj/IProject"
 import {Project} from "./proj/Project"
 import {IntoCpsAppEvents} from "./IntoCpsAppEvents";

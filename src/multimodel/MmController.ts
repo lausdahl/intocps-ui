@@ -4,7 +4,7 @@
 ///<reference path="../../typings/browser/ambient/jquery/index.d.ts"/>
 /// <reference path="../../node_modules/typescript/lib/lib.es6.d.ts" />
 
-import * as Main from  "../settings/Settings"
+import * as Main from  "../settings/settings"
 import * as IntoCpsApp from  "../IntoCpsApp"
 import {IntoCpsAppEvents} from "../IntoCpsAppEvents";
 import {Fmu} from "../coe/fmu"
