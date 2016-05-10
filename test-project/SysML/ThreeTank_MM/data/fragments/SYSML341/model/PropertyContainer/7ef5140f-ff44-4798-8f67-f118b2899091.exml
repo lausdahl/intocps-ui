@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="SYSML341" version="4">
+  <OBJECT>
+    <ID name="SYSML341" mc="Standard.PropertyContainer" uid="7ef5140f-ff44-4798-8f67-f118b2899091"/>
+    <PID name="SYSML341" mc="Standard.AnalystProject" uid="6cbb20eb-2417-48d3-9e0d-81b2a29542aa"/>
+    <ATTRIBUTES>
+      <ATT name="Name"><![CDATA[SYSML341]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES></DEPENDENCIES>
+  </OBJECT>
+</EXT>

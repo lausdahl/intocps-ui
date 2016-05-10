@@ -1,0 +1,36 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="Architecture diagram" version="4">
+  <OBJECT>
+    <ID name="Architecture diagram" mc="Standard.StaticDiagram" uid="8d46ae87-3447-4420-a88a-4fcb558a79c8"/>
+    <PID name="Architecture" mc="Standard.Package" uid="83090504-54da-452f-9178-cfcb97ac0cfd"/>
+    <ATTRIBUTES>
+      <ATT name="UiDataVersion">111</ATT>
+      <ATT name="UiData"><![CDATA[eJyNUdtuwjAM/ZUo7y2MldFJBTTBNKGxi4a018ltDARyQYnL6N+vHS3amFbxFNvx8fE5TsYHrdgenZfWDPlV2OVsPEpe0g1mxKQoS5xRscMht24VaitQSRsKCSsHOkQhybrQE5DchqhQoyF/zLOm6UEvvvPpMedMw8a6jxNpl4+SV2d36KhgBnTJpaCwOU2BoPx7B5VjvYTJleKdUdJpAH+gCyoU8l8Sem0SfNXvw8w6DI/YC/abgM9AoGjI7g/0hssLWZ7LETWS4YGm6azc8TusAl94fS6xcxTTJtuhAkJRbnHm2FNVYvuqUpnz4xAsFtENYDwIrqNoEERRrxtAHEMQLbO0349hcJvF7WYr8PRo7KeZQ4rqjHlBTprVifvOZWtJpYzcIat9aZ/urMKZmVi9s15SeYt2gvZhk7VUwmE1Yy595WX9/IuYS7P1Le3NVb4A/asksw==]]></ATT>
+      <ATT name="PdeProperties"></ATT>
+      <ATT name="Name"><![CDATA[Architecture diagram]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <LINK relation="Extension">
+        <FOREIGNID name="BlockDiagram" mc="Standard.Stereotype" uid="00bc42ac-0000-1016-0000-000000000000"/>
+      </LINK>
+      <COMP relation="Descriptor">
+        <OBJECT>
+          <ID name="" mc="Standard.Note" uid="b9c341b5-1306-4382-91f0-a93f421e9018"/>
+          <ATTRIBUTES>
+            <ATT name="Content"><![CDATA[The Block Diagram in SysML defines features of blocks and relationships between blocks such as associations, generalizations, and dependencies.
+ It captures the definition of blocks in terms of operations, and relationships such as a system hierarchy or a system classification tree.]]></ATT>
+            <ATT name="MimeType"></ATT>
+            <ATT name="Name"></ATT>
+            <ATT name="status">1970354901745664</ATT>
+          </ATTRIBUTES>
+          <DEPENDENCIES>
+            <LINK relation="Model">
+              <FOREIGNID name="description" mc="Standard.NoteType" uid="00000000-0000-3e81-0000-000000000000"/>
+            </LINK>
+          </DEPENDENCIES>
+        </OBJECT>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>

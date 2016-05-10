@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="SYSML341" version="4">
+  <OBJECT>
+    <ID name="SYSML341" mc="Standard.Project" uid="21d61a0b-7789-4d6c-9ee5-0d9cbeb5b863"/>
+    <ATTRIBUTES>
+      <ATT name="ProjectContext"></ATT>
+      <ATT name="ProjectDescr"></ATT>
+      <ATT name="Name"><![CDATA[SYSML341]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <COMP relation="DiagramRoot">
+        <COMPID name="SYSML341" mc="Standard.DiagramSet" uid="67b1433a-d474-4373-9f7b-ed6c38504ea1"/>
+      </COMP>
+      <COMP relation="Model">
+        <COMPID name="sysml341" mc="Standard.Package" uid="080ccd4a-20ff-442c-843c-b6e8cd31facb"/>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>

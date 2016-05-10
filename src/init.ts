@@ -8,6 +8,10 @@ import {IntoCpsAppMenuHandler} from "./IntoCpsAppMenuHandler"
 import {SourceDom} from "./SourceDom"
 import {IViewController} from "./IViewController"
 
+import fs = require('fs');
+
+import {eventEmitter} from "./Emitter";
+
 // constants
 var mainViewId: string = "mainView";
 
@@ -119,3 +123,44 @@ menuHandler.openFmu = () => {
     $(init.mainView).load("fmus/fmus.html");
 };
 
+
+menuHandler.createMultiModel = (path) => {
+    $(init.mainView).load("multimodel/multimodel.html", (event: JQueryEventObject) => {
+        let remote = require("remote");
+        let app: IntoCpsApp.IntoCpsApp = remote.getGlobal("intoCpsApp");
+
+        let project = app.getActiveProject();
+        if (project != null) {
+            let content = fs.readFileSync(path, "UTF-8");
+            let mmPath = project.createMultiModel("mm-" + Math.floor(Math.random() * 100), content);
+            mmController.initialize(new SourceDom(mmPath + ""));
+            eventEmitter.emit(IntoCpsAppEvents.PROJECT_CHANGED);
+
+        }
+
+
+    });
+};
+
+menuHandler.createCoSimConfiguration = (path) => {
+    
+    
+    $(init.mainView).load("coe/coe.html", (event: JQueryEventObject) => {
+        
+        coeController = new CoeController(init.mainView);
+
+        let remote = require("remote");
+        let app: IntoCpsApp.IntoCpsApp = remote.getGlobal("intoCpsApp");
+
+        let project = app.getActiveProject();
+        if (project != null) {
+
+            let coePath = project.createCoSimConfig(path + "", "co-sim-" + Math.floor(Math.random() * 100), null);
+           
+            coeController.initialize(new SourceDom(coePath+""));
+            eventEmitter.emit(IntoCpsAppEvents.PROJECT_CHANGED);
+        }
+
+
+    });
+};
