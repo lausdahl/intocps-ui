@@ -13,8 +13,8 @@ import {CoeConfig} from '../coe/CoeConfig'
 
 import {IProject} from "../proj/IProject";
 import {SettingKeys} from "../settings/SettingKeys";
-import {Input} from "./input";
-import {Output} from "./output";
+import {Input} from "./connections/input";
+import {Output} from "./connections/output";
 import {IViewController} from "../iViewController";
 import {SourceDom} from "../SourceDom";
 import Path = require('path');
@@ -251,7 +251,7 @@ export class MmController extends IViewController {
     private setOutputs(allOutputs: any) {
         let mthis = this;
         allOutputs.forEach((element: any) => {
-            $('<div>').load("multimodel/output.html", function (event: BaseJQueryEventObject) {
+            $('<div>').load("multimodel/connections/output.html", function (event: BaseJQueryEventObject) {
                 let html: HTMLLinkElement = <HTMLLinkElement>(<HTMLDivElement>this).firstChild;
                 mthis.outputList.appendChild(html);
                 let output: Output = new Output(html, element, mthis.outputSelected.bind(mthis));
@@ -265,7 +265,7 @@ export class MmController extends IViewController {
     private setInputs(output: string) {
         let mthis = this;
         this.allInputs.forEach((inputName: string) => {
-            $('<div>').load("multimodel/input.html", function (event: BaseJQueryEventObject) {
+            $('<div>').load("multimodel/connections/input.html", function (event: BaseJQueryEventObject) {
                 let html: HTMLLinkElement = <HTMLLinkElement>(<HTMLDivElement>this).firstChild;
                 mthis.inputList.appendChild(html);
 
