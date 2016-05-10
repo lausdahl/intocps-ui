@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="Equations diagram" version="4">
+  <OBJECT>
+    <ID name="Equations diagram" mc="Standard.StaticDiagram" uid="b06a5538-2d71-481d-9fcd-c10d78bcebcd"/>
+    <PID name="Equations" mc="Standard.Package" uid="9e3cee0f-409d-440a-bd47-57b430558ebb"/>
+    <ATTRIBUTES>
+      <ATT name="UiDataVersion">108</ATT>
+      <ATT name="UiData"><![CDATA[eJyNUctuwjAQ/BXL95iElkKlAAdAFSp9qEhcK8deqMEPajuU/H1jkqCWqhEne9c7MzvjdHxUEh3AOmH0ECckxmg8Sl+yLTCPBC9bGPliD0Ns7IYow0EKQ7igG0sVAS68scR56sWOgAQF2ruqZs3Qg1qe6mlVY6To1tj3s2iMR+mrNXuwvkCaqlJL0sLkfko9Ld9WVOZQL6FzKXFnlHYawB/o0hcS8C8L3TYLLsw7wowFUmGv2G9CHaMceCM2O/o3WF+p8lxS1EgERz/N5uWOp2u4uMKpS4udykybbQuSeuDlFheJPYUWOoROCOfHR6AsvqO93s0g6vJ+Et0OEh7drxmPWBLz/iBjkDHeHrakzj9q86UXNAN5obz0VujNWXv2mZfiRjtUh9JObY2EuZ4YtTdOBFw7ezvZ5ENIbiFwLIQLQdbHv4iF0DvXMt58yTdyVyRg]]></ATT>
+      <ATT name="PdeProperties"></ATT>
+      <ATT name="Name"><![CDATA[Equations diagram]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <LINK relation="Extension">
+        <FOREIGNID name="BlockDiagram" mc="Standard.Stereotype" uid="00bc42ac-0000-1016-0000-000000000000"/>
+      </LINK>
+      <COMP relation="Descriptor">
+        <OBJECT>
+          <ID name="" mc="Standard.Note" uid="04b022a5-da14-44d5-86ff-17a538d12bca"/>
+          <ATTRIBUTES>
+            <ATT name="Content"><![CDATA[The Block Diagram in SysML allows to define equations and theirs relationships.
+ It captures the definition of equations in terms of contraint blocks, constraint properties and constraint.
+The internal structure of the constraint blocks might be exposed by using Parametric diagrams]]></ATT>
+            <ATT name="MimeType"></ATT>
+            <ATT name="Name"></ATT>
+            <ATT name="status">1970354901745664</ATT>
+          </ATTRIBUTES>
+          <DEPENDENCIES>
+            <LINK relation="Model">
+              <FOREIGNID name="description" mc="Standard.NoteType" uid="00000000-0000-3e81-0000-000000000000"/>
+            </LINK>
+          </DEPENDENCIES>
+        </OBJECT>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>

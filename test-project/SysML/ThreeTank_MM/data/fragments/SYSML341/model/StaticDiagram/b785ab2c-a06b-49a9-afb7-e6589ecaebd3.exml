@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="Data Types diagram" version="4">
+  <OBJECT>
+    <ID name="Data Types diagram" mc="Standard.StaticDiagram" uid="b785ab2c-a06b-49a9-afb7-e6589ecaebd3"/>
+    <PID name="Data Types" mc="Standard.Package" uid="10789141-cbb6-4d86-b123-5a61deace8df"/>
+    <ATTRIBUTES>
+      <ATT name="UiDataVersion">109</ATT>
+      <ATT name="UiData"><![CDATA[eJyNUdtOAjEQ/ZWm71sQ5ZYs8ADGEPESMb6a2e2AhV5IW5D9e1t3lyjGDU/t3M6ZcyadHJUkB7ROGD2iV6xNyWScPmUbzD0RPKQo8cUOR9TYNVOGoxSGcQFrC4ohF95Y5jx4sWUoUaH2rozzuulOLb/jWRlTomBj7PuJtE3H6bM1O7S+IBpU4JJQmL2fgYdQewO5x2oJvZeStsZpqx74M7r0hUT6S0KnSYKL/Y7lxiIrZy/YbwouB468Jrs9+hdcXcjyGCCqSYJHP8vmYcfvb/y4wqlzia1STJNsixI88rDFmWMPMUUOMRPN+XEIkvUHXcg6eQLtXpbcDGGYwCrrJ9jrDoaYA2b8utlsCc7fa/OpF5ChPGNeeiv0+sQdr0leQ8WRypVmbGskzvXUqJ1xwodLNMM3g00/hOQWI8ZCuOhk9fw7sRB66xra65t8AcrHJL8=]]></ATT>
+      <ATT name="PdeProperties"></ATT>
+      <ATT name="Name"><![CDATA[Data Types diagram]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <LINK relation="Extension">
+        <FOREIGNID name="BlockDiagram" mc="Standard.Stereotype" uid="00bc42ac-0000-1016-0000-000000000000"/>
+      </LINK>
+      <COMP relation="Descriptor">
+        <OBJECT>
+          <ID name="" mc="Standard.Note" uid="795257ad-8e6d-498a-8c45-c18ad9bccc23"/>
+          <ATTRIBUTES>
+            <ATT name="Content"><![CDATA[The Block Diagram in SysML might be use for defining the available data types.]]></ATT>
+            <ATT name="MimeType"></ATT>
+            <ATT name="Name"></ATT>
+            <ATT name="status">1970354901745664</ATT>
+          </ATTRIBUTES>
+          <DEPENDENCIES>
+            <LINK relation="Model">
+              <FOREIGNID name="description" mc="Standard.NoteType" uid="00000000-0000-3e81-0000-000000000000"/>
+            </LINK>
+          </DEPENDENCIES>
+        </OBJECT>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>

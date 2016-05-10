@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ram-component manifest-version="2.0"
+               name="PType" version="1" release="0" clevel="2">
+    <description>
+        <![CDATA[]]>
+    </description>
+    <dependencies>
+    </dependencies>
+    <contributors>
+      <contributor name="ModelerModule" version="8.5.12"></contributor>
+    </contributors>
+    <metamodels>
+      <metamodel name="Standard" version="1.0.9026"/>
+    </metamodels>
+    <roots>
+      <root metaclass="Project" name="INTOCPSPROFILETYPE" uuid="ac320eb7-d9f5-4c06-adf6-c79b36bfd588"></root>
+    </roots>
+</ram-component>

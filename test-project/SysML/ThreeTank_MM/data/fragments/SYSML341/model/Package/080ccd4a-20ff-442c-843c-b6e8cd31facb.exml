@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="sysml341" version="4">
+  <OBJECT>
+    <ID name="sysml341" mc="Standard.Package" uid="080ccd4a-20ff-442c-843c-b6e8cd31facb"/>
+    <PID name="SYSML341" mc="Standard.Project" uid="21d61a0b-7789-4d6c-9ee5-0d9cbeb5b863"/>
+    <ATTRIBUTES>
+      <ATT name="IsInstantiable">false</ATT>
+      <ATT name="IsAbstract">false</ATT>
+      <ATT name="IsLeaf">false</ATT>
+      <ATT name="IsRoot">false</ATT>
+      <ATT name="Visibility">Public</ATT>
+      <ATT name="Name"><![CDATA[sysml341]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <COMP relation="OwnedElement">
+        <COMPID name="Data Types" mc="Standard.Package" uid="10789141-cbb6-4d86-b123-5a61deace8df"/>
+        <COMPID name="Architecture" mc="Standard.Package" uid="83090504-54da-452f-9178-cfcb97ac0cfd"/>
+        <COMPID name="Equations" mc="Standard.Package" uid="9e3cee0f-409d-440a-bd47-57b430558ebb"/>
+        <COMPID name="Use Cases" mc="Standard.Package" uid="46103397-7c64-4cf8-a7f4-96203dfa80f6"/>
+        <COMPID name="Items and Flows" mc="Standard.Package" uid="37cc246c-2388-4f3f-84ac-cf29d9a8aa79"/>
+      </COMP>
+      <COMP relation="Product">
+        <COMPID name="Overview diagram" mc="Standard.StaticDiagram" uid="a2450458-6d5a-43ae-9710-2f26c1f4d732"/>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>

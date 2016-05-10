@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<styles xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="custom_styles.xsd">
+  <!-- 
+  All styles defined in this file will be available in the Template Editor.
+  Available style kinds are: 
+    - "Character"
+    - "List"
+    - "Paragraph"
+    - "Section"
+    - "Table"
+  -->
+	<!-- <style name="NewCharacterStyle" kind="Character" /> -->
+  <!-- <style name="NewListStyle" kind="List" /> -->
+  <!-- <style name="NewSectionStyle" kind="Section" /> -->
+  <!-- <style name="NewParagraphStyle" kind="Paragraph" /> -->
+  <!-- <style name="NewTableStyle" kind="Table" /> -->
+</styles>

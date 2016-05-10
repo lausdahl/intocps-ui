@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="ConnectionDiagram" version="4">
+  <OBJECT>
+    <ID name="ConnectionDiagram" mc="Standard.Stereotype" uid="0a40650b-4f72-4e18-8fb4-4efe7f89d535"/>
+    <PID name="INTOCPS" mc="Standard.Profile" uid="25337a0e-7f00-4647-ac49-414f8597ba57"/>
+    <ATTRIBUTES>
+      <ATT name="Image"></ATT>
+      <ATT name="Icon"><![CDATA[res/icons/connectiondiagram.png]]></ATT>
+      <ATT name="IsHidden">false</ATT>
+      <ATT name="LabelKey"><![CDATA[%stereotype.connectiondiagram.label]]></ATT>
+      <ATT name="BaseClassName"><![CDATA[ObjectDiagram]]></ATT>
+      <ATT name="Name"><![CDATA[ConnectionDiagram]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES></DEPENDENCIES>
+  </OBJECT>
+</EXT>
