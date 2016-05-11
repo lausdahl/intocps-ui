@@ -5,15 +5,15 @@ import {CoeController} from  "./coe/coe";
 import {MmController} from  "./multimodel/MmController";
 import {BrowserController} from "./proj/projbrowserview"
 import {IntoCpsAppMenuHandler} from "./IntoCpsAppMenuHandler"
+import {TdgController} from "./tdg/tdg"
+import {SourceDom} from "./sourcedom"
 
 import fs = require('fs');
 
-// constants
-var mainViewId: string = "mainView";
-let topBarNameId : string = "activeTabTitle";
-
-
 class InitializationController {
+
+// constants
+
     layout: W2UI.W2Layout;
     title: HTMLTitleElement;
     mainView: HTMLDivElement;
@@ -52,35 +52,31 @@ class InitializationController {
     }
 
     private loadViews() {
-        this.layout.load("main", "main.html", "", () => {
-            /// Switch active tab marker
-            $('.navbar li').click(function (e) {
-                $('.navbar li.active').removeClass('active');
-                var $this = $(this);
-                if (!$this.hasClass('active')) {
-                    $this.addClass('active');
-                }
-            });
-            this.mainView = (<HTMLDivElement>document.getElementById(mainViewId));
-            //this.loadCoSim();
-        });
-        this.layout.load("left", "proj/projbrowserview.html", "", () => {
-            browserController.initialize();
-        });
+      this.mainView = (<HTMLDivElement>document.getElementById(mainViewId));
+      this.layout.load("main", "main.html", "", () => {});
+      this.layout.load("left", "proj/projbrowserview.html", "", () => {
+        browserController.initialize();
+      });
     }
+
     loadDse() {
+      
         $(this.mainView).load("dse/dse.html");  // fire initialise event here
     }
 
     loadCoSim() {
-        $(this.mainView).load("coe/coe.html", (event: JQueryEventObject) => coeController.initialize());
+      IntoCpsApp.IntoCpsApp.setTopName("Co-Sim");
     }
 
     loadMc() {
-        $(this.mainView).load("mc/mc.html") // fire initialise event here
+    $(this.mainView).load("tdg/tdg.html", (event: JQueryEventObject) => {
+        tdgController=new TdgController(this.mainView);
+        tdgController.initialize();
+        tdgController.load(new SourceDom());
+    });
     }
-};
 
+};
 
 
 
@@ -90,11 +86,11 @@ let coeController: CoeController = new CoeController();
 let mmController: MmController = new MmController();
 
 let menuHandler: IntoCpsAppMenuHandler = new IntoCpsAppMenuHandler();
-
-
-
 var browserController: BrowserController = new BrowserController(menuHandler);
 var init = new InitializationController();
+
+// Declare feature controllers only. They are re-initialised at view reload.
+let tdgController : TdgController;
 
 menuHandler.openCoeView = (path) => {
     $(init.mainView).load("coe/coe.html", (event: JQueryEventObject) => {
