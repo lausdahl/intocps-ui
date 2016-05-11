@@ -23,4 +23,8 @@ export class Output {
     getName(): string {
         return this.name;
     }
+    
+    getHtml() : HTMLLinkElement {
+        return this.listElement;
+    }
 }
