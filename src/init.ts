@@ -83,10 +83,6 @@ class InitializationController {
 
 
 
-function setTopName(s:string){
-  var mainName = (<HTMLSpanElement>document.getElementById(topBarNameId));
-  mainName.innerText = s;
-};
 
 
 // Initialise controllers so they persist

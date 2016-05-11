@@ -12,6 +12,9 @@ import {Project} from "./proj/Project"
 import {IntoCpsAppEvents} from "./IntoCpsAppEvents";
 import {SettingKeys} from "./settings//SettingKeys";
 
+// constants
+let topBarNameId : string = "activeTabTitle";
+
 export default class IntoCpsApp {
     app: Electron.App;
     platform : String
@@ -127,6 +130,11 @@ export default class IntoCpsApp {
         //console.info("Project name is: " + project.getName());
         return project;
     }
+
+    public static setTopName(s:string){
+      var mainName = (<HTMLSpanElement>document.getElementById(topBarNameId));
+      mainName.innerText = s;
+    };
 
 
 }
