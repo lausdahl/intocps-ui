@@ -1,15 +1,15 @@
 /// <reference path="../../../node_modules/typescript/lib/lib.es6.d.ts" />
 import {Scalar} from "./scalar"
 import {Instance} from "./instance";
-import {Output} from "./output";
+import {OutputElement} from "./outputElement";
 import * as Collections from "typescript-collections";
 
 export class ConIOCrtl {
     html: HTMLDivElement;
 
     outputFmusList: HTMLUListElement;
-    selectedOutputFmu: Output;
-    outputFmus: Array<Output>;
+    selectedOutputFmu: OutputElement;
+    outputFmus: Array<OutputElement>;
 
     outputInstancesList: HTMLUListElement;
     outputInstances: Array<Instance>;
@@ -19,6 +19,8 @@ export class ConIOCrtl {
     outputScalars: Array<Scalar>
     selectedScalar: Scalar
     data: Map<string, Map<string, Map<string, string[]>>>
+    
+    
 
 
     constructor(html: HTMLDivElement) {
@@ -38,13 +40,18 @@ export class ConIOCrtl {
             // Load the html
             $('<div>').load("multimodel/connections/output.html", function (event: JQueryEventObject) {
                 let outputHtml: HTMLLinkElement = <HTMLLinkElement>(<HTMLDivElement>this).firstChild;
-                let outputFmu = new Output(outputHtml, iterator.next().value, self.outputFmuSelected);
+                let outputFmu = new OutputElement(outputHtml, iterator.next().value, self.outputFmuSelected);
                 self.outputFmus.push(outputFmu);
                 self.outputFmusList.appendChild(outputFmu.getHtml());
             });
         }
     }
-    private outputFmuSelected(output: Output) {
+    
+    private createOutputElements() : Array<OutputElement> {
+        return [];
+    }
+    
+    private outputFmuSelected(output: OutputElement) {
 
     }
 

@@ -1,9 +1,9 @@
-export class Output {
+export class OutputElement {
     private listElement: HTMLLinkElement;
     private name: string;
     private selected: boolean = false;
 
-    constructor(listElement: HTMLLinkElement, name: string, selected: (output: Output) => void) {
+    constructor(listElement: HTMLLinkElement, name: string, selected: (output: OutputElement) => void) {
         this.listElement = listElement;
         this.name = name;
         this.listElement.innerText = this.name;
