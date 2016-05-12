@@ -63,6 +63,8 @@ export class Fmu {
     private populateFromModelDescription(content: string) {
         var oParser = new DOMParser();
         var oDOM = oParser.parseFromString(content, "text/xml");
+
+        //output
         var iterator = document.evaluate('//ScalarVariable[@causality="output"]/@name', oDOM, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
 
         var thisNode = iterator.iterateNext();
@@ -72,6 +74,7 @@ export class Fmu {
             thisNode = iterator.iterateNext();
         }
 
+        //input
         var iterator = document.evaluate('//ScalarVariable[@causality="input"]/@name', oDOM, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
 
         var thisNode = iterator.iterateNext();
@@ -80,6 +83,27 @@ export class Fmu {
             this.scalarVariables.push({ name: thisNode.textContent, type: ScalarVariableType.Real, causality: CausalityType.Input });
             thisNode = iterator.iterateNext();
         }
+
+        //parameter
+         iterator = document.evaluate('//ScalarVariable[@causality="parameter"]/@name', oDOM, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
+
+        var thisNode = iterator.iterateNext();
+
+        while (thisNode) {
+            this.scalarVariables.push({ name: thisNode.textContent, type: ScalarVariableType.Real, causality: CausalityType.Parameter });
+            thisNode = iterator.iterateNext();
+        }
+          //calculated parameter
+         iterator = document.evaluate('//ScalarVariable[@causality="calculatedParameter"]/@name', oDOM, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
+
+        var thisNode = iterator.iterateNext();
+
+        while (thisNode) {
+            this.scalarVariables.push({ name: thisNode.textContent, type: ScalarVariableType.Real, causality: CausalityType.CalculatedParameter });
+            thisNode = iterator.iterateNext();
+        }
+        
+        
     }
 
     public getScalarVariable(name: string): ScalarVariable {
@@ -102,7 +126,7 @@ export class ScalarVariable {
     causality: CausalityType;
 }
 export enum ScalarVariableType { Real, Bool, Int, String };
-export enum CausalityType { Output, Input, Parameter };
+export enum CausalityType { Output, Input, Parameter ,CalculatedParameter};
 
 // Repersents an instance of an FMU, including initial parameters and a mapping from outputs to InstanceScalarPair
 export class Instance {

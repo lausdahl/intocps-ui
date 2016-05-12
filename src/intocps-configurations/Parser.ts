@@ -11,7 +11,7 @@ import {MultiModelConfig} from "./MultiModelConfig";
 
 import Path = require('path');
 
-export  class Parser {
+export class Parser {
 
     protected FMUS_TAG: string = "fmus";
     protected CONNECTIONS_TAG: string = "connections";
@@ -73,8 +73,19 @@ export  class Parser {
         return [fmuName, instanceName, scalarVariableName];
     }
 
+    //Utility method to obtain an instance from the multimodel by its string id encoding
+    private getInstance(multiModel: MultiModelConfig, id: string): Fmi.Instance {
+        let ids = this.parseId(id);
+
+        let fmuName = ids[0];
+        let instanceName = ids[1];
+        let scalarVariableName = ids[2];
+
+        return multiModel.getInstanceOrCreate(fmuName, instanceName);
+    }
+
     //parse connections
-    parseConnections(data: any, multiModel: MultiModelConfig): Fmi.Instance[] {
+    parseConnections(data: any, multiModel: MultiModelConfig) {
 
         if (Object.keys(data).indexOf(this.CONNECTIONS_TAG) >= 0) {
             let connectionsEntry = data[this.CONNECTIONS_TAG];
@@ -86,7 +97,7 @@ export  class Parser {
                 let instanceName = ids[1];
                 let scalarVariableName = ids[2];
 
-                var instance = multiModel.getInstanceOrCreate(fmuName, instanceName);
+                var instance = this.getInstance(multiModel, id);
 
                 let inputList = connectionsEntry[id];
 
@@ -104,21 +115,27 @@ export  class Parser {
                 });
             });
         }
-
-        return null;
     }
 
 
 
     //parse parameters
-    parseParameters(data: any): Map<String, any> {
+    parseParameters(data: any, multiModel: MultiModelConfig) {
         var parameters: Map<String, any> = new Map<String, any>();
 
         if (Object.keys(data).indexOf(this.PARAMETERS_TAG) >= 0) {
             let parameterData = data[this.PARAMETERS_TAG];
-            $.each(Object.keys(parameterData), (j, key) => {
-                let value = parameterData[key];
-                parameters.set(key, value);
+            $.each(Object.keys(parameterData), (j, id) => {
+                let value = parameterData[id];
+
+                let ids = this.parseId(id);
+
+                let fmuName = ids[0];
+                let instanceName = ids[1];
+                let scalarVariableName = ids[2];
+
+                var instance = this.getInstance(multiModel, id);
+                instance.initialValues.set(instance.fmu.getScalarVariable(scalarVariableName), value);
             });
         }
 
@@ -145,7 +162,7 @@ export  class Parser {
             });
         }
 
-       
+
         return livestream;
     }
 

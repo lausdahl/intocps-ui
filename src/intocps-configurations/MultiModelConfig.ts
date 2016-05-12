@@ -93,6 +93,7 @@ export class MultiModelConfig {
                         mm.fmus = fmus;
 
                         parser.parseConnections(jsonData, mm);
+                        parser.parseParameters(jsonData, mm);
                         console.info(mm);
 
                         resolveFinal(mm);
