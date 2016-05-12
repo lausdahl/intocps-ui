@@ -24,6 +24,9 @@ Editor
 cross-platform and is actually built on top of Electron. That said, you can use
 whatever you want.
 
+Help
+---
+Please the the wiki for examples of common use cases: https://github.com/into-cps/intocps-ui/wiki
 
 About
 ---
