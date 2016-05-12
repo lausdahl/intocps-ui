@@ -7,11 +7,11 @@ import * as Collections from "typescript-collections";
 export class ConIOCrtl {
     html: HTMLDivElement;
 
-    outputFmusList: HTMLUListElement;
+    fmusList: HTMLUListElement;
     selectedOutputFmu: OutputElement;
     outputFmus: Array<OutputElement>;
 
-    outputInstancesList: HTMLUListElement;
+    instancesList: HTMLUListElement;
     outputInstances: Array<Instance>;
     selectedInstance: Instance;
 
@@ -25,11 +25,12 @@ export class ConIOCrtl {
 
     constructor(html: HTMLDivElement) {
         this.html = html;
-        this.outputFmusList = <HTMLUListElement>html.querySelector("#connections-outputs-fmus");
-        this.outputInstancesList = <HTMLUListElement>html.querySelector("#connections-outputs-instances");
-        this.outputScalarList = <HTMLUListElement>html.querySelector("#connections-outputs-scalars");
+        this.fmusList = <HTMLUListElement>html.querySelector("#connections-fmuinstances-fmus");
+        this.instancesList = <HTMLUListElement>html.querySelector("#connections-fmuinstances-fmus");
     }
-
+    
+    addFmus(){}
+    
     addData(data: Map<string, Map<string, Map<string, string[]>>>) {
         this.data = data;
         let self = this;
@@ -42,7 +43,7 @@ export class ConIOCrtl {
                 let outputHtml: HTMLLinkElement = <HTMLLinkElement>(<HTMLDivElement>this).firstChild;
                 let outputFmu = new OutputElement(outputHtml, iterator.next().value, self.outputFmuSelected);
                 self.outputFmus.push(outputFmu);
-                self.outputFmusList.appendChild(outputFmu.getHtml());
+                self.fmusList.appendChild(outputFmu.getHtml());
             });
         }
     }

@@ -14,7 +14,7 @@ import {CoeConfig} from '../coe/CoeConfig'
 import {IProject} from "../proj/IProject";
 import {SettingKeys} from "../settings/SettingKeys";
 import {Input} from "./connections/input";
-import {Output} from "./connections/output";
+import {OutputElement} from "./connections/OutputElement";
 import {IViewController} from "../iViewController";
 import {SourceDom} from "../SourceDom";
 import Path = require('path');
@@ -28,13 +28,13 @@ export class MmController extends IViewController {
     private fmus: Fmu[] = [];
 
     private outputList: HTMLUListElement;
-    private outputs: Output[] = [];
+    private outputs: OutputElement[] = [];
     private inputList: HTMLUListElement;
     private inputs: Input[] = [];
     private allInputs: any = [];
     private allOutputs: any = [];
     private connections: any = [];
-    private selectedOutput: Output;
+    private selectedOutput: OutputElement;
 
     private parametersDiv: HTMLDivElement;
 
@@ -254,7 +254,7 @@ export class MmController extends IViewController {
             $('<div>').load("multimodel/connections/output.html", function (event: BaseJQueryEventObject) {
                 let html: HTMLLinkElement = <HTMLLinkElement>(<HTMLDivElement>this).firstChild;
                 mthis.outputList.appendChild(html);
-                let output: Output = new Output(html, element, mthis.outputSelected.bind(mthis));
+                let output: OutputElement = new OutputElement(html, element, mthis.outputSelected.bind(mthis));
                 mthis.outputs.push(output);
             });
         });
@@ -295,7 +295,7 @@ export class MmController extends IViewController {
         }
     }
 
-    private outputSelected(output: Output) {
+    private outputSelected(output: OutputElement) {
         this.outputs.filter((obj: Output) => { return obj !== output }).forEach((obj: Output) => { obj.deselect() });
         while (this.inputList.hasChildNodes()) {
             this.inputList.removeChild(this.inputList.firstChild);
