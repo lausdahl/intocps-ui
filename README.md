@@ -18,15 +18,14 @@ After checking out the repo...
 4. To run it: `npm start`
 
 
-Editor
+Development
 ---
-[Visual Studio Code](https://code.visualstudio.com/) is a good choice. It's
+For an editor, [Visual Studio Code](https://code.visualstudio.com/) is a good choice. It's
 cross-platform and is actually built on top of Electron. That said, you can use
 whatever you want.
 
-Help
----
-Please the the wiki for examples of common use cases: https://github.com/into-cps/intocps-ui/wiki
+Further developer info is available in https://github.com/into-cps/intocps-ui/wiki
+
 
 About
 ---
