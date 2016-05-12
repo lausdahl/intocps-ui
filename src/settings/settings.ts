@@ -98,13 +98,23 @@ export default class Settings implements ISettingsValues {
        }
      });*/
   }
-
-  setSetting(key: string, value: any) {
+  
+  setValue(key: string, value: any) {
     this.intoCpsDataObject[key] = value;
+  }
+  
+  
+  getValue(key: string): any {
+    return this.intoCpsDataObject[key];
+  }
+
+  
+  setSetting(key: string, value: any) {
+    this.setValue(key,value);
   }
 
   getSetting(key: string): any {
-    return this.intoCpsDataObject[key];
+    return this.getValue(key);
   }
 
 }
