@@ -2,8 +2,7 @@
 ///<reference path="../../typings/browser/ambient/node/index.d.ts"/>
 
 import {Container} from "./Container"
-import {Config} from "./Config"
-import {ConMap} from "./ConMap"
+import {ProjectSettings} from "./ProjectSettings"
 
 export interface IProject {
     getName(): string;
@@ -11,11 +10,12 @@ export interface IProject {
     getProjectConfigFilePath(): string;
     getFmusPath(): string;
     getSysMlFolderName(): String;
+    save():void;
 
     createMultiModel(name: String, jsonContent: String): String;
     createCoSimConfig(multimodelConfigPath: string, name: String, jsonContent: String): String;
 
     getContainers(): Array<Container>;
-    getConfigs(): Array<Config>;
-    getConMaps(): Array<ConMap>;
+    
+    getSettings(): ProjectSettings;
 }
