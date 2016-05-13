@@ -5,8 +5,8 @@ import {CoeController} from  "./coe/coe";
 import {MmController} from  "./multimodel/MmController";
 import {BrowserController} from "./proj/projbrowserview";
 import {IntoCpsAppMenuHandler} from "./IntoCpsAppMenuHandler";
-import {SourceDom} from "./SourceDom";
-import {IViewController} from "./IViewController";
+import {SourceDom} from "./sourceDom";
+import {IViewController} from "./iViewController";
 import {IProject} from "./proj/IProject";
 
 import fs = require("fs");
