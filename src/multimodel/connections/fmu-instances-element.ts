@@ -2,17 +2,10 @@
 import {Scalar} from "./scalar"
 import {OutputElement} from "./outputElement";
 import * as Collections from "typescript-collections";
-import {Fmu, Instance} from "../../coe/fmi";
 import {FmuElement} from "./fmu-element";
 import {InstanceElement} from "./instance-element";
 import * as Configs from "../../intocps-configurations/intocps-configurations";
 
-// export class MultiModelDOM {
-//     //path to the source from which this DOM is generated
-//     sourcePath: string;
-//     fmus: Fmu[] = [];
-//     fmuInstances: Instance[] = [];
-// }
 
 export class FmuInstancesElement {
     html: HTMLDivElement;
@@ -24,7 +17,7 @@ export class FmuInstancesElement {
     instanceList: HTMLUListElement;
     instanceElements: Array<InstanceElement> = [];
 
-    multiModelDOM: MultiModelDOM;
+    multiModelDOM: Configs.MultiModelConfig;
 
     addInstancesButton: HTMLButtonElement;
 
@@ -34,31 +27,25 @@ export class FmuInstancesElement {
         this.instanceList = <HTMLUListElement>html.querySelector("#connections-fmuinstances-instances");
         this.addInstancesButton = <HTMLButtonElement>this.html.querySelector("#fmu-instances-add-but"); 
         this.addInstancesButton.onclick = this.addNewInstanceHandler.bind(this);
-        let dummyDom = new MultiModelDOM();
-        let fmu1 = new Fmu("abe", "abe");
-        let fmu2 = new Fmu("abe2", "abe2");
+        let dummyDom = new Configs.MultiModelConfig();
+        let fmu1 = new Configs.Fmu("abe", "abe");
+        let fmu2 = new Configs.Fmu("abe2", "abe2");
         dummyDom.fmus.push(fmu1, fmu2);
-        let instance: Instance = new Instance();
-        instance.name = "tiger";
-        instance.fmu = fmu1;
-        let instance2: Instance = new Instance();
-        instance2.name = "tiger2";
-        instance2.fmu = fmu1;
-        let instance3: Instance = new Instance();
-        instance3.name = "elephant";
-        instance3.fmu = fmu2;
+        let instance: Configs.Instance = new Configs.Instance(fmu1, "tiger");
+        let instance2: Configs.Instance = new Configs.Instance(fmu1, "tiger2");
+        let instance3: Configs.Instance = new Configs.Instance(fmu2,"elephant");
         dummyDom.fmuInstances.push(instance, instance2, instance3);
         this.addData(dummyDom);
 
     }
-    addData(multiModelDOM: MultiModelDOM) {
+    addData(multiModelDOM: Configs.MultiModelConfig) {
         this.multiModelDOM = multiModelDOM;
         this.addFmus(this.multiModelDOM.fmus);
     }
 
-    private addFmus(fmus: Fmu[]) {
+    private addFmus(fmus: Configs.Fmu[]) {
         let self = this;
-        fmus.forEach((fmu: Fmu) => {
+        fmus.forEach((fmu: Configs.Fmu) => {
             $('<div>').load("multimodel/connections/fmu-element.html", function (event: JQueryEventObject) {
                 let html: HTMLLinkElement = <HTMLLinkElement>(<HTMLDivElement>this).firstChild;
                 let element: FmuElement = new FmuElement(html, fmu, self.fmuSelectionChanged.bind(self));
@@ -84,7 +71,7 @@ export class FmuInstancesElement {
 
 
         //Add the new instances based on the FMU
-        let instances: Instance[] = this.multiModelDOM.fmuInstances.filter((instance: Instance) => {
+        let instances: Configs.Instance[] = this.multiModelDOM.fmuInstances.filter((instance: Configs.Instance) => {
             return instance.fmu === fmuElement.getFmu();
         });
 
@@ -92,9 +79,9 @@ export class FmuInstancesElement {
         this.selectedFmuElement = fmuElement;
     }
 
-    private addInstances(instances: Instance[]) {
+    private addInstances(instances: Configs.Instance[]) {
         let self = this;
-        instances.forEach((instance: Instance) => {
+        instances.forEach((instance: Configs.Instance) => {
             $('<div>').load("multimodel/connections/instance-element.html", function (event: JQueryEventObject) {
                 let html: HTMLDivElement = <HTMLDivElement>(<HTMLDivElement>this).firstChild;
                 let element: InstanceElement = new InstanceElement(html, instance, self.removeInstance.bind(self), self.addInstanceHandler.bind(self));
@@ -108,8 +95,7 @@ export class FmuInstancesElement {
         let self = this;
         $('<div>').load("multimodel/connections/instance-element.html", function (event: JQueryEventObject) {
                 let html: HTMLDivElement = <HTMLDivElement>(<HTMLDivElement>this).firstChild;
-                let instance = new Instance();
-                instance.fmu = self.selectedFmuElement.getFmu();
+                let instance = new Configs.Instance(self.selectedFmuElement.getFmu(),"FMU Instance");
                 let element: InstanceElement = new InstanceElement(html, instance, self.removeInstance.bind(self), self.addInstanceHandler.bind(self), true);
                 self.instanceList.appendChild(element.getHtml());
             });
@@ -137,7 +123,7 @@ export class FmuInstancesElement {
 
     private removeInstance(instanceElement: InstanceElement) {
         // Remove instance from DOM
-        let index = this.multiModelDOM.fmuInstances.findIndex((val: Instance) => {return val === instanceElement.getInstance()});
+        let index = this.multiModelDOM.fmuInstances.findIndex((val: Configs.Instance) => {return val === instanceElement.getInstance()});
         if(index > -1){
             this.multiModelDOM.fmuInstances.splice(index, 1);
         }
