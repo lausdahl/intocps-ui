@@ -5,13 +5,14 @@ import * as Collections from "typescript-collections";
 import {Fmu, Instance} from "../../coe/fmi";
 import {FmuElement} from "./fmu-element";
 import {InstanceElement} from "./instance-element";
+import * as Configs from "../../intocps-configurations/intocps-configurations";
 
-export class MultiModelDOM {
-    //path to the source from which this DOM is generated
-    sourcePath: string;
-    fmus: Fmu[] = [];
-    fmuInstances: Instance[] = [];
-}
+// export class MultiModelDOM {
+//     //path to the source from which this DOM is generated
+//     sourcePath: string;
+//     fmus: Fmu[] = [];
+//     fmuInstances: Instance[] = [];
+// }
 
 export class FmuInstancesElement {
     html: HTMLDivElement;
