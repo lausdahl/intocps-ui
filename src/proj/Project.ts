@@ -7,7 +7,7 @@ import Path = require('path');
 import {IProject} from "./IProject"
 import {Container} from "./Container"
 import {Config} from "./Config"
-import {ConMap} from "./ConMap"
+import {ProjectSettings} from "./ProjectSettings"
 
 export class Project implements IProject {
 
@@ -16,7 +16,7 @@ export class Project implements IProject {
     configPath: string;
     containers: Array<Container> = [];
     configs: Array<Config> = [];
-    conMaps: Array<ConMap> = [];
+ 
 
 
     PATH_FMUS: String = "FMUs";
@@ -52,10 +52,7 @@ export class Project implements IProject {
         return this.configs;
     }
 
-    public getConMaps() {
-        return this.conMaps;
-    }
-
+ 
     public getSysMlFolderName(): String {
         return this.PATH_SYSML;
     }
@@ -137,6 +134,11 @@ export class Project implements IProject {
         fs.writeFileSync(fullpath, data, "UTF-8");
 
         return fullpath;
+    }
+    
+    public getSettings()
+    {
+        return new ProjectSettings(this);
     }
 }
 
