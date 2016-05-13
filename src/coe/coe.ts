@@ -41,7 +41,7 @@ export class CoeController extends IViewController {
         this.app = this.remote.getGlobal("intoCpsApp");
     }
 
-    initialize(sourceDom: SourceDom):void {
+    initialize(sourceDom: SourceDom): void {
         this.setProgress(0, null);
         this.initializeChart();
 
@@ -52,13 +52,18 @@ export class CoeController extends IViewController {
             console.log("project-changed");  // prints "ping"
 
         });
-        
+
         let activeProject = this.app.getActiveProject();
         if (activeProject == null) {
             console.warn("no active project cannot load coe config");
-    }
+        }
+
+        Configs.CoSimulationConfig.parse(sourceDom.getPath(), activeProject.getRootFilePath(), activeProject.getFmusPath())
+            .then(cc => { console.info("CC:");console.info(cc);})
+            .catch(e => console.error(e));
+
         this.coeConfig = new CoeConfig();
-        this.coeConfig.load(sourceDom.getPath(), activeProject.getRootFilePath(),activeProject.getFmusPath());
+        this.coeConfig.load(sourceDom.getPath(), activeProject.getRootFilePath(), activeProject.getFmusPath());
 
         //until bind is implemented we do this manual sync
         (<HTMLInputElement>document.getElementById("input-sim-time-start")).value = this.coeConfig.startTime + "";

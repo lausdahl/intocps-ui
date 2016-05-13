@@ -209,7 +209,7 @@ export class CoeConfig {
     //optional livestream outputs
     livestream: Map<String, Collections.LinkedList<String>> = new Map<String, Collections.LinkedList<String>>();
     //TODO: algorithm
-    algorithm: Configs.CoeAlgorithm = null;
+    algorithm: Configs.ICoSimAlgorithm = null;
 
     //the start time
     startTime: number = 0;
@@ -344,8 +344,9 @@ export class CoeConfig {
             serializer.toObject(this.fmus),
             serializer.toObjectParameters(this.parameters),
             serializer.toObjectConnections(this.connections),
-            serializer.toObjectLivestream(this.livestream),
-            { "algorithm": this.algorithm.toJSON() });
+            serializer.toObjectLivestream(this.livestream)//,
+            //{ "algorithm": this.algorithm.toJSON() }
+            );
 
         let jsonData = JSON.stringify(dto);
         console.info(jsonData);
