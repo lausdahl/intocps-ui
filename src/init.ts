@@ -3,6 +3,7 @@ import {IntoCpsAppEvents} from "./IntoCpsAppEvents";
 import * as IntoCpsApp from  "./IntoCpsApp";
 import {CoeController} from  "./coe/coe";
 import {MmController} from  "./multimodel/MmController";
+import {CreateRTTesterProjectController} from  "./rttester/CreateRTTesterProject";
 import {BrowserController} from "./proj/projbrowserview";
 import {IntoCpsAppMenuHandler} from "./IntoCpsAppMenuHandler";
 import {SourceDom} from "./sourceDom";
@@ -85,6 +86,10 @@ menuHandler.openMultiModel = (path) => {
     openViewController("multimodel/multimodel.html", path, MmController);
 };
 
+menuHandler.createRTTesterProject = (path) => {
+    openViewController("rttester/CreateRTTesterProject.html", path, CreateRTTesterProjectController);
+};
+
 menuHandler.openSysMlExport = () => {
     $(init.mainView).load("sysmlexport/sysmlexport.html");
 };
@@ -106,7 +111,7 @@ menuHandler.createMultiModel = (path) => {
 };
 
 menuHandler.createCoSimConfiguration = (path) => {
-    $(init.mainView).load("coe/coe.html", function(event: JQueryEventObject) {
+    $(init.mainView).load("coe/coe.html", function (event: JQueryEventObject) {
         let project: IProject = require("remote").getGlobal("intoCpsApp").getActiveProject();
         if (project != null) {
             let coePath: string = project.createCoSimConfig(path + "", "co-sim-" + Math.floor(Math.random() * 100), null).toString();

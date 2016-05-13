@@ -6,4 +6,5 @@ export class IntoCpsAppMenuHandler {
 
     createMultiModel: (path: string) => void;
     createCoSimConfiguration: (path: string) => void;
+    createRTTesterProject: (path: string) => void;
 }
