@@ -73,7 +73,7 @@ export class MultiModelConfig {
                 console.info(mm);
 
                 resolveFinal(mm);
-            });
+            }).catch(e=>reject(e));
         });
     }
 
@@ -101,26 +101,13 @@ export class MultiModelConfig {
                     });
                 })).then((content) => {
 
-                    console.log("Asynchronous read: " + content.toString());
+                    //console.log("Asynchronous read: " + content.toString());
                     var jsonData = JSON.parse(content.toString());
                     console.log(jsonData);
-                    /*    let parser = new Parser();
-    
-                        let mm = new MultiModelConfig();
-                        mm.sourcePath = path;
-    
-                        parser.parseFmus(jsonData, Path.normalize(fmuRootPath)).then(fmus => {
-                            mm.fmus = fmus;
-    
-                            parser.parseConnections(jsonData, mm);
-                            parser.parseParameters(jsonData, mm);
-                            console.info(mm);
-    
-                            resolveFinal(mm);
-                        });
-    */
-                    return self.create(path, jsonData, fmuRootPath);
-                });
+                    
+                    self.create(path, fmuRootPath, jsonData).then(mm => { resolveFinal(mm); }).catch(e=>reject(e));
+                    
+                })
         });
     }
 }

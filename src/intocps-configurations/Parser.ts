@@ -23,20 +23,25 @@ export class Parser {
 
         var fmus: Fmi.Fmu[] = [];
 
-        var populates: Promise<void>[] = [];
 
-        if (Object.keys(data).indexOf(this.FMUS_TAG) >= 0) {
-            $.each(Object.keys(data[this.FMUS_TAG]), (j, key) => {
-                var description = "";
-                var path = data[this.FMUS_TAG][key];
 
-                let fmu = new Fmi.Fmu(key, Path.normalize(basePath + "/" + path));
-                populates.push(fmu.populate());
-                fmus.push(fmu);
-            });
-        }
+        return new Promise<Fmi.Fmu[]>((resolve, reject) => {
 
-        return new Promise<Fmi.Fmu[]>(function (resolve, reject) {
+            var populates: Promise<void>[] = [];
+            try {
+                if (Object.keys(data).indexOf(this.FMUS_TAG) >= 0) {
+                    $.each(Object.keys(data[this.FMUS_TAG]), (j, key) => {
+                        var description = "";
+                        var path = data[this.FMUS_TAG][key];
+
+                        let fmu = new Fmi.Fmu(key, Path.normalize(basePath + "/" + path));
+                        populates.push(fmu.populate());
+                        fmus.push(fmu);
+                    });
+                }
+            } catch (e) {
+                reject(e);
+            }
 
             Promise.all(populates.map(p => p.catch(e => e)))
                 .then(results => resolve(fmus))
