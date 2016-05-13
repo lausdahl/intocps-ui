@@ -12,8 +12,8 @@ import {MultiModelConfig} from "./MultiModelConfig"
 import Path = require('path');
 
 
-export class CoSimulationConfig{
-        multiModel: MultiModelConfig;
+export class CoSimulationConfig {
+    multiModel: MultiModelConfig;
 
     //optional livestream outputs
     livestream: Map<Fmi.Instance, Fmi.ScalarVariable[]> = new Map<Fmi.Instance, Fmi.ScalarVariable[]>();

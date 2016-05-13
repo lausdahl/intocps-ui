@@ -81,11 +81,12 @@ export class MmController extends IViewController {
 
         this.coeConfig = new CoeConfig();
         //this.coeConfig.load(path, activeProject.getRootFilePath());
-        this.coeConfig.loadFromMultiModel(path);
+        this.coeConfig.loadFromMultiModel(path,IntoCpsApp.IntoCpsApp.getInstance().getActiveProject().getFmusPath());
         //until bind is implemented we do this manual sync
 
         this.coeConfig.fmus.forEach((value, index, map) => {
-            this.addFmu(index + "", value.path);
+            path = value.description.length==0?value.path:value.description;
+            this.addFmu(index + "",path);
         });
 
         this.connections = this.extractConnections(this.coeConfig.connections);
@@ -135,7 +136,7 @@ export class MmController extends IViewController {
                 return value.indexOf(index + "") == 0;
             });
 
-            this.readModelDescriptionFromFmuAsync(fmuInstances, p);
+                this.readModelDescriptionFromFmuAsync(fmuInstances, p);
         });
     }
 
@@ -146,6 +147,7 @@ export class MmController extends IViewController {
         var JSZip = require("jszip");
         var fs = require("fs");
 
+console.info(path);
         // read a zip file
         fs.readFile(path, function (err: any, data: any) {
             if (err) throw err;

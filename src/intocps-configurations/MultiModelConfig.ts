@@ -58,7 +58,27 @@ export class MultiModelConfig {
         return res;
     }
 
-    static parse(path: string): Promise<MultiModelConfig> {
+    static create(path: string, fmuRootPath: string, jsonData: any): Promise<MultiModelConfig> {
+        return new Promise<MultiModelConfig>(function (resolveFinal, reject) {
+            let parser = new Parser();
+
+            let mm = new MultiModelConfig();
+            mm.sourcePath = path;
+
+            parser.parseFmus(jsonData, Path.normalize(fmuRootPath)).then(fmus => {
+                mm.fmus = fmus;
+
+                parser.parseConnections(jsonData, mm);
+                parser.parseParameters(jsonData, mm);
+                console.info(mm);
+
+                resolveFinal(mm);
+            }).catch(e=>reject(e));
+        });
+    }
+
+    static parse(path: string, fmuRootPath: string): Promise<MultiModelConfig> {
+        let self = this;
         return new Promise<MultiModelConfig>(function (resolveFinal, reject) {
 
 
@@ -81,25 +101,13 @@ export class MultiModelConfig {
                     });
                 })).then((content) => {
 
-                    console.log("Asynchronous read: " + content.toString());
+                    //console.log("Asynchronous read: " + content.toString());
                     var jsonData = JSON.parse(content.toString());
                     console.log(jsonData);
-                    let parser = new Parser();
-
-                    let mm = new MultiModelConfig();
-                    mm.sourcePath = path;
-
-                    parser.parseFmus(jsonData, Path.normalize("/Users/kel/data/into-cps/intocps-ui/test-project/FMUs")).then(fmus => {
-                        mm.fmus = fmus;
-
-                        parser.parseConnections(jsonData, mm);
-                        parser.parseParameters(jsonData, mm);
-                        console.info(mm);
-
-                        resolveFinal(mm);
-                    });
-
-                });
+                    
+                    self.create(path, fmuRootPath, jsonData).then(mm => { resolveFinal(mm); }).catch(e=>reject(e));
+                    
+                })
         });
     }
 }

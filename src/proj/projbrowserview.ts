@@ -273,7 +273,7 @@ export class BrowserController {
             };
         });
 
-        console.info(items);
+       
         return items;
     }
 

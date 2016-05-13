@@ -12,6 +12,10 @@ import Path = require('path');
 
 import * as Collections from 'typescript-collections';
 
+import * as Fmi from "./fmi";
+
+import * as Configs from "../intocps-configurations/intocps-configurations";
+
 export class FmuInfo {
     description: string = "";
     path: string = null;
@@ -22,24 +26,180 @@ export class FmuInfo {
     }
 }
 
-export interface CoeAlgorithm { toJSON(): any; }
 
-export class FixedStepAlgorithm implements CoeAlgorithm {
-    size: number = 0.1;
 
-    constructor(size: number) {
-        this.size = size;
+
+
+
+class DomParser {
+
+    private FMUS_TAG: string = "fmus";
+    private CONNECTIONS_TAG: string = "connections";
+    private PARAMETERS_TAG: string = "parameters";
+    private LIVESTREAM_TAG: string = "livestream";
+
+    //Parse fmus json tag
+    parseFmus(data: any, setPath: boolean): Map<String, FmuInfo> {
+
+        var fmus: Map<String, FmuInfo> = new Map<string, FmuInfo>();
+
+        if (Object.keys(data).indexOf(this.FMUS_TAG) >= 0) {
+            $.each(Object.keys(data[this.FMUS_TAG]), (j, key) => {
+                var description = "";
+                var path = "";
+
+                let value = data[this.FMUS_TAG][key];
+
+                if (setPath) {
+                    path = value
+                } else {
+                    description = value;
+                }
+
+                fmus.set(key, new FmuInfo(description, path));
+            });
+        }
+        return fmus;
     }
 
-    toJSON() {
-        var oA: any = new Object();
-        oA["type"] = "fixed-step";
-        oA["size"] = this.size;
-        return oA;
+    //    parseId(id: string): string[]
+
+    //convert fmus to JSON
+    toObject(fmus: Map<String, FmuInfo>): any {
+        var data: any = new Object();
+
+        fmus.forEach((value: FmuInfo, index: String) => {
+            data[index + ""] = value.path;
+        });
+
+        var tmp: any = new Object();
+        tmp[this.FMUS_TAG] = data;
+
+        return tmp;
+    }
+
+    //parse connections
+    parseConnections(data: any): Map<String, Collections.LinkedList<String>> {
+        var connections: Map<String, Collections.LinkedList<String>> = new Map<String, Collections.LinkedList<String>>();
+
+        if (Object.keys(data).indexOf(this.CONNECTIONS_TAG) >= 0) {
+            let connectionsEntry = data[this.CONNECTIONS_TAG];
+            $.each(Object.keys(connectionsEntry), (j, outputKey) => {
+                let inputList = connectionsEntry[outputKey];
+
+                var inputs: Collections.LinkedList<String> = new Collections.LinkedList<String>();
+                $.each(inputList, function (j, input) {
+                    inputs.add(input);
+                });
+
+                connections.set(outputKey, inputs);
+            });
+
+        }
+        console.info("Connections: " + this.toObjectConnections(connections));
+        return connections;
+    }
+
+    //toObjectConnections
+    toObjectConnections(connections: Map<String, Collections.LinkedList<String>>): any {
+        var cons: any = new Object();
+        connections.forEach((value: Collections.LinkedList<String>, index: String) => {
+
+            var inputs: any[] = [];
+            value.forEach((input) => {
+                inputs.push(input);
+            });
+
+
+
+            cons[index + ""] = inputs;
+        })
+
+
+        var constagged: any = new Object();
+        constagged[this.CONNECTIONS_TAG] = cons;
+        return constagged;
+    }
+
+    //parse parameters
+    parseParameters(data: any): Map<String, any> {
+        var parameters: Map<String, any> = new Map<String, any>();
+
+        if (Object.keys(data).indexOf(this.PARAMETERS_TAG) >= 0) {
+            let parameterData = data[this.PARAMETERS_TAG];
+            $.each(Object.keys(parameterData), (j, key) => {
+                let value = parameterData[key];
+                parameters.set(key, value);
+            });
+        }
+
+        return parameters;
+    }
+
+    //to JSON parameters
+    toObjectParameters(parameters: Map<String, any>): any {
+        var obj: any = new Object();
+
+        parameters.forEach((value, index) => {
+            obj[index + ""] = value;
+        })
+
+        var parametersObj: any = new Object();
+        parametersObj[this.PARAMETERS_TAG] = obj;
+
+        return parametersObj;
+    }
+
+    //parse livestream
+    parseLivestream(data: any): Map<String, Collections.LinkedList<String>> {
+        var livestream: Map<String, Collections.LinkedList<String>> = new Map<String, Collections.LinkedList<String>>();
+
+        if (Object.keys(data).indexOf(this.LIVESTREAM_TAG) >= 0) {
+            let livestreamEntry = data[this.LIVESTREAM_TAG];
+            $.each(Object.keys(livestreamEntry), (j, outputKey) => {
+                let inputList = livestreamEntry[outputKey];
+
+                var inputs: Collections.LinkedList<String> = new Collections.LinkedList<String>();
+                $.each(inputList, function (j, input) {
+                    inputs.add(input);
+                });
+
+                livestream.set(outputKey, inputs);
+            });
+        }
+
+        console.info("Live stream: " + this.toObjectLivestream(livestream));
+        return livestream;
+    }
+
+    toObjectLivestream(livestream: Map<String, Collections.LinkedList<String>>): any {
+        var cons: any = new Object();
+        livestream.forEach((value: Collections.LinkedList<String>, index: String) => {
+
+            var inputs: any[] = [];
+            value.forEach((input) => {
+                inputs.push(input);
+            });
+
+            cons[index + ""] = inputs;
+        })
+
+
+        var constagged: any = new Object();
+        constagged[this.LIVESTREAM_TAG] = cons;
+        return constagged;
     }
 }
 
+
+
+
+
 export class CoeConfig {
+
+    //new connections
+    // c : Map<String,Map<String,Map<String,QualifiedScalarVariable[]>>> ;
+
     //fmu ID to project relative file path
     fmus: Map<String, FmuInfo> = new Map<string, FmuInfo>();
     //final parameters for the COE
@@ -49,7 +209,7 @@ export class CoeConfig {
     //optional livestream outputs
     livestream: Map<String, Collections.LinkedList<String>> = new Map<String, Collections.LinkedList<String>>();
     //TODO: algorithm
-    algorithm: CoeAlgorithm = null;
+    algorithm: Configs.CoeAlgorithm = null;
 
     //the start time
     startTime: number = 0;
@@ -64,8 +224,13 @@ export class CoeConfig {
     ALGORITHM_TYPE_FIXED: String = "fixed-step";
 
 
-    public loadFromMultiModel(path: string) {
-        let _this = this;
+    public loadFromMultiModel(path: string,fmuRootPath:string) {
+
+        Configs.MultiModelConfig.parse(path,fmuRootPath)
+            .then(mm => { console.info("Finished parsing multimodelconfig:"); console.info(mm); })
+            .catch(err => { console.error(err); });
+
+        let _this = this, parser = new DomParser();
         // Here we import the File System module of node
         let fs = require('fs');
         try {
@@ -73,28 +238,14 @@ export class CoeConfig {
                 return;
             }
             var content = fs.readFileSync(path, "utf8");
-            console.log("Asynchronous read: " + content.toString());
+           // console.log("Asynchronous read: " + content.toString());
             var jsonData = JSON.parse(content.toString());
-            console.log(jsonData);
 
-            $.each(Object.keys(jsonData), function (j, key) {
+            _this.connections = parser.parseConnections(jsonData);
+            _this.parameters = parser.parseParameters(jsonData);
+            _this.fmus = parser.parseFmus(jsonData, true);
 
-                if (key.indexOf("connections") == 0) {
-                    var connectionsEntry = jsonData[key];
-                    _this.parseConnections(connectionsEntry);
-                } else if (key.indexOf("parameters") == 0) {
-                    var parameters = jsonData[key];
-                    _this.parseParameters(parameters);
-                } else if (key.indexOf("fmus") == 0) {
-                    let fmus = jsonData[key];
-                    $.each(Object.keys(fmus), function (j, key) {
-                        let description = fmus[key];
-                        _this.fmus.set(key, new FmuInfo(description, description));
-                    });
-                }
-            });
 
-            console.info("Parsed mm: "); console.info(_this);
 
 
         } catch (e) {
@@ -102,29 +253,7 @@ export class CoeConfig {
         this.multimodelPath = path;
     }
 
-    private parseConnections(connectionsEntry: any) {
-        let _this = this;
-        $.each(Object.keys(connectionsEntry), function (j, outputKey) {
-            let inputList = connectionsEntry[outputKey];
 
-            var inputs: Collections.LinkedList<String> = new Collections.LinkedList<String>();
-            $.each(inputList, function (j, input) {
-                inputs.add(input);
-            });
-
-            _this.connections.set(outputKey, inputs);
-        });
-    }
-
-    private parseParameters(parameters: any) {
-        let _this = this;
-        $.each(Object.keys(parameters), function (j, key) {
-            let value = parameters[key];
-            _this.parameters.set(key, value);
-        });
-
-
-    }
 
     private parseAlgorithm(algorithmEntry: any) {
 
@@ -134,7 +263,7 @@ export class CoeConfig {
             let type = algorithmEntry["type"];
             if (type.indexOf(this.ALGORITHM_TYPE_FIXED) == 0) {
                 //fixed step
-                this.algorithm = new FixedStepAlgorithm(algorithmEntry["size"]);
+                this.algorithm = new Configs.FixedStepAlgorithm(algorithmEntry["size"]);
             }
         }
 
@@ -142,24 +271,9 @@ export class CoeConfig {
     }
 
 
-    //check if we can merge this with parseConnections same code but differnt field
-    private parseLivestream(livestreamEntry: any) {
-        let _this = this;
-        $.each(Object.keys(livestreamEntry), function (j, outputKey) {
-            let inputList = livestreamEntry[outputKey];
+    public load(configPath: string, relativeRoot: string,fmuRootPath:string) {
 
-            var inputs: Collections.LinkedList<String> = new Collections.LinkedList<String>();
-            $.each(inputList, function (j, input) {
-                inputs.add(input);
-            });
-
-            _this.livestream.set(outputKey, inputs);
-        });
-    }
-
-    public load(configPath: string, relativeRoot: string) {
-
-        let _this = this;
+        let _this = this, parser = new DomParser();;
         // Here we import the File System module of node
         let fs = require('fs');
         try {
@@ -167,7 +281,7 @@ export class CoeConfig {
                 return;
             }
             var content = fs.readFileSync(configPath, "utf8");
-            console.log("Asynchronous read: " + content.toString());
+           // console.log("Asynchronous read: " + content.toString());
             var jsonData = JSON.parse(content.toString());
             console.log(jsonData);
 
@@ -175,40 +289,36 @@ export class CoeConfig {
             $.each(Object.keys(jsonData), function (j, key) {
                 if (key.indexOf("multimodel_path") == 0) {
                     let mmPath = jsonData[key];
-                    _this.loadFromMultiModel(Path.normalize(relativeRoot + "/" + mmPath));
+                    _this.loadFromMultiModel(Path.normalize(relativeRoot + "/" + mmPath), fmuRootPath);
+                    return;
                 }
             });
+
+            _this.parameters = parser.parseParameters(jsonData);
+
+            parser.parseFmus(jsonData, true).forEach((value: FmuInfo, index: String) => {
+                _this.fmus.set(index, value);
+            });
+
+            _this.livestream = parser.parseLivestream(jsonData);
+
 
             //set 2 parse this config file
             $.each(Object.keys(jsonData), function (j, key) {
 
-                if (key.indexOf("parameters") == 0) {
-                    var parameters = jsonData[key];
-                    _this.parseParameters(parameters);
-                } else if (key.indexOf("fmus") == 0) {
-                    let fmus = jsonData[key];
-                    $.each(Object.keys(fmus), function (j, key) {
-                        let fmuPath = fmus[key];
-
-                        if (_this.fmus.has(key)) {
-                            //updathe path 
-                            _this.fmus.get(key).path = fmuPath;
-                        } else {
-                            _this.fmus.set(key, new FmuInfo("", fmuPath));
-                        }
-                    });
-                } else if (key.indexOf("startTime") == 0) {
+                if (key.indexOf("startTime") == 0) {
                     _this.startTime = jsonData[key];
                 } else if (key.indexOf("endTime") == 0) {
                     _this.endTime = jsonData[key];
                 } else if (key.indexOf("algorithm") == 0) {
                     _this.parseAlgorithm(jsonData[key]);
-                } else if (key.indexOf("livestream") == 0) {
-                    _this.parseLivestream(jsonData[key]);
                 }
+
             });
 
             console.info("Parsed cs: "); console.info(_this);
+
+            console.info("Parsed toJSON: "); console.info(_this.toJSON());
 
 
         } catch (e) {
@@ -226,49 +336,28 @@ export class CoeConfig {
 
     public toJSON(): string {
 
-
+        let serializer = new DomParser();
         var dto: any = new Object();
 
         //FMUS
-        var ofmu: any = new Object();
-        this.fmus.forEach((value: FmuInfo, index: String, map: Map<String, FmuInfo>) => {
-            ofmu[index + ""] = value.path;
-        });
-        dto["fmus"] = ofmu;
-
-        //Parameters
-        var oParameters: any = new Object();
-        this.parameters.forEach((value: any, index: String, map: Map<String, any>) => {
-            oParameters[index + ""] = value;
-        });
-        dto["parameters"] = oParameters;
-
-        //algorithm
-        if (this.algorithm != null) {
-            dto["algorithm"] = this.algorithm.toJSON();
-        }
-
-        //connections
-        var oConn: any = new Object();
-        this.connections.forEach((value: Collections.LinkedList<String>, index: String, map: Map<String, Collections.LinkedList<String>>) => {
-            var oIn: any[] = [];
-            value.forEach((id) => { oIn.push(id); });
-            oConn[index + ""] = oIn;
-        });
-        dto["connections"] = oConn;
-
-        //live stream
-        var oConn: any = new Object();
-        this.livestream.forEach((value: Collections.LinkedList<String>, index: String, map: Map<String, Collections.LinkedList<String>>) => {
-            var oIn: any[] = [];
-            value.forEach((id) => { oIn.push(id); });
-            oConn[index + ""] = oIn;
-        });
-        dto["livestream"] = oConn;
-
+        Object.assign(dto,
+            serializer.toObject(this.fmus),
+            serializer.toObjectParameters(this.parameters),
+            serializer.toObjectConnections(this.connections),
+            serializer.toObjectLivestream(this.livestream),
+            { "algorithm": this.algorithm.toJSON() });
 
         let jsonData = JSON.stringify(dto);
         console.info(jsonData);
         return jsonData;
     }
 }
+
+
+//Main DOM
+
+
+
+
+
+
