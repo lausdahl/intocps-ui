@@ -238,7 +238,7 @@ export class CoeConfig {
                 return;
             }
             var content = fs.readFileSync(path, "utf8");
-            console.log("Asynchronous read: " + content.toString());
+           // console.log("Asynchronous read: " + content.toString());
             var jsonData = JSON.parse(content.toString());
 
             _this.connections = parser.parseConnections(jsonData);
@@ -281,7 +281,7 @@ export class CoeConfig {
                 return;
             }
             var content = fs.readFileSync(configPath, "utf8");
-            console.log("Asynchronous read: " + content.toString());
+           // console.log("Asynchronous read: " + content.toString());
             var jsonData = JSON.parse(content.toString());
             console.log(jsonData);
 
