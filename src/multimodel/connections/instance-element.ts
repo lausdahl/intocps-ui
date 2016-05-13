@@ -1,33 +1,5 @@
 import {Instance} from "../../coe/fmi";
 
-// export class InstanceElement {
-//     private listElement: HTMLLinkElement;
-//     private instance: Instance;
-//     private selected: boolean = false;
-
-//     constructor(listElement: HTMLLinkElement, instance: Instance, selected: (instanceElement: InstanceElement) => void) {
-//         this.listElement = listElement;
-//         this.instance = instance;
-//         this.listElement.innerText = this.instance.name;
-//         this.listElement.addEventListener("click", () => {
-//             if (!this.selected) {
-//                 this.listElement.classList.add("active");
-//                 selected(this);
-//                 this.selected = true;
-//             }
-//         });
-//     }
-
-//     deselect() {
-//         this.listElement.classList.remove("active");
-//         this.selected = false;
-//     }
-
-//     getHtml() {
-//         return this.listElement;
-//     }
-// }
-
 export class InstanceElement {
     private element: HTMLDivElement;
     private txt: HTMLInputElement

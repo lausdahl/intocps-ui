@@ -109,7 +109,7 @@ menuHandler.createCoSimConfiguration = (path) => {
     $(init.mainView).load("coe/coe.html", function(event: JQueryEventObject) {
         let project: IProject = require("remote").getGlobal("intoCpsApp").getActiveProject();
         if (project != null) {
-            let coePath = project.createCoSimConfig(path + "", "co-sim-" + Math.floor(Math.random() * 100), null);
+            let coePath: string = project.createCoSimConfig(path + "", "co-sim-" + Math.floor(Math.random() * 100), null).toString();
             menuHandler.openCoeView(coePath);
             eventEmitter.emit(IntoCpsAppEvents.PROJECT_CHANGED);
         }
