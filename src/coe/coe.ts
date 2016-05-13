@@ -10,13 +10,14 @@ import * as IntoCpsApp from  "../IntoCpsApp"
 import {IntoCpsAppEvents} from "../IntoCpsAppEvents";
 import {Fmu} from "./fmu"
 import * as Collections from 'typescript-collections';
-import {CoeConfig, FixedStepAlgorithm} from './CoeConfig'
+import {CoeConfig} from './CoeConfig'
 import {CoeSimulationRunner} from './CoeSimulationRunner'
 import {IProject} from "../proj/IProject";
 import {SettingKeys} from "../settings/SettingKeys";
 import {Input} from "./input";
 import {Output} from "./output";
 
+import * as Configs from "../intocps-configurations/intocps-configurations";
 
 export class CoeController {
 
@@ -67,13 +68,13 @@ export class CoeController {
 
 
         this.coeConfig = new CoeConfig();
-        this.coeConfig.load(path, activeProject.getRootFilePath());
+        this.coeConfig.load(path, activeProject.getRootFilePath(),activeProject.getFmusPath());
 
         //until bind is implemented we do this manual sync
         (<HTMLInputElement>document.getElementById("input-sim-time-start")).value = this.coeConfig.startTime + "";
         (<HTMLInputElement>document.getElementById("input-sim-time-end")).value = this.coeConfig.endTime + "";
 
-        (<HTMLInputElement>document.getElementById("input-sim-algorithm-fixed-size")).value = (<FixedStepAlgorithm>this.coeConfig.algorithm).size + "";
+        (<HTMLInputElement>document.getElementById("input-sim-algorithm-fixed-size")).value = (<Configs.FixedStepAlgorithm>this.coeConfig.algorithm).size + "";
 
 
     }
