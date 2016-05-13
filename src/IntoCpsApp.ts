@@ -14,7 +14,7 @@ import {SettingKeys} from "./settings//SettingKeys";
 
 export default class IntoCpsApp {
     app: Electron.App;
-    platform : String
+    platform: String
     window: Electron.BrowserWindow;
 
     settings: Settings;
@@ -128,7 +128,11 @@ export default class IntoCpsApp {
         return project;
     }
 
-
+    //get the global instance
+    public static getInstance(): IntoCpsApp {
+        let remote = require("remote");
+        return remote.getGlobal("intoCpsApp");
+    }
 }
 
 // http://stackoverflow.com/questions/29758765/json-to-typescript-class-instance
@@ -137,11 +141,11 @@ class SerializationHelper {
         var jsonObj = JSON.parse(json);
 
         if (typeof (<any>obj)["fromJSON"] === "function") {
-             (<any>obj)["fromJSON"](jsonObj);
+            (<any>obj)["fromJSON"](jsonObj);
         }
         else {
             for (var propName in jsonObj) {
-                 (<any>obj)[propName] = jsonObj[propName]
+                (<any>obj)[propName] = jsonObj[propName]
             }
         }
 
