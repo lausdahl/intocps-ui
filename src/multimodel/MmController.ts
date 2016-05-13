@@ -123,14 +123,7 @@ export class MmController extends IViewController {
     private extractOuputsAndInputs(fmus: any, instances: string[]) {
         fmus.forEach((value: any, index: any, map: any) => {
 
-            let SESSION_PREFIX = "session:/";
-            var p = value.path;
-            if (p.indexOf(SESSION_PREFIX) == 0) {
-                //session:/
-                let remote = require("remote");
-                let app: IntoCpsApp.IntoCpsApp = remote.getGlobal("intoCpsApp");
-                p = Path.normalize(app.getActiveProject().getFmusPath() + "/" + p.substring(SESSION_PREFIX.length));
-            }
+            var p =  Path.normalize(IntoCpsApp.IntoCpsApp.getInstance().getActiveProject().getFmusPath() + "/" + value.path);
 
             let fmuInstances: string[] = instances.filter((value: string) => {
                 return value.indexOf(index + "") == 0;

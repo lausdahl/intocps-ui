@@ -1,7 +1,7 @@
 {
 		"fmus":{
-				"{x1}":"session:/watertankcontroller-c.fmu",
-				"{x2}":"session:/singlewatertank-20sim.fmu"
+				"{x1}":"watertankcontroller-c.fmu",
+				"{x2}":"singlewatertank-20sim.fmu"
 		},
 		"connections":{
 				"{x1}.controller.valve":["{x2}.tank.valvecontrol"],
