@@ -17,6 +17,7 @@ import {Input} from "./connections/input";
 import {OutputElement} from "./connections/OutputElement";
 import {IViewController} from "../iViewController";
 import {SourceDom} from "../SourceDom";
+import {FmuInstancesElement} from "./connections/fmu-instances-element";
 import Path = require('path');
 
 
@@ -37,7 +38,10 @@ export class MmController extends IViewController {
     private selectedOutput: OutputElement;
 
     private parametersDiv: HTMLDivElement;
-
+    
+    private fmuInstancesDiv: HTMLDivElement;
+    private fmuInstancesElement: FmuInstancesElement;
+    
     constructor(mainViewDiv: HTMLDivElement) {
         super(mainViewDiv);
     }
@@ -48,6 +52,10 @@ export class MmController extends IViewController {
         this.parametersDiv = <HTMLDivElement>document.getElementById("parametersDiv");
         this.outputList = <HTMLUListElement>document.getElementById("connections-outputs");
         this.inputList = <HTMLUListElement>document.getElementById("connections-inputs");
+        this.fmuInstancesDiv = <HTMLDivElement>document.getElementById("multimodel-fmu-instances");
+        $(this.fmuInstancesDiv).load("multimodel/connections/fmu-instances.html", (event: JQueryEventObject) => {
+           this.fmuInstancesElement = new FmuInstancesElement(this.fmuInstancesDiv); 
+        });
 
         this.parametersDiv.innerHTML = "";
 
@@ -296,7 +304,7 @@ export class MmController extends IViewController {
     }
 
     private outputSelected(output: OutputElement) {
-        this.outputs.filter((obj: Output) => { return obj !== output }).forEach((obj: Output) => { obj.deselect() });
+        this.outputs.filter((obj: OutputElement) => { return obj !== output }).forEach((obj: OutputElement) => { obj.deselect() });
         while (this.inputList.hasChildNodes()) {
             this.inputList.removeChild(this.inputList.firstChild);
         }
