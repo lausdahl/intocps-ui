@@ -92,10 +92,12 @@ menuHandler.createRTTesterProject = (path) => {
 
 menuHandler.openSysMlExport = () => {
     $(init.mainView).load("sysmlexport/sysmlexport.html");
+    IntoCpsApp.IntoCpsApp.setTopName("SysML Export");
 };
 
 menuHandler.openFmu = () => {
     $(init.mainView).load("fmus/fmus.html");
+    IntoCpsApp.IntoCpsApp.setTopName("FMUs");
 };
 
 menuHandler.createMultiModel = (path) => {

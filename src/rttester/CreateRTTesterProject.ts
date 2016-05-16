@@ -1,6 +1,7 @@
 
 import {SourceDom} from "../sourceDom";
 import {IViewController} from "../iViewController";
+import {IntoCpsApp} from "../IntoCpsApp"
 
 export class CreateRTTesterProjectController extends IViewController {
 
@@ -9,6 +10,7 @@ export class CreateRTTesterProjectController extends IViewController {
     };
 
     initialize(sourceDom: SourceDom): void {
+        IntoCpsApp.setTopName("RT-Tester Project");
     }
 
     xmiModelBrowser() {

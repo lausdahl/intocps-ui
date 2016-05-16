@@ -42,6 +42,7 @@ export class CoeController extends IViewController {
     }
 
     initialize(sourceDom: SourceDom):void {
+        IntoCpsApp.IntoCpsApp.setTopName("Co-Simulation") 
         this.setProgress(0, null);
         this.initializeChart();
 

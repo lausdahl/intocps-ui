@@ -47,6 +47,7 @@ export class MmController extends IViewController {
     }
     
     initialize(sourceDom: SourceDom) {
+        IntoCpsApp.IntoCpsApp.setTopName("Multi-Model");
         
         this.fmusDiv = <HTMLDivElement>document.getElementById("fmusDiv");
         this.parametersDiv = <HTMLDivElement>document.getElementById("parametersDiv");
