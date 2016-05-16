@@ -3,6 +3,7 @@ import {IntoCpsAppEvents} from "./IntoCpsAppEvents";
 import * as IntoCpsApp from  "./IntoCpsApp";
 import {CoeController} from  "./coe/coe";
 import {MmController} from  "./multimodel/MmController";
+import {DseController} from  "./dse/dse";
 import {CreateRTTesterProjectController} from  "./rttester/CreateRTTesterProject";
 import {BrowserController} from "./proj/projbrowserview";
 import {IntoCpsAppMenuHandler} from "./IntoCpsAppMenuHandler";
@@ -98,6 +99,17 @@ menuHandler.openSysMlExport = () => {
 menuHandler.openFmu = () => {
     $(init.mainView).load("fmus/fmus.html");
     IntoCpsApp.IntoCpsApp.setTopName("FMUs");
+};
+
+menuHandler.openDseView = (path) => {
+    openViewController("dse/dse.html", path, DseController);
+};
+
+menuHandler.createDse = (path) =>{
+    $(init.mainView).load("dse/dse.html", (event: JQueryEventObject) => {
+      // create empty DSE file and load it.
+       menuHandler.openDseView("")
+    });
 };
 
 menuHandler.createMultiModel = (path) => {
