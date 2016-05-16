@@ -1,0 +1,16 @@
+class ValveActuator
+
+
+instance variables
+
+handle : bool->bool;
+
+operations
+
+public ValveActuator: bool->bool ==> ValveActuator
+ValveActuator(h) == handle := h;
+
+public setValve: bool ==> ()
+setValve(value)==let - = handle(value) in skip;
+
+end ValveActuator

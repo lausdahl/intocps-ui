@@ -7,20 +7,21 @@
 import * as Main from  "../settings/settings"
 import * as IntoCpsApp from  "../IntoCpsApp"
 import {IntoCpsAppEvents} from "../IntoCpsAppEvents";
-import {Fmu} from "../coe/fmu"
+import {Fmu} from "./fmu"
 import * as Collections from 'typescript-collections';
 import {CoeConfig} from '../coe/CoeConfig'
 
 import {IProject} from "../proj/IProject";
 import {SettingKeys} from "../settings/SettingKeys";
-import {Input} from "../coe/input";
-import {Output} from "../coe/output";
+import {Input} from "./connections/input";
+import {OutputElement} from "./connections/outputElement";
+import {IViewController} from "../iViewController";
+import {SourceDom} from "../sourceDom";
+import {FmuInstancesElement} from "./connections/fmu-instances-element";
 import Path = require('path');
 
 
-export class MmController {
-
-
+export class MmController extends IViewController {
     coeConfig: CoeConfig = new CoeConfig();
 
     private fmuCounter: number = 0;
@@ -28,24 +29,35 @@ export class MmController {
     private fmus: Fmu[] = [];
 
     private outputList: HTMLUListElement;
-    private outputs: Output[] = [];
+    private outputs: OutputElement[] = [];
     private inputList: HTMLUListElement;
     private inputs: Input[] = [];
     private allInputs: any = [];
     private allOutputs: any = [];
     private connections: any = [];
-    private selectedOutput: Output;
+    private selectedOutput: OutputElement;
 
-private parametersDiv: HTMLDivElement;
-
-    initialize() {
-      
+    private parametersDiv: HTMLDivElement;
+    
+    private fmuInstancesDiv: HTMLDivElement;
+    private fmuInstancesElement: FmuInstancesElement;
+    
+    constructor(mainViewDiv: HTMLDivElement) {
+        super(mainViewDiv);
+    }
+    
+    initialize(sourceDom: SourceDom) {
+        
         this.fmusDiv = <HTMLDivElement>document.getElementById("fmusDiv");
-         this.parametersDiv = <HTMLDivElement>document.getElementById("parametersDiv");
+        this.parametersDiv = <HTMLDivElement>document.getElementById("parametersDiv");
         this.outputList = <HTMLUListElement>document.getElementById("connections-outputs");
         this.inputList = <HTMLUListElement>document.getElementById("connections-inputs");
+        this.fmuInstancesDiv = <HTMLDivElement>document.getElementById("multimodel-fmu-instances");
+        $(this.fmuInstancesDiv).load("multimodel/connections/fmu-instances.html", (event: JQueryEventObject) => {
+           this.fmuInstancesElement = new FmuInstancesElement(this.fmuInstancesDiv); 
+        });
 
-this.parametersDiv.innerHTML="";
+        this.parametersDiv.innerHTML = "";
 
         var remote = require('remote');
         var Menu = remote.require('menu');
@@ -58,31 +70,31 @@ this.parametersDiv.innerHTML="";
         this.allInputs = [];
         this.allOutputs = [];
         this.connections = [];
+        
+        this.load(sourceDom.getPath());
     }
 
     public load(path: string) {
-
-        this.initialize();
-
         this.fmus.forEach((value: Fmu, index: number, array: Fmu[]) => {
             this.removeFmu(value);
         });
 
         this.coeConfig = new CoeConfig();
         //this.coeConfig.load(path, activeProject.getRootFilePath());
-        this.coeConfig.loadFromMultiModel(path);
+        this.coeConfig.loadFromMultiModel(path,IntoCpsApp.IntoCpsApp.getInstance().getActiveProject().getFmusPath());
         //until bind is implemented we do this manual sync
 
         this.coeConfig.fmus.forEach((value, index, map) => {
-            this.addFmu(index + "", value.path);
+            path = value.description.length==0?value.path:value.description;
+            this.addFmu(index + "",path);
         });
 
         this.connections = this.extractConnections(this.coeConfig.connections);
         this.extractOuputsAndInputs(this.coeConfig.fmus, this.getDefinedInstances(this.coeConfig.connections));
 
-this.coeConfig.parameters.forEach((value:any,index:String)=>{
-    this.parametersDiv.innerHTML+=""+index+" = "+value+"<br/>";
-});
+        this.coeConfig.parameters.forEach((value: any, index: String) => {
+            this.parametersDiv.innerHTML += "" + index + " = " + value + "<br/>";
+        });
 
     }
 
@@ -109,22 +121,15 @@ this.coeConfig.parameters.forEach((value:any,index:String)=>{
     }
 
     private extractOuputsAndInputs(fmus: any, instances: string[]) {
-        fmus.forEach((value:any, index:any, map:any) => {
+        fmus.forEach((value: any, index: any, map: any) => {
 
-            let SESSION_PREFIX = "session:/";
-            var p = value.path;
-            if (p.indexOf(SESSION_PREFIX) == 0) {
-                //session:/
-                let remote = require("remote");
-                let app: IntoCpsApp.IntoCpsApp = remote.getGlobal("intoCpsApp");
-                p = Path.normalize(app.getActiveProject().getFmusPath() + "/" + p.substring(SESSION_PREFIX.length));
-            }
+            var p =  Path.normalize(IntoCpsApp.IntoCpsApp.getInstance().getActiveProject().getFmusPath() + "/" + value.path);
 
             let fmuInstances: string[] = instances.filter((value: string) => {
                 return value.indexOf(index + "") == 0;
             });
 
-            this.readModelDescriptionFromFmuAsync(fmuInstances, p);
+                this.readModelDescriptionFromFmuAsync(fmuInstances, p);
         });
     }
 
@@ -135,12 +140,13 @@ this.coeConfig.parameters.forEach((value:any,index:String)=>{
         var JSZip = require("jszip");
         var fs = require("fs");
 
+console.info(path);
         // read a zip file
-        fs.readFile(path, function (err:any, data:any) {
+        fs.readFile(path, function (err: any, data: any) {
             if (err) throw err;
             var zip = new JSZip();
 
-            zip.loadAsync(data).then(function (k:any) {
+            zip.loadAsync(data).then(function (k: any) {
                 let md = zip.file("modelDescription.xml").async("string")
                     .then(function (content: string) {
                         // use content
@@ -220,7 +226,7 @@ this.coeConfig.parameters.forEach((value:any,index:String)=>{
     addFmu(fmuName: string, path: string) {
         // https://forum.jquery.com/topic/load-but-append-data-instead-of-replace
         let self = this;
-        $('<div>').load("coe/fmu.html", function (event: JQueryEventObject) {
+        $('<div>').load("multimodel/fmu.html", function (event: JQueryEventObject) {
             let fmuHtml: HTMLElement = <HTMLElement>(<HTMLDivElement>this).firstChild;
             let name = fmuName == null ? "{FMU" + self.fmuCounter + "}" : fmuName;
             let newFmu: Fmu = new Fmu(fmuHtml, self.removeFmu.bind(self), name, path);
@@ -248,10 +254,10 @@ this.coeConfig.parameters.forEach((value:any,index:String)=>{
     private setOutputs(allOutputs: any) {
         let mthis = this;
         allOutputs.forEach((element: any) => {
-            $('<div>').load("coe/output.html", function (event: BaseJQueryEventObject) {
+            $('<div>').load("multimodel/connections/output.html", function (event: BaseJQueryEventObject) {
                 let html: HTMLLinkElement = <HTMLLinkElement>(<HTMLDivElement>this).firstChild;
                 mthis.outputList.appendChild(html);
-                let output: Output = new Output(html, element, mthis.outputSelected.bind(mthis));
+                let output: OutputElement = new OutputElement(html, element, mthis.outputSelected.bind(mthis));
                 mthis.outputs.push(output);
             });
         });
@@ -262,7 +268,7 @@ this.coeConfig.parameters.forEach((value:any,index:String)=>{
     private setInputs(output: string) {
         let mthis = this;
         this.allInputs.forEach((inputName: string) => {
-            $('<div>').load("coe/input.html", function (event: BaseJQueryEventObject) {
+            $('<div>').load("multimodel/connections/input.html", function (event: BaseJQueryEventObject) {
                 let html: HTMLLinkElement = <HTMLLinkElement>(<HTMLDivElement>this).firstChild;
                 mthis.inputList.appendChild(html);
 
@@ -292,8 +298,8 @@ this.coeConfig.parameters.forEach((value:any,index:String)=>{
         }
     }
 
-    private outputSelected(output: Output) {
-        this.outputs.filter((obj: Output) => { return obj !== output }).forEach((obj: Output) => { obj.deselect() });
+    private outputSelected(output: OutputElement) {
+        this.outputs.filter((obj: OutputElement) => { return obj !== output }).forEach((obj: OutputElement) => { obj.deselect() });
         while (this.inputList.hasChildNodes()) {
             this.inputList.removeChild(this.inputList.firstChild);
         }

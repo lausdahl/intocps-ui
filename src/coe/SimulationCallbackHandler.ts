@@ -1,15 +1,14 @@
 
-//TODO: DUMMY REFERENCE UNTIL CHART MAKES A TYPESCRIPT DEFINITION FILE!
-///<reference path="Chart.d.ts"/>
-///<reference path="../../typings/browser/ambient/github-electron/index.d.ts"/>
-///<reference path="../../typings/browser/ambient/node/index.d.ts"/>
-///<reference path="../../typings/browser/ambient/jquery/index.d.ts"/>
+// TODO: DUMMY REFERENCE UNTIL CHART MAKES A TYPESCRIPT DEFINITION FILE!
+/// <reference path="Chart.d.ts"/>
+/// <reference path="../../typings/browser/ambient/github-electron/index.d.ts"/>
+/// <reference path="../../typings/browser/ambient/node/index.d.ts"/>
+/// <reference path="../../typings/browser/ambient/jquery/index.d.ts"/>
 /// <reference path="../../node_modules/typescript/lib/lib.es6.d.ts" />
 
 import * as Main from  "../settings/settings"
 import * as IntoCpsApp from  "../IntoCpsApp"
 import {IntoCpsAppEvents} from "../IntoCpsAppEvents";
-import {Fmu} from "./fmu"
 import * as Collections from 'typescript-collections';
 import {CoeConfig} from './CoeConfig'
 

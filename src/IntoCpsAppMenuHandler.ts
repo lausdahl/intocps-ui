@@ -1,6 +1,3 @@
-
-import {CoeController} from "./coe/coe";
-
 export class IntoCpsAppMenuHandler {
     openCoeView: (path: string) => void;
     openMultiModel: (path: string) => void;
@@ -9,4 +6,5 @@ export class IntoCpsAppMenuHandler {
 
     createMultiModel: (path: string) => void;
     createCoSimConfiguration: (path: string) => void;
+    createRTTesterProject: (path: string) => void;
 }

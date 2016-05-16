@@ -1,0 +1,54 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="PType" version="4">
+  <OBJECT>
+    <ID name="PType" mc="Standard.Package" uid="d27f8c99-59b4-470a-8049-73f9cf3d59d3"/>
+    <PID name="INTOCPSPROFILETYPE" mc="Standard.Project" uid="ac320eb7-d9f5-4c06-adf6-c79b36bfd588"/>
+    <ATTRIBUTES>
+      <ATT name="IsInstantiable">false</ATT>
+      <ATT name="IsAbstract">false</ATT>
+      <ATT name="IsLeaf">false</ATT>
+      <ATT name="IsRoot">false</ATT>
+      <ATT name="Visibility">Public</ATT>
+      <ATT name="Name"><![CDATA[PType]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <COMP relation="OwnedElement">
+        <COMPID name="PType" mc="Standard.Artifact" uid="b1f961d8-8cb0-4864-bacc-06b45e1ef33a"/>
+        <COMPID name="Bool" mc="Standard.DataType" uid="adb8de67-7232-462f-b36c-c45585a37a74"/>
+        <COMPID name="Int" mc="Standard.DataType" uid="723773db-22ed-4325-bf11-83e380290b30"/>
+        <COMPID name="Interval" mc="Standard.DataType" uid="63a107d1-cba2-493b-8c18-86cbd8c41a7b"/>
+        <COMPID name="Nat" mc="Standard.DataType" uid="7a569746-3ff6-4bff-898a-d3c9dd2eddbb"/>
+        <COMPID name="Real" mc="Standard.DataType" uid="cf54ada1-c5bf-4eaf-9ef5-a2fc8c7edcad"/>
+        <COMPID name="String" mc="Standard.DataType" uid="6ba90c81-39b9-4015-8c47-1ab27cf9d19d"/>
+      </COMP>
+      <LINK relation="Extension">
+        <FOREIGNID name="ModelComponentElementAlias" mc="Standard.Stereotype" uid="3254be34-c7d8-4018-8a68-5de65c30b773"/>
+      </LINK>
+      <COMP relation="Tag">
+        <OBJECT>
+          <ID name="" mc="Standard.TaggedValue" uid="7fc42f6e-0504-47d5-842f-10db4b5525b4"/>
+          <ATTRIBUTES>
+            <ATT name="Name"></ATT>
+            <ATT name="status">1970354901745664</ATT>
+          </ATTRIBUTES>
+          <DEPENDENCIES>
+            <COMP relation="Actual">
+              <OBJECT>
+                <ID name="" mc="Standard.TagParameter" uid="a92a8e65-ef65-496b-b032-d6ebaaa9b571"/>
+                <ATTRIBUTES>
+                  <ATT name="Value"><![CDATA[809cd4a1-a778-4b59-a3bb-67d43d7af358]]></ATT>
+                  <ATT name="status">1970354901745664</ATT>
+                </ATTRIBUTES>
+                <DEPENDENCIES></DEPENDENCIES>
+              </OBJECT>
+            </COMP>
+            <LINK relation="Definition">
+              <FOREIGNID name="uuid" mc="Standard.TagType" uid="7ebbd53f-a5f3-433b-872c-4024615af229"/>
+            </LINK>
+          </DEPENDENCIES>
+        </OBJECT>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>

@@ -8,21 +8,19 @@
 import * as Main from  "../settings/settings"
 import * as IntoCpsApp from  "../IntoCpsApp"
 import {IntoCpsAppEvents} from "../IntoCpsAppEvents";
-import {Fmu} from "./fmu"
 import * as Collections from 'typescript-collections';
-import {CoeConfig, FixedStepAlgorithm} from './CoeConfig'
+import {CoeConfig} from './CoeConfig'
 import {CoeSimulationRunner} from './CoeSimulationRunner'
 import {IProject} from "../proj/IProject";
 import {SettingKeys} from "../settings/SettingKeys";
-import {Input} from "./input";
-import {Output} from "./output";
+import {SourceDom} from "../sourceDom"
+import {IViewController} from "../iViewController"
 
+import * as Configs from "../intocps-configurations/intocps-configurations";
 
-export class CoeController {
+export class CoeController extends IViewController {
 
     coeConfig: CoeConfig = new CoeConfig();
-
-
 
     configButton: HTMLButtonElement;
     remote: Electron.Remote;
@@ -36,13 +34,14 @@ export class CoeController {
 
     app: IntoCpsApp.IntoCpsApp;
 
-    constructor() {
+    constructor(viewDiv: HTMLDivElement) {
+        super(viewDiv);
         this.remote = require("remote");
         this.dialog = this.remote.require("dialog");
         this.app = this.remote.getGlobal("intoCpsApp");
     }
 
-    initialize() {
+    initialize(sourceDom: SourceDom):void {
         this.setProgress(0, null);
         this.initializeChart();
 
@@ -53,30 +52,43 @@ export class CoeController {
             console.log("project-changed");  // prints "ping"
 
         });
-
-
-    }
-
-    public load(path: string) {
+        
         let activeProject = this.app.getActiveProject();
         if (activeProject == null) {
             console.warn("no active project cannot load coe config");
-        }
-        this.initialize();
-
-
-
+    }
         this.coeConfig = new CoeConfig();
-        this.coeConfig.load(path, activeProject.getRootFilePath());
+        this.coeConfig.load(sourceDom.getPath(), activeProject.getRootFilePath(),activeProject.getFmusPath());
 
         //until bind is implemented we do this manual sync
         (<HTMLInputElement>document.getElementById("input-sim-time-start")).value = this.coeConfig.startTime + "";
         (<HTMLInputElement>document.getElementById("input-sim-time-end")).value = this.coeConfig.endTime + "";
 
-        (<HTMLInputElement>document.getElementById("input-sim-algorithm-fixed-size")).value = (<FixedStepAlgorithm>this.coeConfig.algorithm).size + "";
+        (<HTMLInputElement>document.getElementById("input-sim-algorithm-fixed-size")).value = (<Configs.FixedStepAlgorithm>this.coeConfig.algorithm).size + "";
 
 
     }
+
+    // public load(path: string) {
+    //     let activeProject = this.app.getActiveProject();
+    //     if (activeProject == null) {
+    //         console.warn("no active project cannot load coe config");
+    //     }
+    //     this.initialize();
+
+
+
+    //     this.coeConfig = new CoeConfig();
+    //     this.coeConfig.load(path, activeProject.getRootFilePath());
+
+    //     //until bind is implemented we do this manual sync
+    //     (<HTMLInputElement>document.getElementById("input-sim-time-start")).value = this.coeConfig.startTime + "";
+    //     (<HTMLInputElement>document.getElementById("input-sim-time-end")).value = this.coeConfig.endTime + "";
+
+    //     (<HTMLInputElement>document.getElementById("input-sim-algorithm-fixed-size")).value = (<FixedStepAlgorithm>this.coeConfig.algorithm).size + "";
+
+
+    // }
 
     initializeChart() {
         this.liveStreamCanvas = <HTMLCanvasElement>document.getElementById("liveStreamCanvas");

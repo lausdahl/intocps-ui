@@ -1,0 +1,27 @@
+system System
+
+instance variables
+
+-- Hardware interface variable required by FMU Import/Export
+public static hwi: HardwareInterface := new HardwareInterface();
+    
+
+instance variables
+
+  public static controller : [Controller] := nil;
+
+	cpu1 : CPU := new CPU(<FP>, 20);
+operations
+
+public System : () ==> System
+System () == 
+(
+	let levelSensor   = new LevelSensor(lambda -:bool& hwi.level),
+			valveActuator =  new ValveActuator(lambda x: bool & Reflect`setMember(System`hwi,"valveState",x) ) 
+	in
+		controller := new Controller(levelSensor, valveActuator);
+
+	cpu1.deploy(controller,"Controller");
+);
+
+end System

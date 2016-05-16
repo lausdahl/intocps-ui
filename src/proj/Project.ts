@@ -7,7 +7,7 @@ import Path = require('path');
 import {IProject} from "./IProject"
 import {Container} from "./Container"
 import {Config} from "./Config"
-import {ConMap} from "./ConMap"
+import {ProjectSettings} from "./ProjectSettings"
 
 export class Project implements IProject {
 
@@ -16,7 +16,7 @@ export class Project implements IProject {
     configPath: string;
     containers: Array<Container> = [];
     configs: Array<Config> = [];
-    conMaps: Array<ConMap> = [];
+
 
 
     PATH_FMUS: String = "FMUs";
@@ -25,6 +25,8 @@ export class Project implements IProject {
     PATH_DSE: String = "Design Space Explorations";
     //PATH_CONNECTIONS: String = "SysML Connections";
     PATH_SYSML: String = "SysML";
+    static PATH_TEST_DATA_GENERATION: String = "Test Data Generation";
+    static PATH_MODEL_CHECKING: String = "Model Checking";
 
     constructor(name: string, rootPath: string, configPath: string) {
         this.name = name;
@@ -52,9 +54,6 @@ export class Project implements IProject {
         return this.configs;
     }
 
-    public getConMaps() {
-        return this.conMaps;
-    }
 
     public getSysMlFolderName(): String {
         return this.PATH_SYSML;
@@ -63,7 +62,8 @@ export class Project implements IProject {
     //TODO: replace with proper folder struct
     public save() {
 
-        let folders = [this.PATH_SYSML, this.PATH_DSE, this.PATH_FMUS, this.PATH_MODELS, this.PATH_MULTI_MODELS];
+        let folders = [this.PATH_SYSML, this.PATH_DSE, this.PATH_FMUS, this.PATH_MODELS, this.PATH_MULTI_MODELS,
+            Project.PATH_TEST_DATA_GENERATION, Project.PATH_MODEL_CHECKING];
 
         for (var i = 0; folders.length > i; i++) {
             try {
@@ -119,7 +119,7 @@ export class Project implements IProject {
     }
 
 
-    public createCoSimConfig(multimodelConfigPath: string, name: String, jsonContent: String): String {
+    public createCoSimConfig(multimodelConfigPath: string, name: String, jsonContent: String): string {
         let mmDir = Path.dirname(multimodelConfigPath);
         let path = Path.normalize(mmDir + "/" + name);
 
@@ -128,7 +128,7 @@ export class Project implements IProject {
         let fullpath = Path.normalize(path + "/" + name + ".coe.json");
 
         var data = jsonContent == null ? "{\"algorithm\":{\"type\":\"fixed-step\",\"size\":0.1},\"endTime\":10,\"startTime\":0}" : jsonContent;
-      console.info(data);
+        console.info(data);
         var json = JSON.parse(data + "");
         json["multimodel_path"] = multimodelConfigPath.substring(this.getRootFilePath().length + 1);
 
@@ -137,6 +137,10 @@ export class Project implements IProject {
         fs.writeFileSync(fullpath, data, "UTF-8");
 
         return fullpath;
+    }
+
+    public getSettings() {
+        return new ProjectSettings(this);
     }
 }
 

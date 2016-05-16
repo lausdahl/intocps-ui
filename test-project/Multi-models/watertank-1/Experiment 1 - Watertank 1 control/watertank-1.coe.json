@@ -1,0 +1,16 @@
+{
+		"multimodel_path":"Multi-models/watertank-1/watertank-1.mm.json",
+	
+		"parameters":{
+				"{x1}.controller.maxlevel":2.5,
+				"{x1}.controller.minlevel":2
+		},
+		"algorithm":{
+				"type":"fixed-step",
+				"size":0.01
+		},
+		"livestream":{
+				"{x2}.tank":["level"],
+				"{x1}.controller":["valve"]
+		}
+}

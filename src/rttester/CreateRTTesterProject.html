@@ -1,0 +1,22 @@
+<h1>Create RT-Tester Project</h1>
+
+<div class="form-group" id="CreationParameters">
+    <div class="form-group">
+        <label for="XMIModelPathText">
+            XMI Model path:
+        </label>
+        <div class="input-group">
+            <input type="text" class="form-control input-sm" id="XMIModelPathText">
+            <span class="input-group-btn">
+                <button type="button" class="btn btn-default btn-sm" onclick="controller.xmiModelBrowser()">
+                         <span class="glyphicon glyphicon-file"></span> Browse
+            </button>
+            </span>
+        </div>
+    </div>
+    <button type="button" class="btn btn-default btn-sm" onclick="controller.createProject()">
+        <span class="glyphicon glyphicon-ok"></span> Create
+    </button>
+</div>
+
+<textarea id="OutputText" style="visibility: collapse;" />

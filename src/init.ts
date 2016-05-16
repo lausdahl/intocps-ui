@@ -1,49 +1,54 @@
 
 import {IntoCpsAppEvents} from "./IntoCpsAppEvents";
-import * as IntoCpsApp from  "./IntoCpsApp"
+import * as IntoCpsApp from  "./IntoCpsApp";
 import {CoeController} from  "./coe/coe";
 import {MmController} from  "./multimodel/MmController";
-import {BrowserController} from "./proj/projbrowserview"
-import {IntoCpsAppMenuHandler} from "./IntoCpsAppMenuHandler"
+import {CreateRTTesterProjectController} from  "./rttester/CreateRTTesterProject";
+import {BrowserController} from "./proj/projbrowserview";
+import {IntoCpsAppMenuHandler} from "./IntoCpsAppMenuHandler";
+import {SourceDom} from "./sourceDom";
+import {IViewController} from "./iViewController";
+import {IProject} from "./proj/IProject";
 
-import fs = require('fs');
+import fs = require("fs");
 
-// constants
-var mainViewId: string = "mainView";
+import {eventEmitter} from "./Emitter";
+
 
 class InitializationController {
+    // constants
+    mainViewId: string = "mainView";
     layout: W2UI.W2Layout;
     title: HTMLTitleElement;
     mainView: HTMLDivElement;
     constructor() {
         $(document).ready(() => this.initialize());
     }
-    initialize() {
+    private initialize() {
         this.setTitle();
         this.configureLayout();
         this.loadViews();
     }
     private configureLayout() {
         let layout: HTMLDivElement = <HTMLDivElement>document.querySelector("#layout");
-        var pstyle = 'border: 1px solid #dfdfdf; padding: 5px; background-color: #FFFFFF';
-        var topHtml = ""
+        let pstyle = "border: 1px solid #dfdfdf; padding: 5px; background-color: #FFFFFF";
         this.layout = $(layout).w2layout({
-            name: 'layout',
+            name: "layout",
             padding: 4,
             panels: [
-                { type: 'left', size: 200, resizable: true, style: pstyle },
-                { type: 'main', style: pstyle },
+                { type: "left", size: 200, resizable: true, style: pstyle },
+                { type: "main", style: pstyle },
             ]
         });
     }
     private setTitle() {
-        //Set the title to the project name
-        this.title = <HTMLTitleElement>document.querySelector('title');
+        // Set the title to the project name
+        this.title = <HTMLTitleElement>document.querySelector("title");
         let app: IntoCpsApp.IntoCpsApp = require("remote").getGlobal("intoCpsApp");
         if (app.getActiveProject() != null) {
             this.title.innerText = "Project: " + app.getActiveProject().getName();
         }
-        let ipc: Electron.IpcRenderer = require('electron').ipcRenderer;
+        let ipc: Electron.IpcRenderer = require("electron").ipcRenderer;
         ipc.on(IntoCpsAppEvents.PROJECT_CHANGED, (event, arg) => {
             this.title.innerText = "Project: " + app.getActiveProject().getName();
         });
@@ -51,62 +56,38 @@ class InitializationController {
 
     private loadViews() {
         this.layout.load("main", "main.html", "", () => {
-            /// Switch active tab marker
-            $('.navbar li').click(function (e) {
-                $('.navbar li.active').removeClass('active');
-                var $this = $(this);
-                if (!$this.hasClass('active')) {
-                    $this.addClass('active');
-                }
-            });
-            this.mainView = (<HTMLDivElement>document.getElementById(mainViewId));
-            //this.loadCoSim();
+            this.mainView = (<HTMLDivElement>document.getElementById(this.mainViewId));
         });
         this.layout.load("left", "proj/projbrowserview.html", "", () => {
             browserController.initialize();
         });
     }
-    loadDse() {
-        $(this.mainView).load("dse/dse.html");  // fire initialise event here
-    }
-
-    loadCoSim() {
-        $(this.mainView).load("coe/coe.html", (event: JQueryEventObject) => coeController.initialize());
-    }
-
-    loadMc() {
-        $(this.mainView).load("mc/mc.html") // fire initialise event here
-    }
 };
 
 
-
-
-
-// Initialise controllers so they persist
-let coeController: CoeController = new CoeController();
-let mmController: MmController = new MmController();
-
+// Initialise controllers
 let menuHandler: IntoCpsAppMenuHandler = new IntoCpsAppMenuHandler();
+let browserController: BrowserController = new BrowserController(menuHandler);
+let init = new InitializationController();
+let controller: IViewController;
 
-
-
-var browserController: BrowserController = new BrowserController(menuHandler);
-var init = new InitializationController();
+function openViewController(htmlPath: string, path: string, controllerPar: new (mainDiv: HTMLDivElement) => IViewController) {
+    $(init.mainView).load(htmlPath, (event: JQueryEventObject) => {
+        controller = new controllerPar(init.mainView);
+        controller.initialize(new SourceDom(path));
+    });
+}
 
 menuHandler.openCoeView = (path) => {
-    $(init.mainView).load("coe/coe.html", (event: JQueryEventObject) => {
-        coeController.initialize();
-        coeController.load(path);
-    });
-
+    openViewController("coe/coe.html", path, CoeController);
 };
 
 menuHandler.openMultiModel = (path) => {
-    $(init.mainView).load("multimodel/multimodel.html", (event: JQueryEventObject) => {
-        mmController.initialize();
-        mmController.load(path);
-    });
+    openViewController("multimodel/multimodel.html", path, MmController);
+};
+
+menuHandler.createRTTesterProject = (path) => {
+    openViewController("rttester/CreateRTTesterProject.html", path, CreateRTTesterProjectController);
 };
 
 menuHandler.openSysMlExport = () => {
@@ -117,40 +98,25 @@ menuHandler.openFmu = () => {
     $(init.mainView).load("fmus/fmus.html");
 };
 
-
 menuHandler.createMultiModel = (path) => {
     $(init.mainView).load("multimodel/multimodel.html", (event: JQueryEventObject) => {
-        mmController.initialize();
-
-        let remote = require("remote");
-        let app: IntoCpsApp.IntoCpsApp = remote.getGlobal("intoCpsApp");
-
-        let project = app.getActiveProject();
+        let project: IProject = require("remote").getGlobal("intoCpsApp").getActiveProject();
         if (project != null) {
             let content = fs.readFileSync(path, "UTF-8");
             let mmPath = project.createMultiModel("mm-" + Math.floor(Math.random() * 100), content);
-            mmController.load(mmPath + "");
-
+            menuHandler.openMultiModel(mmPath + "");
+            eventEmitter.emit(IntoCpsAppEvents.PROJECT_CHANGED);
         }
-
-
     });
 };
 
 menuHandler.createCoSimConfiguration = (path) => {
-    $(init.mainView).load("coe/coe.html", (event: JQueryEventObject) => {
-        coeController.initialize();
-
-        let remote = require("remote");
-        let app: IntoCpsApp.IntoCpsApp = remote.getGlobal("intoCpsApp");
-
-        let project = app.getActiveProject();
+    $(init.mainView).load("coe/coe.html", function (event: JQueryEventObject) {
+        let project: IProject = require("remote").getGlobal("intoCpsApp").getActiveProject();
         if (project != null) {
-
-            let coePath = project.createCoSimConfig(path + "", "co-sim-" + Math.floor(Math.random() * 100), null);
-           
-            coeController.load(coePath+"");
-
+            let coePath: string = project.createCoSimConfig(path + "", "co-sim-" + Math.floor(Math.random() * 100), null).toString();
+            menuHandler.openCoeView(coePath);
+            eventEmitter.emit(IntoCpsAppEvents.PROJECT_CHANGED);
         }
 
 

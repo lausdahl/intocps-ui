@@ -1,20 +1,20 @@
-///<reference path="../typings/browser/ambient/github-electron/index.d.ts"/>
-///<reference path="../typings/browser/ambient/node/index.d.ts"/>
+/// <reference path="../typings/browser/ambient/github-electron/index.d.ts"/>
+/// <reference path="../typings/browser/ambient/node/index.d.ts"/>
 
 
-import fs = require('fs');
-import Path = require('path');
+import fs = require("fs");
+import Path = require("path");
 
-import {ISettingsValues} from "./settings/ISettingsValues"
-import {Settings} from "./settings/settings"
-import {IProject} from "./proj/IProject"
-import {Project} from "./proj/Project"
+import {ISettingsValues} from "./settings/ISettingsValues";
+import {Settings} from "./settings/settings";
+import {IProject} from "./proj/IProject";
+import {Project} from "./proj/Project";
 import {IntoCpsAppEvents} from "./IntoCpsAppEvents";
 import {SettingKeys} from "./settings//SettingKeys";
 
 export default class IntoCpsApp {
     app: Electron.App;
-    platform : String
+    platform: String
     window: Electron.BrowserWindow;
 
     settings: Settings;
@@ -27,11 +27,10 @@ export default class IntoCpsApp {
 
         const intoCpsAppFolder = this.createAppFolderRoot(app);
         this.createDirectoryStructure(intoCpsAppFolder);
-        //create settings
+        
         this.settings = new Settings(app, intoCpsAppFolder);
-        this.settings.load()
+        this.settings.load();
 
-        let fs = require('fs');
         let activeProjectPath = this.settings.getSetting(SettingKeys.ACTIVE_PROJECT);
         try {
             if (!fs.accessSync(activeProjectPath, fs.R_OK)) {
@@ -42,7 +41,7 @@ export default class IntoCpsApp {
             }
         } catch (e) {
             console.warn(e);
-            console.warn("Unable to set active project from settings: " + activeProjectPath)
+            console.warn("Unable to set active project from settings: " + activeProjectPath);
         }
     }
 
@@ -52,16 +51,16 @@ export default class IntoCpsApp {
 
 
     private createAppFolderRoot(app: Electron.App): string {
-        const path = require('path');
+        const path = require("path");
         // Create intoCpsApp folder
         const userPath = function () {
             if (app.getPath("exe").indexOf("electron-prebuilt") > -1) {
 
-                console.log("Dev-mode: Using " + __dirname + " as user data path.")
+                console.log("Dev-mode: Using " + __dirname + " as user data path.");
                 return __dirname;
             }
             else {
-                return app.getPath('userData');
+                return app.getPath("userData");
             }
         } ();
 
@@ -72,7 +71,7 @@ export default class IntoCpsApp {
         try {
             fs.mkdirSync(path);
         } catch (e) {
-            //the path probably already existed
+            // the path probably already existed
         }
     }
 
@@ -91,7 +90,7 @@ export default class IntoCpsApp {
 
         this.activeProject = project;
 
-        //Fire an event to inform all controlls on main window that the project has changed
+        // Fire an event to inform all controlls on main window that the project has changed
         this.fireEvent(IntoCpsAppEvents.PROJECT_CHANGED);
 
 
@@ -103,9 +102,8 @@ export default class IntoCpsApp {
     // Fires an ipc event using the window webContent if defined
     private fireEvent(event: string) {
         if (this.window != undefined) {
-            //Fire an event to inform all controlls on main window that the project has changed
+            // Fire an event to inform all controlls on main window that the project has changed
             this.window.webContents.send(IntoCpsAppEvents.PROJECT_CHANGED);
-            // console.info("Window: " + this.window);
             console.info("fire event: " + event);
         }
     }
@@ -118,30 +116,32 @@ export default class IntoCpsApp {
     }
 
     loadProject(path: string): IProject {
-        console.info("Loading project from: " + path)
+        console.info("Loading project from: " + path);
         let config = Path.normalize(path);
-        var content = fs.readFileSync(config, "utf8");
-        //TODO load configuration containers and config files
-        var project = SerializationHelper.toInstance(new Project("", "", ""), content.toString());
-        //console.info("Loaded project: " + project);
-        //console.info("Project name is: " + project.getName());
+        let content = fs.readFileSync(config, "utf8");
+        // TODO load configuration containers and config files
+        let project = SerializationHelper.toInstance(new Project("", "", ""), content.toString());
         return project;
     }
 
-
+    //get the global instance
+    public static getInstance(): IntoCpsApp {
+        let remote = require("remote");
+        return remote.getGlobal("intoCpsApp");
+    }
 }
 
 // http://stackoverflow.com/questions/29758765/json-to-typescript-class-instance
 class SerializationHelper {
     static toInstance<T>(obj: T, json: string): T {
-        var jsonObj = JSON.parse(json);
+        let jsonObj = JSON.parse(json);
 
         if (typeof (<any>obj)["fromJSON"] === "function") {
-             (<any>obj)["fromJSON"](jsonObj);
+            (<any>obj)["fromJSON"](jsonObj);
         }
         else {
-            for (var propName in jsonObj) {
-                 (<any>obj)[propName] = jsonObj[propName]
+            for (let propName in jsonObj) {
+                 (<any>obj)[propName] = jsonObj[propName];
             }
         }
 

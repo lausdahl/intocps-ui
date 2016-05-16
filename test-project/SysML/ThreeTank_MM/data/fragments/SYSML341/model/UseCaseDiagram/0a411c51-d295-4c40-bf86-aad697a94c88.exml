@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="Use Cases diagram" version="4">
+  <OBJECT>
+    <ID name="Use Cases diagram" mc="Standard.UseCaseDiagram" uid="0a411c51-d295-4c40-bf86-aad697a94c88"/>
+    <PID name="Use Cases" mc="Standard.Package" uid="46103397-7c64-4cf8-a7f4-96203dfa80f6"/>
+    <ATTRIBUTES>
+      <ATT name="UiDataVersion">136</ATT>
+      <ATT name="UiData"><![CDATA[eJyNUV1PwjAU/StN31c2MhCSAQ9gDBE/otFXc7desNi1pO2Q/Xtb2YxgXHhac3bPOfecm80OpSR7NFZoNaEJiymZTbOHfIuFI4J7iBJX73BCtdmwUnOUQjMuYGOgZMiF04ZVFguwyFBiicrZFmjHbsoXi3MPLI4AJSVstXn78Y3pNHs0eofG1URB6e0k1LpyC3Dg/72CrLDZQ1VS0t4067WEP9RnV0ukJyn6XSlsmLes0AbZkXvBfj5OARx5a3Z9cE+4vtDl3ks0TIIHt8iXfsfvZ3j49kio7yxl75inK7lBCQ65X+SstLsAkX1AJvT0GCSGNEmKQRLx/ngQpUUaR/l6NIwA+HB8BeO0GI26C5dg3a3Sn2oFOcoz62dnhNr8NifB3ZKmmG5poyUu1VyXO22F88foVu8Wm78LyQ0GjZWwocnm8y9jJdSH7Rhvb/IFiD0lNQ==]]></ATT>
+      <ATT name="PdeProperties"></ATT>
+      <ATT name="Name"><![CDATA[Use Cases diagram]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <LINK relation="Extension">
+        <FOREIGNID name="SysMLUseCaseDiagram" mc="Standard.Stereotype" uid="1a667602-d7d7-11e0-9a40-0027103f347c"/>
+      </LINK>
+      <COMP relation="Descriptor">
+        <OBJECT>
+          <ID name="" mc="Standard.Note" uid="66878273-6ed8-4041-9b15-69b775e4d929"/>
+          <ATTRIBUTES>
+            <ATT name="Content"><![CDATA[Use Case diagrams are used to model the interactions between actors and a system.
+Use case diagrams show which actors communicate with which use cases, and the links between use cases (include, extend, ...).
+Use cases can be documented using predefined notes (pre and post conditions, description, exception). ]]></ATT>
+            <ATT name="MimeType"></ATT>
+            <ATT name="Name"></ATT>
+            <ATT name="status">1970354901745664</ATT>
+          </ATTRIBUTES>
+          <DEPENDENCIES>
+            <LINK relation="Model">
+              <FOREIGNID name="description" mc="Standard.NoteType" uid="00000000-0000-3e81-0000-000000000000"/>
+            </LINK>
+          </DEPENDENCIES>
+        </OBJECT>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ram-component manifest-version="2.0"
+               name="Configuration" version="0" release="0" clevel="0">
+    <description>
+        <![CDATA[]]>
+    </description>
+    <dependencies>
+    </dependencies>
+    <contributors>
+    </contributors>
+    <metamodels>
+      <metamodel name="Standard" version="1.0.9026"/>
+    </metamodels>
+    <roots>
+      <root metaclass="ModuleComponent" name="Configuration" uuid="07c0a41f-01d5-4229-a5ed-5c9072e509ec"></root>
+    </roots>
+</ram-component>
