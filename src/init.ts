@@ -3,7 +3,7 @@ import {IntoCpsAppEvents} from "./IntoCpsAppEvents";
 import * as IntoCpsApp from  "./IntoCpsApp";
 import {CoeController} from  "./coe/coe";
 import {MmController} from  "./multimodel/MmController";
-import {DseController} from  "./dse/dse";
+// import {DseController} from  "./dse/dse";
 import {CreateRTTesterProjectController} from  "./rttester/CreateRTTesterProject";
 import {BrowserController} from "./proj/projbrowserview";
 import {IntoCpsAppMenuHandler} from "./IntoCpsAppMenuHandler";
@@ -22,7 +22,7 @@ class InitializationController {
     layout: W2UI.W2Layout;
     title: HTMLTitleElement;
     mainView: HTMLDivElement;
-    
+
     constructor() {
         $(document).ready(() => this.initialize());
     }
@@ -102,7 +102,7 @@ menuHandler.openFmu = () => {
 };
 
 menuHandler.openDseView = (path) => {
-    openViewController("dse/dse.html", path, DseController);
+    // openViewController("dse/dse.html", path, DseController);
 };
 
 menuHandler.createDse = (path) =>{
