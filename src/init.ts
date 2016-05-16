@@ -21,6 +21,7 @@ class InitializationController {
     layout: W2UI.W2Layout;
     title: HTMLTitleElement;
     mainView: HTMLDivElement;
+    
     constructor() {
         $(document).ready(() => this.initialize());
     }
@@ -63,7 +64,6 @@ class InitializationController {
         });
     }
 };
-
 
 // Initialise controllers
 let menuHandler: IntoCpsAppMenuHandler = new IntoCpsAppMenuHandler();
