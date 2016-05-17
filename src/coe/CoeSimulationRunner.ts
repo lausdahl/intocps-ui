@@ -41,8 +41,12 @@ export class CoeSimulationRunner {
 
     private setProgress: (progress: number, message: string) => any;
     private setProgressMessage: (message: string) => any;
+
     private getLiveChart: () => any;
     private initializeChartDatasets: (coeConfig: CoSimulationConfig) => string[];
+
+    private setDebugMessage: (message: string) => void;
+    private setErrorMessage: (message: string) => void;
 
     private chartIds: string[] = [];
 
@@ -50,18 +54,23 @@ export class CoeSimulationRunner {
     // Here we import the File System module of node
     private fs = require('fs');
 
-    constructor(project: IProject, coSimConfig: CoSimulationConfig, url: string, setProgress: (progress: number, message: string) => any,
+    constructor(project: IProject, coSimConfig: CoSimulationConfig, remoteCoe: boolean, url: string, setProgress: (progress: number, message: string) => any,
         setProgressMessage: (message: string) => any,
         getLiveChart: () => any,
-        initializeChartDatasets: (coeConfig: CoSimulationConfig) => string[]
+        initializeChartDatasets: (coeConfig: CoSimulationConfig) => string[],
+        setDebugMessage: (message: string) => void,
+        setErrorMessage: (message: string) => void
     ) {
         this.project = project;
         this.coSimConfig = coSimConfig;
+        this.remoteCoe = remoteCoe;
         this.url = url;
         this.setProgress = setProgress;
         this.setProgressMessage = setProgressMessage;
         this.getLiveChart = getLiveChart;
         this.initializeChartDatasets = initializeChartDatasets;
+        this.setDebugMessage = setDebugMessage;
+        this.setErrorMessage = setErrorMessage;
     }
 
     public runSimulation() {
@@ -78,34 +87,34 @@ export class CoeSimulationRunner {
 
     // launch a co-simulation by creating the session as step 1
     private launch() {
-        var _this = this;
+        let self = this;
 
         // _this.setProgress(15, "Creating session");
-        _this.setProgress(0, null);
+        self.setProgress(0, null);
 
         // var cfg = _this.parseConfig(_this.getConfigFile());
         if (this.coSimConfig == null) {
-            alert("Could not read simulation config.json from project root");
+            this.setErrorMessage("No Co-simualtion config avaliable");
             return console.error("Unable to parse config file: ");
 
         }
 
-        _this.chartIds = _this.initializeChartDatasets(_this.coSimConfig);
+        self.chartIds = self.initializeChartDatasets(self.coSimConfig);
 
-        var _this = this;
+
         $.getJSON(this.getHttpUrl() + this.createSessionCmd)
             .fail(function (err: any) {
                 console.log("error: " + err);
+                this.setErrorMessage("Could not create settion");
             })
             .done(function (data: any) {
                 console.log("data:" + data);
 
-                var div = <HTMLInputElement>document.getElementById("coe-debug");
-                _this.sessionId = data.sessionId;
-                _this.setDebugMessage("Session created with id: " + data.sessionId);
+                self.sessionId = data.sessionId;
+                self.setDebugMessage("Session created with id: " + data.sessionId);
 
-                _this.setProgress(25, null);// "Session created");
-                _this.uploadFmus();
+                self.setProgress(25, null);// "Session created");
+                self.uploadFmus();
 
             });
     }
@@ -123,35 +132,31 @@ export class CoeSimulationRunner {
 
 
 
-        var div = <HTMLInputElement>document.getElementById("coe-debug");
+
 
         var message = "Uploading Fmu: "
-        div.innerHTML = message;
+        self.setDebugMessage(message);
         self.setProgressMessage("Uploading Fmus");
 
         var formData = new FormData();
 
         self.coSimConfig.multiModel.fmus.forEach(function (value) {
 
-            var path: string = value.path;
-            let SESSION = "session:/";
+            try {
+                var path: string = value.path;
 
-            if (path.indexOf(SESSION) == 0) {
-                path = path.substring(SESSION.length);
+                message = message + path + ",";
+
+                self.setDebugMessage(message);
+
+                var content = self.fs.readFileSync(path);
+                var blob = new Blob([content], { type: "multipart/form-data" });
+
+                formData.append('file', blob, path);
+            } catch (e) {
+                console.error(e);
+                self.setErrorMessage(e);
             }
-
-            message = message + path + ",";
-
-            div.innerHTML = message;
-            ///_this.setProgress(_this.progressState, message);
-
-            let filePath = Path.normalize(self.project.getFmusPath() + "/" + path);
-
-            var content = self.fs.readFileSync(filePath);
-            var blob = new Blob([content], { type: "multipart/form-data" });
-
-            formData.append('file', blob, path);
-
 
 
         })
@@ -172,7 +177,10 @@ export class CoeSimulationRunner {
 
                 self.initializeCoe();
             }
-        });
+        }).fail(function (e: any) {
+
+            self.setErrorMessage("Failed to upload the FMUs: " + e);
+        })
     }
 
 
@@ -198,6 +206,10 @@ export class CoeSimulationRunner {
                 self.setProgress(50, "Initialization done.");
                 self.simulate();
             }
+        }).fail(function (e: any) {
+
+
+            self.setErrorMessage("Failed to initialize the COE: " + e);
         });
 
     }
@@ -209,17 +221,17 @@ export class CoeSimulationRunner {
         callback.connect(this.getWsUrl() + "attachSession/" + this.sessionId);
         callback.chartIds = this.chartIds;
 
-        var _this = this;
+        let self = this;
 
 
         let startTime = +(<HTMLInputElement>document.getElementById("input-sim-time-start")).value;
         let endTime = +(<HTMLInputElement>document.getElementById("input-sim-time-end")).value;
 
         var dat = JSON.stringify({ startTime: startTime, endTime: endTime });
-        let url = _this.getHttpUrl() + _this.simulateCmd + _this.sessionId;
+        let url = self.getHttpUrl() + self.simulateCmd + self.sessionId;
 
-        _this.setDebugMessage("Starting simulation");
-        _this.setProgressMessage("Simulating");
+        self.setDebugMessage("Starting simulation");
+        self.setProgressMessage("Simulating");
 
         jQuery.ajax({
             url: url,
@@ -228,28 +240,30 @@ export class CoeSimulationRunner {
             dataType: "json",
             contentType: "application/json; charset=utf-8",
             success: function () {
-                _this.setProgress(100, "Simulation done.");
-                _this.downloadResults();
+                self.setProgress(100, "Simulation done.");
+                self.downloadResults();
             }
         }).fail(function () {
 
             console.error("error in simulation call");
-            _this.setDebugMessage("Starting simulation: FAILED");
+            self.setErrorMessage("Starting simulation: FAILED");
         });
 
     }
 
     private downloadResults() {
-        let _this = this;
+        let self = this;
         let currentDir = Path.dirname(this.coSimConfig.sourcePath);
         let resultDirPath = Path.normalize(currentDir + "/R_" + new Date().toLocaleString().replace(/\//gi, "-").replace(/,/gi, "").replace(/ /gi, "_").replace(/:/gi, "-"));
 
         fs.mkdir(resultDirPath, (err) => {
 
-            if (err)
+            if (err) {
+                self.setErrorMessage("Unable to create result directory");
                 return;
+            }
 
-            let url = _this.getHttpUrl() + _this.resultCmd + _this.sessionId;
+            let url = self.getHttpUrl() + self.resultCmd + self.sessionId;
 
             $.get(url, function (data) {
                 fs.writeFile(Path.normalize(resultDirPath + "/log.csv"), data);
@@ -259,9 +273,5 @@ export class CoeSimulationRunner {
 
     }
 
-    //show debug message
-    private setDebugMessage(message: string) {
-        var div = <HTMLInputElement>document.getElementById("coe-debug");
-        div.innerHTML = message;
-    }
+
 }

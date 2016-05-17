@@ -30,6 +30,9 @@ export class CoeController extends IViewController {
     canvasContext: CanvasRenderingContext2D;
     liveChart: any;
 
+    enableDebugInfo: boolean = true;
+    remoteCoe:boolean = false;
+
     private progressState: number = 0;
 
     app: IntoCpsApp;
@@ -43,6 +46,7 @@ export class CoeController extends IViewController {
 
     initialize(sourceDom: SourceDom): void {
         IntoCpsApp.setTopName("Co-Simulation")
+       this.readSettings();
         this.setProgress(0, null);
         this.initializeChart();
 
@@ -63,6 +67,20 @@ export class CoeController extends IViewController {
 
         this.checkCoeConnection();
     }
+    
+    private readSettings(){
+         this.enableDebugInfo = IntoCpsApp.getInstance().getSettings().getSetting(SettingKeys.COE_DEBUG_ENABLED);
+        if(this.enableDebugInfo == undefined)
+        {
+            this.enableDebugInfo = false;
+        }
+        
+        this.remoteCoe = IntoCpsApp.getInstance().getSettings().getSetting(SettingKeys.COE_REMOTE_HOST);
+        if(this.remoteCoe == undefined)
+        {
+            this.remoteCoe = false;
+        }
+    }
 
     private bindData() {
         //until bind is implemented we do this manual sync
@@ -70,7 +88,15 @@ export class CoeController extends IViewController {
         (<HTMLInputElement>document.getElementById("input-sim-time-end")).value = this.coSimConfig.endTime + "";
 
         //        (<HTMLInputElement>document.getElementById("input-sim-algorithm-fixed-size")).value = (<Configs.FixedStepAlgorithm>this.coeConfig.algorithm).size + "";
-
+        this.clearInfoMessages();
+    }
+    
+    private clearInfoMessages()
+    {
+      var div = <HTMLElement>document.getElementById("simulation-info");
+        while (div.hasChildNodes()) {
+            div.removeChild(div.lastChild);
+        }  
     }
 
     private checkCoeConnection() {
@@ -154,8 +180,27 @@ export class CoeController extends IViewController {
     }
 
     setDebugMessage(message: string) {
-        var div = <HTMLInputElement>document.getElementById("coe-debug");
-        div.innerHTML = message;
+
+        if (this.enableDebugInfo) {
+
+            var div = <HTMLInputElement>document.getElementById("simulation-info");
+
+            var divStatus = document.createElement("div");
+            divStatus.className = "alert alert-info";
+            divStatus.innerHTML = message;
+            div.appendChild(divStatus);
+        }
+    }
+
+    setErrorMessage(message: string) {
+
+        var div = <HTMLInputElement>document.getElementById("simulation-info");
+
+        var divStatus = document.createElement("div");
+        divStatus.className = "alert alert-danger";
+        divStatus.innerHTML = message;
+        div.appendChild(divStatus);
+
     }
 
 
@@ -169,7 +214,7 @@ export class CoeController extends IViewController {
 
 
     initializeChartDatasets(coSimConfig: CoSimulationConfig): string[] {
-        let _this = this;
+        let self = this;
         var ids: string[] = [];
 
         coSimConfig.livestream.forEach((value, index) => {
@@ -189,7 +234,7 @@ export class CoeController extends IViewController {
 
         var datasets: any[] = [];
         $.each(ids, function (i, id) {
-            let color = _this.get_random_color();
+            let color = self.get_random_color();
             datasets.push({
                 label: id,
                 // Boolean - if true fill the area under the line
@@ -260,18 +305,23 @@ export class CoeController extends IViewController {
             console.warn(this.coSimConfig);
             return;
         }
+        
+        this.clearInfoMessages();
 
-        let _this2 = this;
+        let self = this;
 
         let url = this.getCoeUrl();
 
         let coeRunner = new CoeSimulationRunner(this.app.getActiveProject(),
             this.coSimConfig,
+            this.remoteCoe,
             url,
             this.setProgress,
             this.setProgressMessage,
-            () => _this2.liveChart,
-            (coSimConfig: CoSimulationConfig) => { return _this2.initializeChartDatasets(_this2.coSimConfig); });
+            () => self.liveChart,
+            (coSimConfig: CoSimulationConfig) => { return self.initializeChartDatasets(self.coSimConfig); },
+            (m)=>{this.setDebugMessage(m)},
+            this.setErrorMessage);
         coeRunner.runSimulation();
     }
 
