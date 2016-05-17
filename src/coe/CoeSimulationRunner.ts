@@ -47,6 +47,8 @@ export class CoeSimulationRunner {
 
     private setDebugMessage: (message: string) => void;
     private setErrorMessage: (message: string) => void;
+    
+    private simulationCompleted: (success:boolean, message:string)=>void;
 
     private chartIds: string[] = [];
 
@@ -59,7 +61,8 @@ export class CoeSimulationRunner {
         getLiveChart: () => any,
         initializeChartDatasets: (coeConfig: CoSimulationConfig) => string[],
         setDebugMessage: (message: string) => void,
-        setErrorMessage: (message: string) => void
+        setErrorMessage: (message: string) => void,
+        simulationCompleted: (success:boolean, message:string)=>void
     ) {
         this.project = project;
         this.coSimConfig = coSimConfig;
@@ -71,6 +74,7 @@ export class CoeSimulationRunner {
         this.initializeChartDatasets = initializeChartDatasets;
         this.setDebugMessage = setDebugMessage;
         this.setErrorMessage = setErrorMessage;
+        this.simulationCompleted = simulationCompleted;
     }
 
     public runSimulation() {
@@ -267,6 +271,9 @@ export class CoeSimulationRunner {
 
             $.get(url, function (data) {
                 fs.writeFile(Path.normalize(resultDirPath + "/log.csv"), data);
+                self.simulationCompleted(true,resultDirPath);
+            }).fail(function(e:any){
+                self.setErrorMessage(""+e);
             });
 
         });
