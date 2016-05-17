@@ -4,7 +4,7 @@
 ///<reference path="../../typings/browser/ambient/w2ui/index.d.ts"/>
 
 import {IntoCpsAppEvents} from "../IntoCpsAppEvents";
-import * as IntoCpsApp from  "../IntoCpsApp"
+import {IntoCpsApp} from  "../IntoCpsApp"
 import {ContentProvider} from "./ContentProvider";
 import {Container, ContainerType} from "./Container";
 import {Project} from "./Project";
@@ -147,14 +147,13 @@ export class BrowserController {
                 let name = Path.basename(event.target);
                 if (name.indexOf('R_') >= 0) {
                     console.info("Deleting " + event.target);
-                    this.getCustomFs().removeRecursive(event.target,function (err:any,v:any){
-                        if(err!=null)
-                        {
-                        console.error(err);
+                    this.getCustomFs().removeRecursive(event.target, function (err: any, v: any) {
+                        if (err != null) {
+                            console.error(err);
                         }
                         self.refreshProjectBrowser();
                     });
-                    
+
                 }
 
             }
@@ -191,8 +190,8 @@ export class BrowserController {
 
     //set and refresh the prowser content
     private refreshProjectBrowser() {
-        let remote = require("remote");
-        let app: IntoCpsApp.IntoCpsApp = remote.getGlobal("intoCpsApp");
+
+        let app: IntoCpsApp = IntoCpsApp.getInstance();
         if (app.getActiveProject() != null) {
             let root = new Container(app.getActiveProject().getName(), app.getActiveProject().getRootFilePath(), ContainerType.Folder);
             this.clearAll();
@@ -399,7 +398,7 @@ export class BrowserController {
 
     private getCustomFs(): any {
         var fs = require('fs');
-        fs.removeRecursive = function (path: string, cb: (err:any,v:any)=>void) {
+        fs.removeRecursive = function (path: string, cb: (err: any, v: any) => void) {
             var self = this;
 
             fs.stat(path, function (err: any, stats: any) {
