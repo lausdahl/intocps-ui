@@ -9,7 +9,7 @@ import * as IntoCpsApp from  "../IntoCpsApp"
 import {IntoCpsAppEvents} from "../IntoCpsAppEvents";
 import {Fmu} from "./fmu"
 import * as Collections from 'typescript-collections';
-import {CoeConfig} from '../coe/CoeConfig'
+import {MultiModelConfig, Serializer} from "../intocps-configurations/intocps-configurations";
 
 import {IProject} from "../proj/IProject";
 import {SettingKeys} from "../settings/SettingKeys";
@@ -22,7 +22,7 @@ import Path = require('path');
 
 
 export class MmController extends IViewController {
-    coeConfig: CoeConfig = new CoeConfig();
+    mm: MultiModelConfig = new MultiModelConfig();
 
     private fmuCounter: number = 0;
     private fmusDiv: HTMLDivElement;
@@ -38,24 +38,24 @@ export class MmController extends IViewController {
     private selectedOutput: OutputElement;
 
     private parametersDiv: HTMLDivElement;
-    
+
     private fmuInstancesDiv: HTMLDivElement;
     private fmuInstancesElement: FmuInstancesElement;
-    
+
     constructor(mainViewDiv: HTMLDivElement) {
         super(mainViewDiv);
     }
-    
+
     initialize(sourceDom: SourceDom) {
         IntoCpsApp.IntoCpsApp.setTopName("Multi-Model");
-        
+
         this.fmusDiv = <HTMLDivElement>document.getElementById("fmusDiv");
         this.parametersDiv = <HTMLDivElement>document.getElementById("parametersDiv");
         this.outputList = <HTMLUListElement>document.getElementById("connections-outputs");
         this.inputList = <HTMLUListElement>document.getElementById("connections-inputs");
         this.fmuInstancesDiv = <HTMLDivElement>document.getElementById("multimodel-fmu-instances");
         $(this.fmuInstancesDiv).load("multimodel/connections/fmu-instances.html", (event: JQueryEventObject) => {
-           this.fmuInstancesElement = new FmuInstancesElement(this.fmuInstancesDiv); 
+            this.fmuInstancesElement = new FmuInstancesElement(this.fmuInstancesDiv);
         });
 
         this.parametersDiv.innerHTML = "";
@@ -71,7 +71,7 @@ export class MmController extends IViewController {
         this.allInputs = [];
         this.allOutputs = [];
         this.connections = [];
-        
+
         this.load(sourceDom.getPath());
     }
 
@@ -80,21 +80,36 @@ export class MmController extends IViewController {
             this.removeFmu(value);
         });
 
-        this.coeConfig = new CoeConfig();
+
+        //this.coeConfig = new CoeConfig();
         //this.coeConfig.load(path, activeProject.getRootFilePath());
-        this.coeConfig.loadFromMultiModel(path,IntoCpsApp.IntoCpsApp.getInstance().getActiveProject().getFmusPath());
+        //this.coeConfig.loadFromMultiModel(path,IntoCpsApp.IntoCpsApp.getInstance().getActiveProject().getFmusPath());
         //until bind is implemented we do this manual sync
 
-        this.coeConfig.fmus.forEach((value, index, map) => {
-            path = value.description.length==0?value.path:value.description;
-            this.addFmu(index + "",path);
-        });
+        MultiModelConfig.parse(path, IntoCpsApp.IntoCpsApp.getInstance().getActiveProject().getFmusPath()).then(mm => {
+            this.mm = mm;
 
-        this.connections = this.extractConnections(this.coeConfig.connections);
-        this.extractOuputsAndInputs(this.coeConfig.fmus, this.getDefinedInstances(this.coeConfig.connections));
+            mm.fmus.forEach(fmu => {
+                this.addFmu(fmu.name, fmu.path);
+            });
 
-        this.coeConfig.parameters.forEach((value: any, index: String) => {
-            this.parametersDiv.innerHTML += "" + index + " = " + value + "<br/>";
+        }).catch(e => console.error(e));
+
+
+        /* this.coeConfig.fmus.forEach((value, index, map) => {
+             path = value.description.length == 0 ? value.path : value.description;
+             this.addFmu(index + "", path);
+         });
+ */
+
+        //  this.connections = this.extractConnections(this.coeConfig.connections);
+        // this.extractOuputsAndInputs(this.mm.fmus, this.getDefinedInstances(this.mm.connections));
+
+        this.mm.fmuInstances.forEach((instance) => {
+            instance.initialValues.forEach((value, sv) => {
+                this.parametersDiv.innerHTML += Serializer.getIdSv(instance, sv) + " = " + value + "<br/>";
+            });
+
         });
 
     }
@@ -124,13 +139,13 @@ export class MmController extends IViewController {
     private extractOuputsAndInputs(fmus: any, instances: string[]) {
         fmus.forEach((value: any, index: any, map: any) => {
 
-            var p =  Path.normalize(IntoCpsApp.IntoCpsApp.getInstance().getActiveProject().getFmusPath() + "/" + value.path);
+            var p = Path.normalize(IntoCpsApp.IntoCpsApp.getInstance().getActiveProject().getFmusPath() + "/" + value.path);
 
             let fmuInstances: string[] = instances.filter((value: string) => {
                 return value.indexOf(index + "") == 0;
             });
 
-                this.readModelDescriptionFromFmuAsync(fmuInstances, p);
+            this.readModelDescriptionFromFmuAsync(fmuInstances, p);
         });
     }
 
@@ -141,7 +156,7 @@ export class MmController extends IViewController {
         var JSZip = require("jszip");
         var fs = require("fs");
 
-console.info(path);
+        console.info(path);
         // read a zip file
         fs.readFile(path, function (err: any, data: any) {
             if (err) throw err;

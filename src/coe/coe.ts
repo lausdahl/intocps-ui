@@ -6,21 +6,21 @@
 /// <reference path="../../node_modules/typescript/lib/lib.es6.d.ts" />
 
 import * as Main from  "../settings/settings"
-import * as IntoCpsApp from  "../IntoCpsApp"
+import {IntoCpsApp} from  "../IntoCpsApp"
 import {IntoCpsAppEvents} from "../IntoCpsAppEvents";
 import * as Collections from 'typescript-collections';
-import {CoeConfig} from './CoeConfig'
+
 import {CoeSimulationRunner} from './CoeSimulationRunner'
 import {IProject} from "../proj/IProject";
 import {SettingKeys} from "../settings/SettingKeys";
 import {SourceDom} from "../sourceDom"
 import {IViewController} from "../iViewController"
 
-import * as Configs from "../intocps-configurations/intocps-configurations";
+import {CoSimulationConfig,Serializer} from "../intocps-configurations/intocps-configurations";
 
 export class CoeController extends IViewController {
 
-    coeConfig: CoeConfig = new CoeConfig();
+    coSimConfig: CoSimulationConfig = null;
 
     configButton: HTMLButtonElement;
     remote: Electron.Remote;
@@ -32,64 +32,44 @@ export class CoeController extends IViewController {
 
     private progressState: number = 0;
 
-    app: IntoCpsApp.IntoCpsApp;
+    app: IntoCpsApp;
 
     constructor(viewDiv: HTMLDivElement) {
         super(viewDiv);
         this.remote = require("remote");
         this.dialog = this.remote.require("dialog");
-        this.app = this.remote.getGlobal("intoCpsApp");
+        this.app = IntoCpsApp.getInstance();
     }
 
-    initialize(sourceDom: SourceDom):void {
-        IntoCpsApp.IntoCpsApp.setTopName("Co-Simulation") 
+    initialize(sourceDom: SourceDom): void {
+        IntoCpsApp.setTopName("Co-Simulation")
         this.setProgress(0, null);
         this.initializeChart();
 
-        var remote = require('remote');
-        var Menu = remote.require('menu');
-        var ipc = require('electron').ipcRenderer;
-        ipc.on(IntoCpsAppEvents.PROJECT_CHANGED, function (event, arg) {
-            console.log("project-changed");  // prints "ping"
-
-        });
-        
         let activeProject = this.app.getActiveProject();
         if (activeProject == null) {
             console.warn("no active project cannot load coe config");
-    }
-        this.coeConfig = new CoeConfig();
-        this.coeConfig.load(sourceDom.getPath(), activeProject.getRootFilePath(),activeProject.getFmusPath());
+        }
 
+        CoSimulationConfig.parse(sourceDom.getPath(), activeProject.getRootFilePath(), activeProject.getFmusPath())
+            .then(cc => {
+                console.info("CC:"); console.info(cc);
+                this.coSimConfig = cc;
+                this.bindData();
+
+            })
+            .catch(e => console.error(e));
+  
+    }
+
+    private bindData() {
         //until bind is implemented we do this manual sync
-        (<HTMLInputElement>document.getElementById("input-sim-time-start")).value = this.coeConfig.startTime + "";
-        (<HTMLInputElement>document.getElementById("input-sim-time-end")).value = this.coeConfig.endTime + "";
+        (<HTMLInputElement>document.getElementById("input-sim-time-start")).value = this.coSimConfig.startTime + "";
+        (<HTMLInputElement>document.getElementById("input-sim-time-end")).value = this.coSimConfig.endTime + "";
 
-        (<HTMLInputElement>document.getElementById("input-sim-algorithm-fixed-size")).value = (<Configs.FixedStepAlgorithm>this.coeConfig.algorithm).size + "";
-
+//        (<HTMLInputElement>document.getElementById("input-sim-algorithm-fixed-size")).value = (<Configs.FixedStepAlgorithm>this.coeConfig.algorithm).size + "";
 
     }
-
-    // public load(path: string) {
-    //     let activeProject = this.app.getActiveProject();
-    //     if (activeProject == null) {
-    //         console.warn("no active project cannot load coe config");
-    //     }
-    //     this.initialize();
-
-
-
-    //     this.coeConfig = new CoeConfig();
-    //     this.coeConfig.load(path, activeProject.getRootFilePath());
-
-    //     //until bind is implemented we do this manual sync
-    //     (<HTMLInputElement>document.getElementById("input-sim-time-start")).value = this.coeConfig.startTime + "";
-    //     (<HTMLInputElement>document.getElementById("input-sim-time-end")).value = this.coeConfig.endTime + "";
-
-    //     (<HTMLInputElement>document.getElementById("input-sim-algorithm-fixed-size")).value = (<FixedStepAlgorithm>this.coeConfig.algorithm).size + "";
-
-
-    // }
 
     initializeChart() {
         this.liveStreamCanvas = <HTMLCanvasElement>document.getElementById("liveStreamCanvas");
@@ -123,14 +103,6 @@ export class CoeController extends IViewController {
         });
 
     }
-
-    /*  launchProjectExplorer() {
-          let dialogResult: string[] = this.dialog.showOpenDialog({ properties: ["openFile"] });
-          if (dialogResult != undefined) {
-              this.projectRootPath.value = dialogResult[0];
-              this.load(this.projectRootPath.value);
-          }
-      }*/
 
 
     //Set the progress bar 
@@ -168,18 +140,24 @@ export class CoeController extends IViewController {
     }
 
 
-    initializeChartDatasets(livestreams: Map<String, Collections.LinkedList<String>>): string[] {
+    initializeChartDatasets(coSimConfig: CoSimulationConfig): string[] {
         let _this = this;
         var ids: string[] = [];
+        
+        coSimConfig.livestream.forEach((value,index)=>{
+            value.forEach(sv=>{
+                 ids.push(Serializer.getIdSv(index,sv));
+            });
+        });
 
-        livestreams.forEach((value: Collections.LinkedList<String>, index: String, map: Map<String, Collections.LinkedList<String>>) => {
+       /* livestreams.forEach((value: Collections.LinkedList<String>, index: String, map: Map<String, Collections.LinkedList<String>>) => {
 
             value.forEach((id) => {
                 ids.push(index + "." + id);
             });
 
         });
-
+*/
 
         var datasets: any[] = [];
         $.each(ids, function (i, id) {
@@ -241,7 +219,7 @@ export class CoeController extends IViewController {
 
         if (!this.validate()) {
             console.warn("Unable to launch simulation due to invalid COE config.");
-            console.warn(this.coeConfig);
+            console.warn(this.coSimConfig);
             return;
         }
 
@@ -254,12 +232,12 @@ export class CoeController extends IViewController {
         }
 
         let coeRunner = new CoeSimulationRunner(this.app.getActiveProject(),
-            this.coeConfig,
+            this.coSimConfig,
             url,
             this.setProgress,
             this.setProgressMessage,
             () => _this2.liveChart,
-            (livestream: Map<String, Collections.LinkedList<String>>) => { return _this2.initializeChartDatasets(livestream); });
+            (coSimConfig: CoSimulationConfig) => { return _this2.initializeChartDatasets(_this2.coSimConfig); });
         coeRunner.runSimulation();
     }
 
