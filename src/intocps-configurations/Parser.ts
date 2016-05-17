@@ -347,12 +347,12 @@ export class Serializer extends Parser {
     }
 
     //util method to obtain id from instance
-    private getId(value: Fmi.Instance): string {
+    public static getId(value: Fmi.Instance): string {
         return value.fmu.name + "." + value.name;
     }
 
     //util method to obtain full id from instance and scalarvariable
-    private getIdSv(value: Fmi.Instance, sv: Fmi.ScalarVariable): string {
+    public static getIdSv(value: Fmi.Instance, sv: Fmi.ScalarVariable): string {
         return value.fmu.name + "." + value.name + "." + sv.name;
     }
 
@@ -362,10 +362,10 @@ export class Serializer extends Parser {
 
         fmuInstances.forEach(value => {
             value.outputsTo.forEach((pairs, sv) => {
-                let key = this.getIdSv(value, sv);
+                let key = Serializer.getIdSv(value, sv);
                 var inputs: any[] = [];
                 pairs.forEach(pair => {
-                    let input = this.getIdSv(pair.instance, pair.scalarVariable);
+                    let input = Serializer.getIdSv(pair.instance, pair.scalarVariable);
                     inputs.push(input);
                 });
 
@@ -383,7 +383,7 @@ export class Serializer extends Parser {
 
         fmuInstances.forEach(instance => {
             instance.initialValues.forEach((value, sv) => {
-                obj[this.getIdSv(instance, sv)] = value;
+                obj[Serializer.getIdSv(instance, sv)] = value;
             });
         });
 
@@ -400,7 +400,7 @@ export class Serializer extends Parser {
             svs.forEach(sv => {
                 inputs.push(sv.name);
             });
-            obj[this.getId(instance)] = inputs;
+            obj[Serializer.getId(instance)] = inputs;
         });
 
         return obj;

@@ -20,4 +20,5 @@ export declare var util: typeof _util;
 export { MultiModelConfig} from "./MultiModelConfig";
 export {CoSimulationConfig,ICoSimAlgorithm,FixedStepAlgorithm,VariableStepAlgorithm,VarStepConstraint,VarStepConstraintType} from "./CoSimulationConfig";
 export {Fmu,Platfomrs,ScalarVariable,ScalarVariableType,CausalityType,Instance,InstanceScalarPair} from "../coe/fmi"
+export {Serializer} from "./Parser"
 //export {Parser} from "./Parser";
