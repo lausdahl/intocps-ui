@@ -8,13 +8,14 @@
 import * as Collections from 'typescript-collections';
 import * as Fmi from "../coe/fmi";
 import {Parser} from "./Parser";
+import {Serializer} from "./Serializer";
 
 
 import Path = require('path');
 import fs = require('fs');
 // Multi-Model
 
-export class MultiModelConfig {
+export class MultiModelConfig implements ISerializable {
 
 
     //path to the source from which this DOM is generated
@@ -73,7 +74,7 @@ export class MultiModelConfig {
                 console.info(mm);
 
                 resolveFinal(mm);
-            }).catch(e=>reject(e));
+            }).catch(e => reject(e));
         });
     }
 
@@ -104,10 +105,29 @@ export class MultiModelConfig {
                     //console.log("Asynchronous read: " + content.toString());
                     var jsonData = JSON.parse(content.toString());
                     console.log(jsonData);
-                    
-                    self.create(path, fmuRootPath, jsonData).then(mm => { resolveFinal(mm); }).catch(e=>reject(e));
-                    
+
+                    self.create(path, fmuRootPath, jsonData).then(mm => { resolveFinal(mm); }).catch(e => reject(e));
+
                 })
+        });
+    }
+
+    toObject(): any {
+        return new Serializer().toObjectMultiModel(this);
+    }
+
+    save(): Promise<void> {
+        return new Promise<void>(function (resolve, reject) {
+            try {
+                fs.writeFile(this.sourcePath, JSON.stringify(this.toObject()), function (err) {
+                    if (err !== null) {
+                        return reject(err);
+                    }
+                    resolve();
+                });
+            } catch (e) {
+                reject(e);
+            }
         });
     }
 }

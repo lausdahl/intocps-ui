@@ -1,0 +1,3 @@
+interface ISerializable{
+    toObject():any;
+}
