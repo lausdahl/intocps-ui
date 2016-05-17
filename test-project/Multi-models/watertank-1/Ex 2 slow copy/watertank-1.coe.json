@@ -13,5 +13,6 @@
 				"{x2}.tank":["level"],
 				"{x1}.controller":["valve"]
 		},
-		"endTime":3
+		"endTime":3,
+		"startTime":0
 }

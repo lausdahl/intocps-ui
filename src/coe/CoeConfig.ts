@@ -28,7 +28,7 @@ export class CoeConfig {
     }
 
     public toJSON(): string {
-
+        let self = this;
 
         var objMm = this.coSimConfig.multiModel.toObject();
 
@@ -40,8 +40,8 @@ export class CoeConfig {
 
             var path: string = null;
 
-            if (this.remoteCoe) {
-                path = "sesstion:/" + fmu.path;
+            if (self.remoteCoe) {
+                path = Path.join("session:", Path.basename(fmu.path));
             } else {
                 path = fmu.path;
             }

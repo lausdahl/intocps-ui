@@ -16,7 +16,7 @@ import {SettingKeys} from "../settings/SettingKeys";
 import {SourceDom} from "../sourceDom"
 import {IViewController} from "../iViewController"
 
-import {CoSimulationConfig,Serializer} from "../intocps-configurations/intocps-configurations";
+import {CoSimulationConfig, Serializer} from "../intocps-configurations/intocps-configurations";
 
 export class CoeController extends IViewController {
 
@@ -29,6 +29,9 @@ export class CoeController extends IViewController {
     liveStreamCanvas: HTMLCanvasElement;
     canvasContext: CanvasRenderingContext2D;
     liveChart: any;
+
+    enableDebugInfo: boolean = true;
+    remoteCoe:boolean = false;
 
     private progressState: number = 0;
 
@@ -43,6 +46,7 @@ export class CoeController extends IViewController {
 
     initialize(sourceDom: SourceDom): void {
         IntoCpsApp.setTopName("Co-Simulation")
+       this.readSettings();
         this.setProgress(0, null);
         this.initializeChart();
 
@@ -59,7 +63,23 @@ export class CoeController extends IViewController {
 
             })
             .catch(e => console.error(e));
-  
+
+
+        this.checkCoeConnection();
+    }
+    
+    private readSettings(){
+         this.enableDebugInfo = IntoCpsApp.getInstance().getSettings().getSetting(SettingKeys.COE_DEBUG_ENABLED);
+        if(this.enableDebugInfo == undefined)
+        {
+            this.enableDebugInfo = false;
+        }
+        
+        this.remoteCoe = IntoCpsApp.getInstance().getSettings().getSetting(SettingKeys.COE_REMOTE_HOST);
+        if(this.remoteCoe == undefined)
+        {
+            this.remoteCoe = false;
+        }
     }
 
     private bindData() {
@@ -67,8 +87,42 @@ export class CoeController extends IViewController {
         (<HTMLInputElement>document.getElementById("input-sim-time-start")).value = this.coSimConfig.startTime + "";
         (<HTMLInputElement>document.getElementById("input-sim-time-end")).value = this.coSimConfig.endTime + "";
 
-//        (<HTMLInputElement>document.getElementById("input-sim-algorithm-fixed-size")).value = (<Configs.FixedStepAlgorithm>this.coeConfig.algorithm).size + "";
+        //        (<HTMLInputElement>document.getElementById("input-sim-algorithm-fixed-size")).value = (<Configs.FixedStepAlgorithm>this.coeConfig.algorithm).size + "";
+        this.clearInfoMessages();
+    }
+    
+    private clearInfoMessages()
+    {
+      var div = <HTMLElement>document.getElementById("simulation-info");
+        while (div.hasChildNodes()) {
+            div.removeChild(div.lastChild);
+        }  
+    }
 
+    private checkCoeConnection() {
+        let self = this;
+        $.getJSON("http://" + this.getCoeUrl() + "/version")
+            .fail(function (err: any) {
+                var div = <HTMLInputElement>document.getElementById("coe-status");
+
+                var divStatus = document.createElement("div");
+                divStatus.className = "alert alert-danger";
+                divStatus.innerHTML = "Co-Simulation Engine, offline no connection at: " + self.getCoeUrl();
+                div.appendChild(divStatus);
+            })
+            .done(function (data: any) {
+                var div = <HTMLInputElement>document.getElementById("coe-status");
+
+                var divStatus = document.createElement("div");
+                divStatus.className = "alert alert-info";
+                divStatus.innerHTML = "Co-Simulation Engine, version: " + data.version + ", online at: " + self.getCoeUrl();
+                div.appendChild(divStatus);
+
+                var simulationPaneDiv = <HTMLElement>document.getElementById("simulation-pane");
+                simulationPaneDiv.style.visibility = "visible";
+
+
+            });
     }
 
     initializeChart() {
@@ -126,8 +180,27 @@ export class CoeController extends IViewController {
     }
 
     setDebugMessage(message: string) {
-        var div = <HTMLInputElement>document.getElementById("coe-debug");
-        div.innerHTML = message;
+
+        if (this.enableDebugInfo) {
+
+            var div = <HTMLInputElement>document.getElementById("simulation-info");
+
+            var divStatus = document.createElement("div");
+            divStatus.className = "alert alert-info";
+            divStatus.innerHTML = message;
+            div.appendChild(divStatus);
+        }
+    }
+
+    setErrorMessage(message: string) {
+
+        var div = <HTMLInputElement>document.getElementById("simulation-info");
+
+        var divStatus = document.createElement("div");
+        divStatus.className = "alert alert-danger";
+        divStatus.innerHTML = message;
+        div.appendChild(divStatus);
+
     }
 
 
@@ -141,27 +214,27 @@ export class CoeController extends IViewController {
 
 
     initializeChartDatasets(coSimConfig: CoSimulationConfig): string[] {
-        let _this = this;
+        let self = this;
         var ids: string[] = [];
-        
-        coSimConfig.livestream.forEach((value,index)=>{
-            value.forEach(sv=>{
-                 ids.push(Serializer.getIdSv(index,sv));
+
+        coSimConfig.livestream.forEach((value, index) => {
+            value.forEach(sv => {
+                ids.push(Serializer.getIdSv(index, sv));
             });
         });
 
-       /* livestreams.forEach((value: Collections.LinkedList<String>, index: String, map: Map<String, Collections.LinkedList<String>>) => {
-
-            value.forEach((id) => {
-                ids.push(index + "." + id);
-            });
-
-        });
-*/
+        /* livestreams.forEach((value: Collections.LinkedList<String>, index: String, map: Map<String, Collections.LinkedList<String>>) => {
+ 
+             value.forEach((id) => {
+                 ids.push(index + "." + id);
+             });
+ 
+         });
+ */
 
         var datasets: any[] = [];
         $.each(ids, function (i, id) {
-            let color = _this.get_random_color();
+            let color = self.get_random_color();
             datasets.push({
                 label: id,
                 // Boolean - if true fill the area under the line
@@ -215,6 +288,16 @@ export class CoeController extends IViewController {
         return true;
     }
 
+    private getCoeUrl(): string {
+        let url = this.app.getSettings().getSetting(SettingKeys.COE_URL);
+
+        if (url == null) {
+            url = "localhost:8082";
+        }
+        return url;
+    }
+
+
     public simulate() {
 
         if (!this.validate()) {
@@ -222,22 +305,23 @@ export class CoeController extends IViewController {
             console.warn(this.coSimConfig);
             return;
         }
+        
+        this.clearInfoMessages();
 
-        let _this2 = this;
+        let self = this;
 
-        let url = this.app.getSettings().getSetting(SettingKeys.COE_URL);
-
-        if (url == null) {
-            url = "localhost:8082";
-        }
+        let url = this.getCoeUrl();
 
         let coeRunner = new CoeSimulationRunner(this.app.getActiveProject(),
             this.coSimConfig,
+            this.remoteCoe,
             url,
             this.setProgress,
             this.setProgressMessage,
-            () => _this2.liveChart,
-            (coSimConfig: CoSimulationConfig) => { return _this2.initializeChartDatasets(_this2.coSimConfig); });
+            () => self.liveChart,
+            (coSimConfig: CoSimulationConfig) => { return self.initializeChartDatasets(self.coSimConfig); },
+            (m)=>{this.setDebugMessage(m)},
+            this.setErrorMessage);
         coeRunner.runSimulation();
     }
 
