@@ -12,6 +12,9 @@ import {Project} from "./proj/Project";
 import {IntoCpsAppEvents} from "./IntoCpsAppEvents";
 import {SettingKeys} from "./settings//SettingKeys";
 
+// constants
+let topBarNameId : string = "activeTabTitle";
+
 export default class IntoCpsApp {
     app: Electron.App;
     platform: String
@@ -129,6 +132,14 @@ export default class IntoCpsApp {
         let remote = require("remote");
         return remote.getGlobal("intoCpsApp");
     }
+
+    // change topbar title
+    public static setTopName(s:string){
+      var mainName = (<HTMLSpanElement>document.getElementById(topBarNameId));
+      mainName.innerText = s;
+    };
+
+
 }
 
 // http://stackoverflow.com/questions/29758765/json-to-typescript-class-instance

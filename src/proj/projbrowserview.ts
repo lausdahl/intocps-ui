@@ -29,6 +29,9 @@ export class BrowserController {
     private CTXT_CREATE_CO_SIM_CONFIG_ID: string = "create-co-sim-config";
     private CTXT_IMPORT_ID: string = "import";
     private CTXT_EXPORT_ID: string = "export";
+    private CTXT_CREATE_DSE_ID: string = "dse";
+    private CTXT_CREATE_TEST_DATA_GERATION_PROJECT: string = "create test data generation project";
+    private CTXT_CREATE_MODEL_CHECKING_PROJECT: string = "create model checking project";
 
     constructor(menuHandler: IntoCpsAppMenuHandler) {
         this.menuHandler = menuHandler;
@@ -74,6 +77,18 @@ export class BrowserController {
             { id: this.CTXT_EXPORT_ID, text: "Export", icon: 'glyphicon glyphicon-export' },
         ];
 
+        let DSE_MENU = [
+            { id: this.CTXT_CREATE_DSE_ID, text: "Create Design Space Exploration Config", icon: 'glyphicon glyphicon-asterisk' },
+        ];
+
+        let TEST_DATA_GENERATION_MENU = [
+            { id: this.CTXT_CREATE_TEST_DATA_GERATION_PROJECT, text: "Create Test Data Generation Project", icon: 'glyphicon glyphicon-asterisk' },
+        ];
+
+        let MODEL_CHECKING_MENU = [
+            { id: this.CTXT_CREATE_MODEL_CHECKING_PROJECT, text: "Create Model Checking Project", icon: 'glyphicon glyphicon-asterisk' },
+        ];
+
         this.tree.on("contextMenu", (event: any) => {
             console.log(event);
             let id: String = event.target + "";
@@ -83,6 +98,12 @@ export class BrowserController {
                 this.tree.menu = COSIM_MENU;
             } else if (id.indexOf('sysml.json') >= 0) {
                 this.tree.menu = SYSML_EX_MENU;
+            } else if (Path.basename(id.toString()) == Project.PATH_TEST_DATA_GENERATION) {
+                this.tree.menu = TEST_DATA_GENERATION_MENU;
+            } else if (Path.basename(id.toString()) == Project.PATH_MODEL_CHECKING) {
+                this.tree.menu = MODEL_CHECKING_MENU;
+            } else if (Path.basename(id.toString()) == Project.PATH_DSE) {
+                this.tree.menu = DSE_MENU;
             } else {
                 this.tree.menu = DEFAULT_MENU;
             }
@@ -96,7 +117,16 @@ export class BrowserController {
                 id = event.menuItem.id;
             }
 
-            if (id.indexOf(this.CTXT_CREATE_MULTI_MODEL_ID) == 0) {
+            if (id == this.CTXT_CREATE_TEST_DATA_GERATION_PROJECT) {
+                console.info("Create new test data generation project");
+                this.menuHandler.createRTTesterProject(event.target);
+            } else if (id == this.CTXT_CREATE_MODEL_CHECKING_PROJECT) {
+                console.info("Create new model checking project");
+                this.menuHandler.createRTTesterProject(event.target);
+            } else if (id == this.CTXT_CREATE_DSE_ID) {
+                console.info("Create new DSE config ");
+                this.menuHandler.createDse(event.target);
+            } else if (id.indexOf(this.CTXT_CREATE_MULTI_MODEL_ID) == 0) {
                 if (event.target.indexOf('sysml.json') >= 0) {
                     console.info("Create new multimodel for: " + event.target);
                     this.menuHandler.createMultiModel(event.target + "");

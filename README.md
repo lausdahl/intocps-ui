@@ -26,7 +26,6 @@ whatever you want.
 
 Further developer info is available in https://github.com/into-cps/intocps-ui/wiki
 
-
 About
 ---
 INTO-CPS is an EU Horizon 2020 research project that is creating an integrated

@@ -14,9 +14,9 @@ import {CoeConfig} from '../coe/CoeConfig'
 import {IProject} from "../proj/IProject";
 import {SettingKeys} from "../settings/SettingKeys";
 import {Input} from "./connections/input";
-import {OutputElement} from "./connections/OutputElement";
+import {OutputElement} from "./connections/outputElement";
 import {IViewController} from "../iViewController";
-import {SourceDom} from "../SourceDom";
+import {SourceDom} from "../sourceDom";
 import {FmuInstancesElement} from "./connections/fmu-instances-element";
 import Path = require('path');
 
@@ -47,6 +47,7 @@ export class MmController extends IViewController {
     }
     
     initialize(sourceDom: SourceDom) {
+        IntoCpsApp.IntoCpsApp.setTopName("Multi-Model");
         
         this.fmusDiv = <HTMLDivElement>document.getElementById("fmusDiv");
         this.parametersDiv = <HTMLDivElement>document.getElementById("parametersDiv");

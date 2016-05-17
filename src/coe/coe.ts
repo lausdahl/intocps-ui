@@ -13,8 +13,8 @@ import {CoeConfig} from './CoeConfig'
 import {CoeSimulationRunner} from './CoeSimulationRunner'
 import {IProject} from "../proj/IProject";
 import {SettingKeys} from "../settings/SettingKeys";
-import {SourceDom} from "../SourceDom"
-import {IViewController} from "../IViewController"
+import {SourceDom} from "../sourceDom"
+import {IViewController} from "../iViewController"
 
 import * as Configs from "../intocps-configurations/intocps-configurations";
 
@@ -41,7 +41,8 @@ export class CoeController extends IViewController {
         this.app = this.remote.getGlobal("intoCpsApp");
     }
 
-    initialize(sourceDom: SourceDom): void {
+    initialize(sourceDom: SourceDom):void {
+        IntoCpsApp.IntoCpsApp.setTopName("Co-Simulation") 
         this.setProgress(0, null);
         this.initializeChart();
 

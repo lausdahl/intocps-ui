@@ -16,15 +16,17 @@ export class Project implements IProject {
     configPath: string;
     containers: Array<Container> = [];
     configs: Array<Config> = [];
- 
+
 
 
     PATH_FMUS: String = "FMUs";
     PATH_MODELS: String = "Models";
     PATH_MULTI_MODELS: String = "Multi-models";
-    PATH_DSE: String = "Design Space Explorations";
+    static PATH_DSE: String = "Design Space Explorations";
     //PATH_CONNECTIONS: String = "SysML Connections";
     PATH_SYSML: String = "SysML";
+    static PATH_TEST_DATA_GENERATION: String = "Test Data Generation";
+    static PATH_MODEL_CHECKING: String = "Model Checking";
 
     constructor(name: string, rootPath: string, configPath: string) {
         this.name = name;
@@ -52,7 +54,7 @@ export class Project implements IProject {
         return this.configs;
     }
 
- 
+
     public getSysMlFolderName(): String {
         return this.PATH_SYSML;
     }
@@ -60,7 +62,8 @@ export class Project implements IProject {
     //TODO: replace with proper folder struct
     public save() {
 
-        let folders = [this.PATH_SYSML, this.PATH_DSE, this.PATH_FMUS, this.PATH_MODELS, this.PATH_MULTI_MODELS];
+        let folders = [this.PATH_SYSML, Project.PATH_DSE, this.PATH_FMUS, this.PATH_MODELS, this.PATH_MULTI_MODELS,
+            Project.PATH_TEST_DATA_GENERATION, Project.PATH_MODEL_CHECKING];
 
         for (var i = 0; folders.length > i; i++) {
             try {
@@ -125,7 +128,7 @@ export class Project implements IProject {
         let fullpath = Path.normalize(path + "/" + name + ".coe.json");
 
         var data = jsonContent == null ? "{\"algorithm\":{\"type\":\"fixed-step\",\"size\":0.1},\"endTime\":10,\"startTime\":0}" : jsonContent;
-      console.info(data);
+        console.info(data);
         var json = JSON.parse(data + "");
         json["multimodel_path"] = multimodelConfigPath.substring(this.getRootFilePath().length + 1);
 
@@ -135,9 +138,8 @@ export class Project implements IProject {
 
         return fullpath;
     }
-    
-    public getSettings()
-    {
+
+    public getSettings() {
         return new ProjectSettings(this);
     }
 }

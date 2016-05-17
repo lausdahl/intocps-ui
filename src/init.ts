@@ -1,12 +1,14 @@
 
 import {IntoCpsAppEvents} from "./IntoCpsAppEvents";
-import * as IntoCpsApp from  "./IntoCpsApp";
+import {IntoCpsApp} from  "./IntoCpsApp";
 import {CoeController} from  "./coe/coe";
 import {MmController} from  "./multimodel/MmController";
+import {DseController} from  "./dse/dse";
+import {CreateRTTesterProjectController} from  "./rttester/CreateRTTesterProject";
 import {BrowserController} from "./proj/projbrowserview";
 import {IntoCpsAppMenuHandler} from "./IntoCpsAppMenuHandler";
-import {SourceDom} from "./SourceDom";
-import {IViewController} from "./IViewController";
+import {SourceDom} from "./sourceDom";
+import {IViewController} from "./iViewController";
 import {IProject} from "./proj/IProject";
 
 import fs = require("fs");
@@ -20,6 +22,7 @@ class InitializationController {
     layout: W2UI.W2Layout;
     title: HTMLTitleElement;
     mainView: HTMLDivElement;
+    
     constructor() {
         $(document).ready(() => this.initialize());
     }
@@ -43,9 +46,10 @@ class InitializationController {
     private setTitle() {
         // Set the title to the project name
         this.title = <HTMLTitleElement>document.querySelector("title");
-        let app: IntoCpsApp.IntoCpsApp = require("remote").getGlobal("intoCpsApp");
-        if (app.getActiveProject() != null) {
-            this.title.innerText = "Project: " + app.getActiveProject().getName();
+        let app: IntoCpsApp = IntoCpsApp.getInstance();
+        let p = app.getActiveProject();
+        if (p != null) {
+            this.title.innerText = "Project: " + p.getName() + " - "+p.getRootFilePath();
         }
         let ipc: Electron.IpcRenderer = require("electron").ipcRenderer;
         ipc.on(IntoCpsAppEvents.PROJECT_CHANGED, (event, arg) => {
@@ -62,7 +66,6 @@ class InitializationController {
         });
     }
 };
-
 
 // Initialise controllers
 let menuHandler: IntoCpsAppMenuHandler = new IntoCpsAppMenuHandler();
@@ -85,12 +88,29 @@ menuHandler.openMultiModel = (path) => {
     openViewController("multimodel/multimodel.html", path, MmController);
 };
 
+menuHandler.createRTTesterProject = (path) => {
+    openViewController("rttester/CreateRTTesterProject.html", path, CreateRTTesterProjectController);
+};
+
 menuHandler.openSysMlExport = () => {
     $(init.mainView).load("sysmlexport/sysmlexport.html");
+    IntoCpsApp.setTopName("SysML Export");
 };
 
 menuHandler.openFmu = () => {
     $(init.mainView).load("fmus/fmus.html");
+    IntoCpsApp.setTopName("FMUs");
+};
+
+menuHandler.openDseView = (path) => {
+    openViewController("dse/dse.html", path, DseController);
+};
+
+menuHandler.createDse = (path) =>{
+    $(init.mainView).load("dse/dse.html", (event: JQueryEventObject) => {
+      // create empty DSE file and load it.
+       menuHandler.openDseView("")
+    });
 };
 
 menuHandler.createMultiModel = (path) => {
@@ -106,7 +126,7 @@ menuHandler.createMultiModel = (path) => {
 };
 
 menuHandler.createCoSimConfiguration = (path) => {
-    $(init.mainView).load("coe/coe.html", function(event: JQueryEventObject) {
+    $(init.mainView).load("coe/coe.html", function (event: JQueryEventObject) {
         let project: IProject = require("remote").getGlobal("intoCpsApp").getActiveProject();
         if (project != null) {
             let coePath: string = project.createCoSimConfig(path + "", "co-sim-" + Math.floor(Math.random() * 100), null).toString();
