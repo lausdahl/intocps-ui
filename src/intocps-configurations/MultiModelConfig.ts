@@ -7,9 +7,7 @@
 
 import * as Collections from 'typescript-collections';
 import * as Fmi from "../coe/fmi";
-import {Parser} from "./Parser";
-import {Serializer} from "./Serializer";
-
+import {Parser,Serializer} from "./Parser";
 
 import Path = require('path');
 import fs = require('fs');

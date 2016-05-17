@@ -8,10 +8,7 @@
 import * as Collections from 'typescript-collections'
 import * as Fmi from "../coe/fmi"
 import {MultiModelConfig} from "./MultiModelConfig"
-import {Parser} from "./Parser"
-import {Serializer} from "./Serializer"
-
-
+import {Parser, Serializer} from "./Parser"
 
 import Path = require('path');
 import fs = require('fs');
@@ -37,11 +34,7 @@ export class CoSimulationConfig implements ISerializable {
     endTime: number = 10;
 
     toObject(): any {
-      
-        let s:Serializer = undefined; //=new Serializer();
-        s = new Serializer(); 
-       //return s.toObjectCoSimulationConfig(this, this.projectRoot);
-       return null;
+        return new Serializer().toObjectCoSimulationConfig(this, this.projectRoot);
     }
 
     save(): Promise<void> {
