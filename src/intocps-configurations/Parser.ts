@@ -21,12 +21,15 @@ export class Parser {
     protected START_TIME_TAG: string = "startTime";
     protected END_TIME_TAG: string = "endTime";
     protected ALGORITHM_TAG: string = "algorithm";
+    protected MULTIMODEL_PATH_TAG: string = "multimodel_path";
 
-    protected ALGORITHM_TYPE:string = "type";
+    protected ALGORITHM_TYPE: string = "type";
     protected ALGORITHM_TYPE_FIXED: string = "fixed-step";
     protected ALGORITHM_TYPE_VAR: string = "var-step";
+    
+     protected ALGORITHM_TYPE_FIXED_SIZE_TAG: string = "size";
 
-
+constructor(){}
 
     //Parse fmus json tag
     parseFmus(data: any, basePath: string): Promise<Fmi.Fmu[]> {
@@ -201,6 +204,10 @@ export class Parser {
         return this.parseSimpleTag(data, this.END_TIME_TAG);
     }
 
+    parseMultiModelPath(data: any, projectRoot: string): string {
+        return Path.normalize(projectRoot + "/" + this.parseSimpleTag(data, this.MULTIMODEL_PATH_TAG));
+    }
+
 
 
     //parse livestream
@@ -245,29 +252,26 @@ export class Parser {
             if (Object.keys(algorithm).indexOf(this.ALGORITHM_TYPE) >= 0) {
                 let algorithmType = algorithm[this.ALGORITHM_TYPE];
 
-                if (algorithmType.indexOf(this.ALGORITHM_TYPE_VAR) == 0)
-                { 
+                if (algorithmType.indexOf(this.ALGORITHM_TYPE_VAR) == 0) {
                     isFixed = false;
-                    
+
                 }
 
             }
-            
+
             //now type is detected so parse import 
-            
-            if(isFixed)
-            {
+
+            if (isFixed) {
                 return this.parseAlgorithmFixed(algorithm);
-            }else
-            {
+            } else {
                 return new VariableStepAlgorithm();
             }
-            
+
         }
     }
-    
-   private  parseAlgorithmFixed(data: any): ICoSimAlgorithm{
-       return new FixedStepAlgorithm(this.parseSimpleTag(data,"size"));
-   }
+
+    private parseAlgorithmFixed(data: any): ICoSimAlgorithm {
+        return new FixedStepAlgorithm(this.parseSimpleTag(data, this.ALGORITHM_TYPE_FIXED_SIZE_TAG));
+    }
 
 }

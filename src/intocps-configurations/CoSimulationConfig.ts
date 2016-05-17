@@ -5,10 +5,11 @@
 /// <reference path="../../node_modules/typescript/lib/lib.es6.d.ts" />
 
 
-import * as Collections from 'typescript-collections';
-import * as Fmi from "../coe/fmi";
+import * as Collections from 'typescript-collections'
+import * as Fmi from "../coe/fmi"
 import {MultiModelConfig} from "./MultiModelConfig"
 import {Parser} from "./Parser"
+import {Serializer} from "./Serializer"
 
 
 
@@ -16,7 +17,11 @@ import Path = require('path');
 import fs = require('fs');
 
 
-export class CoSimulationConfig {
+export class CoSimulationConfig implements ISerializable {
+
+    //project root required to resolve multimodel path
+    projectRoot: string;
+
     multiModel: MultiModelConfig;
     sourcePath: string;
 
@@ -31,27 +36,44 @@ export class CoSimulationConfig {
     //the end time
     endTime: number = 10;
 
+    toObject(): any {
+      
+        let s:Serializer = undefined; //=new Serializer();
+        s = new Serializer(); 
+       //return s.toObjectCoSimulationConfig(this, this.projectRoot);
+       return null;
+    }
+
+    save(): Promise<void> {
+        return new Promise<void>(function (resolve, reject) {
+            try {
+                fs.writeFile(this.sourcePath, JSON.stringify(this.toObject()), function (err) {
+                    if (err !== null) {
+                        return reject(err);
+                    }
+                    resolve();
+                });
+            } catch (e) {
+                reject(e);
+            }
+        });
+    }
+
 
     static create(path: string, projectRoot: string, fmuRootPath: string, jsonData: any): Promise<CoSimulationConfig> {
         return new Promise<CoSimulationConfig>(function (resolveFinal, reject) {
-            var mmPath: string = null;
-            $.each(Object.keys(jsonData), (j, key) => {
-                if (key.indexOf("multimodel_path") == 0) {
-                    mmPath = jsonData[key];
-                    mmPath = Path.normalize(projectRoot + "/" + mmPath);
-                    return;
-                }
-            });
+            let parser = new Parser();
+            var mmPath: string = parser.parseMultiModelPath(jsonData, projectRoot);
+
             console.info("Parsing mm from cc with: " + mmPath);
             MultiModelConfig.parse(mmPath, fmuRootPath).then(mm => {
                 let cc = new CoSimulationConfig();
+                cc.projectRoot = projectRoot;
                 cc.multiModel = mm;
-                let parser = new Parser();
                 cc.sourcePath = path;
-                
                 cc.startTime = parser.parseStartTime(jsonData);
                 cc.endTime = parser.parseEndTime(jsonData);
-                cc.livestream = parser.parseLivestream(jsonData,mm);
+                cc.livestream = parser.parseLivestream(jsonData, mm);
                 cc.algorithm = parser.parseAlgorithm(jsonData);
 
                 resolveFinal(cc);

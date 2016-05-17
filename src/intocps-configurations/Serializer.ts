@@ -2,30 +2,56 @@
 ///<reference path="../../typings/browser/ambient/github-electron/index.d.ts"/>
 ///<reference path="../../typings/browser/ambient/node/index.d.ts"/>
 ///<reference path="../../typings/browser/ambient/jquery/index.d.ts"/>
-/// <reference path="../../node_modules/typescript/lib/lib.es6.d.ts" />
+///<reference path="../../node_modules/typescript/lib/lib.es6.d.ts" />
 
 
 import * as Collections from 'typescript-collections';
 import * as Fmi from "../coe/fmi";
 import {MultiModelConfig} from "./MultiModelConfig"
+import {CoSimulationConfig, ICoSimAlgorithm, FixedStepAlgorithm} from "./CoSimulationConfig"
 
 
 import Path = require('path');
 
 import {Parser} from "./Parser";
 
-export  class Serializer extends Parser {
+export class Serializer extends Parser {
+    
+    constructor(){
+        super();
+    }
 
     public toObjectMultiModel(multiModel: MultiModelConfig): any {
-        var obj: any = {};
+        var obj: any = new Object();
         //fmus
         obj[this.FMUS_TAG] = this.toObjectFmus(multiModel.fmus);
         //connections
         obj[this.CONNECTIONS_TAG] = this.toObjectConnections(multiModel.fmuInstances);
         //parameters
         obj[this.PARAMETERS_TAG] = this.toObjectParameters(multiModel.fmuInstances);
-        
+
         return obj;
+    }
+
+    public toObjectCoSimulationConfig(cc: CoSimulationConfig, projectRoot: string): any {
+        var obj: any = new Object();
+
+        //multimodel source
+        obj[this.MULTIMODEL_PATH_TAG] = Path.relative(cc.multiModel.sourcePath, projectRoot);
+
+        //parameters
+        // obj[this.PARAMETERS_TAG] = this.toObjectParameters(cc.fmuInstances);
+
+        //start time
+        obj[this.START_TIME_TAG] = cc.startTime;
+        //end time
+        obj[this.END_TIME_TAG] = cc.endTime;
+
+        //livestream
+        obj[this.LIVESTREAM_TAG] = this.toObjectLivestream(cc.livestream);
+
+        //algorithm
+        obj[this.ALGORITHM_TAG] = this.toObjectAlgorithm(cc.algorithm);
     }
 
     //convert fmus to JSON
@@ -36,17 +62,17 @@ export  class Serializer extends Parser {
             data[fmu.name] = fmu.path;
         });
 
-     
+
         return data;
     }
 
-//util method to obtain id from instance
-  private  getId(value: Fmi.Instance): string {
+    //util method to obtain id from instance
+    private getId(value: Fmi.Instance): string {
         return value.fmu.name + "." + value.name;
     }
 
-//util method to obtain full id from instance and scalarvariable
-private    getIdSv(value: Fmi.Instance, sv: Fmi.ScalarVariable): string {
+    //util method to obtain full id from instance and scalarvariable
+    private getIdSv(value: Fmi.Instance, sv: Fmi.ScalarVariable): string {
         return value.fmu.name + "." + value.name + "." + sv.name;
     }
 
@@ -77,7 +103,7 @@ private    getIdSv(value: Fmi.Instance, sv: Fmi.ScalarVariable): string {
 
         fmuInstances.forEach(instance => {
             instance.initialValues.forEach((value, sv) => {
-                obj[this.getIdSv(instance,sv)]=value;
+                obj[this.getIdSv(instance, sv)] = value;
             });
         });
 
@@ -85,21 +111,29 @@ private    getIdSv(value: Fmi.Instance, sv: Fmi.ScalarVariable): string {
     }
 
 
-    toObjectLivestream(livestream: Map<String, Collections.LinkedList<String>>): any {
-        var cons: any = new Object();
-        livestream.forEach((value: Collections.LinkedList<String>, index: String) => {
+    toObjectLivestream(livestream: Map<Fmi.Instance, Fmi.ScalarVariable[]>): any {
+        var obj: any = new Object();
+
+        livestream.forEach((svs, instance) => {
 
             var inputs: any[] = [];
-            value.forEach((input) => {
-                inputs.push(input);
+            svs.forEach(sv => {
+                inputs.push(sv.name);
             });
+            obj[this.getId(instance)] = inputs;
+        });
 
-            cons[index + ""] = inputs;
-        })
+        return obj;
+    }
 
+    toObjectAlgorithm(algorithm: ICoSimAlgorithm): any {
+        if (algorithm instanceof FixedStepAlgorithm) {
+            var obj: any = new Object();
+            obj[this.ALGORITHM_TYPE] = this.ALGORITHM_TYPE_FIXED;
+            obj[this.ALGORITHM_TYPE_FIXED_SIZE_TAG] = algorithm.size;
+            return obj;
+        }
 
-        var constagged: any = new Object();
-        constagged[this.LIVESTREAM_TAG] = cons;
-        return constagged;
+        return null;
     }
 }
