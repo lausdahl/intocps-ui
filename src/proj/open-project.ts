@@ -10,13 +10,15 @@ function launchProjectExplorer() {
 
         var p: HTMLInputElement = <HTMLInputElement>document.getElementById("projectRootPathText");
         p.value = dialogResult[0];
-        //       this.app.createProject("my project",this.projectRootPath.value);
+        openProject();
     }
 
 
 }
 
-
+window.onload =function (){
+    launchProjectExplorer() ;
+};
 
 function openProject() {
     let remote = require("remote");
