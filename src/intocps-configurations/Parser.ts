@@ -8,7 +8,7 @@ import * as Collections from 'typescript-collections';
 import * as Fmi from "../coe/fmi";
 
 import {MultiModelConfig} from "./MultiModelConfig";
-import {CoSimulationConfig,ICoSimAlgorithm, FixedStepAlgorithm, VariableStepAlgorithm, VarStepConstraint, VarStepConstraintType} from "./CoSimulationConfig";
+import {CoSimulationConfig, ICoSimAlgorithm, FixedStepAlgorithm, VariableStepAlgorithm, VarStepConstraint, VarStepConstraintType} from "./CoSimulationConfig";
 
 import Path = require('path');
 
@@ -26,17 +26,15 @@ export class Parser {
     protected ALGORITHM_TYPE: string = "type";
     protected ALGORITHM_TYPE_FIXED: string = "fixed-step";
     protected ALGORITHM_TYPE_VAR: string = "var-step";
-    
-     protected ALGORITHM_TYPE_FIXED_SIZE_TAG: string = "size";
 
-constructor(){}
+    protected ALGORITHM_TYPE_FIXED_SIZE_TAG: string = "size";
+
+    constructor() { }
 
     //Parse fmus json tag
     parseFmus(data: any, basePath: string): Promise<Fmi.Fmu[]> {
 
         var fmus: Fmi.Fmu[] = [];
-
-
 
         return new Promise<Fmi.Fmu[]>((resolve, reject) => {
 
@@ -284,15 +282,15 @@ constructor(){}
 
 
 export class Serializer extends Parser {
-    
-    constructor(){
+
+    constructor() {
         super();
     }
 
-    public toObjectMultiModel(multiModel: MultiModelConfig): any {
+    public toObjectMultiModel(multiModel: MultiModelConfig, fmusRootPath: string): any {
         var obj: any = new Object();
         //fmus
-        obj[this.FMUS_TAG] = this.toObjectFmus(multiModel.fmus);
+        obj[this.FMUS_TAG] = this.toObjectFmus(multiModel.fmus,fmusRootPath);
         //connections
         obj[this.CONNECTIONS_TAG] = this.toObjectConnections(multiModel.fmuInstances);
         //parameters
@@ -304,8 +302,14 @@ export class Serializer extends Parser {
     public toObjectCoSimulationConfig(cc: CoSimulationConfig, projectRoot: string): any {
         var obj: any = new Object();
 
+
+        var path = cc.multiModel.sourcePath;
+        if (path.indexOf(projectRoot) >= 0) {
+            path = path.substring(projectRoot.length + 1);
+        }
+
         //multimodel source
-        obj[this.MULTIMODEL_PATH_TAG] = Path.relative(cc.multiModel.sourcePath, projectRoot);
+        obj[this.MULTIMODEL_PATH_TAG] = path;
 
         //parameters
         // obj[this.PARAMETERS_TAG] = this.toObjectParameters(cc.fmuInstances);
@@ -320,16 +324,22 @@ export class Serializer extends Parser {
 
         //algorithm
         obj[this.ALGORITHM_TAG] = this.toObjectAlgorithm(cc.algorithm);
-        
+
         return obj;
     }
 
     //convert fmus to JSON
-    private toObjectFmus(fmus: Fmi.Fmu[]): any {
+    private toObjectFmus(fmus: Fmi.Fmu[], fmusRootPath: string): any {
         var data: any = new Object();
 
         fmus.forEach((fmu: Fmi.Fmu) => {
-            data[fmu.name] = fmu.path;
+
+            var path = fmu.path;
+            if (path.indexOf(fmusRootPath) >= 0) {
+                path = path.substring(fmusRootPath.length + 1);
+            }
+
+            data[fmu.name] = path;
         });
 
 

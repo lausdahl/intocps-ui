@@ -18,6 +18,7 @@ export class MultiModelConfig implements ISerializable {
 
     //path to the source from which this DOM is generated
     sourcePath: string;
+    fmusRootPath : string;
     fmus: Fmi.Fmu[] = [];
     fmuInstances: Fmi.Instance[] = [];
 
@@ -63,6 +64,7 @@ export class MultiModelConfig implements ISerializable {
 
             let mm = new MultiModelConfig();
             mm.sourcePath = path;
+            mm.fmusRootPath = fmuRootPath;
 
             parser.parseFmus(jsonData, Path.normalize(fmuRootPath)).then(fmus => {
                 mm.fmus = fmus;
@@ -111,7 +113,7 @@ export class MultiModelConfig implements ISerializable {
     }
 
     toObject(): any {
-        return new Serializer().toObjectMultiModel(this);
+        return new Serializer().toObjectMultiModel(this,this.fmusRootPath);
     }
 
     save(): Promise<void> {
