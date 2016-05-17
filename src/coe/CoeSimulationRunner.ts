@@ -38,6 +38,7 @@ export class CoeSimulationRunner {
     private uploadCmd: string = "upload/";
 
     private sessionId = -1
+    private resultDirPath: string = null;
 
     private setProgress: (progress: number, message: string) => any;
     private setProgressMessage: (message: string) => any;
@@ -47,8 +48,8 @@ export class CoeSimulationRunner {
 
     private setDebugMessage: (message: string) => void;
     private setErrorMessage: (message: string) => void;
-    
-    private simulationCompleted: (success:boolean, message:string)=>void;
+
+    private simulationCompleted: (success: boolean, message: string) => void;
 
     private chartIds: string[] = [];
 
@@ -62,7 +63,7 @@ export class CoeSimulationRunner {
         initializeChartDatasets: (coeConfig: CoSimulationConfig) => string[],
         setDebugMessage: (message: string) => void,
         setErrorMessage: (message: string) => void,
-        simulationCompleted: (success:boolean, message:string)=>void
+        simulationCompleted: (success: boolean, message: string) => void
     ) {
         this.project = project;
         this.coSimConfig = coSimConfig;
@@ -200,6 +201,16 @@ export class CoeSimulationRunner {
         console.info("COE init: " + url);
         console.info(dat);
 
+        let currentDir = Path.dirname(this.coSimConfig.sourcePath);
+        self.resultDirPath = Path.normalize(currentDir + "/R_" + new Date().toLocaleString().replace(/\//gi, "-").replace(/,/gi, "").replace(/ /gi, "_").replace(/:/gi, "-"));
+
+        try {
+            fs.mkdirSync(self.resultDirPath);
+            fs.writeFile(Path.join(self.resultDirPath, "config.json"), dat);
+        } catch (e) {
+            self.setErrorMessage("Unable to create result directory: " + e);
+        }
+
         jQuery.ajax({
             url: url,
             type: "POST",
@@ -227,12 +238,18 @@ export class CoeSimulationRunner {
 
         let self = this;
 
-
         let startTime = +(<HTMLInputElement>document.getElementById("input-sim-time-start")).value;
         let endTime = +(<HTMLInputElement>document.getElementById("input-sim-time-end")).value;
 
         var dat = JSON.stringify({ startTime: startTime, endTime: endTime });
         let url = self.getHttpUrl() + self.simulateCmd + self.sessionId;
+
+        try {
+
+            fs.writeFile(Path.join(self.resultDirPath, "config-simulation.json"), dat);
+        } catch (e) {
+            self.setErrorMessage("Unable to create result directory: " + e);
+        }
 
         self.setDebugMessage("Starting simulation");
         self.setProgressMessage("Simulating");
@@ -257,26 +274,17 @@ export class CoeSimulationRunner {
 
     private downloadResults() {
         let self = this;
-        let currentDir = Path.dirname(this.coSimConfig.sourcePath);
-        let resultDirPath = Path.normalize(currentDir + "/R_" + new Date().toLocaleString().replace(/\//gi, "-").replace(/,/gi, "").replace(/ /gi, "_").replace(/:/gi, "-"));
 
-        fs.mkdir(resultDirPath, (err) => {
+        let url = self.getHttpUrl() + self.resultCmd + self.sessionId;
 
-            if (err) {
-                self.setErrorMessage("Unable to create result directory");
-                return;
-            }
-
-            let url = self.getHttpUrl() + self.resultCmd + self.sessionId;
-
-            $.get(url, function (data) {
-                fs.writeFile(Path.normalize(resultDirPath + "/log.csv"), data);
-                self.simulationCompleted(true,resultDirPath);
-            }).fail(function(e:any){
-                self.setErrorMessage(""+e);
-            });
-
+        $.get(url, function (data) {
+            fs.writeFile(Path.normalize(self.resultDirPath + "/log.csv"), data);
+            self.simulationCompleted(true, self.resultDirPath);
+        }).fail(function (e: any) {
+            self.setErrorMessage("" + e);
         });
+
+
 
     }
 

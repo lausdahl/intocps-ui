@@ -4,7 +4,7 @@
 ///<reference path="../../typings/browser/ambient/w2ui/index.d.ts"/>
 
 import {IntoCpsAppEvents} from "../IntoCpsAppEvents";
-import * as IntoCpsApp from  "../IntoCpsApp"
+import {IntoCpsApp} from  "../IntoCpsApp"
 import {ContentProvider} from "./ContentProvider";
 import {Container, ContainerType} from "./Container";
 import {Project} from "./Project";
@@ -38,6 +38,7 @@ export class BrowserController {
     }
 
     initialize() {
+        let self = this;
         this.browser = <HTMLDivElement>document.querySelector("#browser");
         let remote = require("remote");
 
@@ -142,6 +143,19 @@ export class BrowserController {
                     const { dialog } = require('electron').remote;
                     dialog.showErrorBox("Cannot create co-simulation configuration", "A co-simulation configuration cannot be created based on the selected resource.")
                 }
+            } else if (id.indexOf(this.CTXT_DELETE_ID) == 0) {
+                let name = Path.basename(event.target);
+                if (name.indexOf('R_') >= 0) {
+                    console.info("Deleting " + event.target);
+                    this.getCustomFs().removeRecursive(event.target, function (err: any, v: any) {
+                        if (err != null) {
+                            console.error(err);
+                        }
+                        self.refreshProjectBrowser();
+                    });
+
+                }
+
             }
         });
 
@@ -176,8 +190,8 @@ export class BrowserController {
 
     //set and refresh the prowser content
     private refreshProjectBrowser() {
-        let remote = require("remote");
-        let app: IntoCpsApp.IntoCpsApp = remote.getGlobal("intoCpsApp");
+
+        let app: IntoCpsApp = IntoCpsApp.getInstance();
         if (app.getActiveProject() != null) {
             let root = new Container(app.getActiveProject().getName(), app.getActiveProject().getRootFilePath(), ContainerType.Folder);
             this.clearAll();
@@ -303,7 +317,7 @@ export class BrowserController {
             };
         });
 
-       
+
         return items;
     }
 
@@ -380,6 +394,85 @@ export class BrowserController {
 
         return null;
 
+    }
+
+    private getCustomFs(): any {
+        var fs = require('fs');
+        fs.removeRecursive = function (path: string, cb: (err: any, v: any) => void) {
+            var self = this;
+
+            fs.stat(path, function (err: any, stats: any) {
+                if (err) {
+                    cb(err, stats);
+                    return;
+                }
+                if (stats.isFile()) {
+                    fs.unlink(path, function (err: any) {
+                        if (err) {
+                            cb(err, null);
+                        } else {
+                            cb(null, true);
+                        }
+                        return;
+                    });
+                } else if (stats.isDirectory()) {
+                    // A folder may contain files
+                    // We need to delete the files first
+                    // When all are deleted we could delete the 
+                    // dir itself
+                    fs.readdir(path, function (err: any, files: any) {
+                        if (err) {
+                            cb(err, null);
+                            return;
+                        }
+                        var f_length = files.length;
+                        var f_delete_index = 0;
+
+                        // Check and keep track of deleted files
+                        // Delete the folder itself when the files are deleted
+
+                        var checkStatus = function () {
+                            // We check the status
+                            // and count till we r done
+                            if (f_length === f_delete_index) {
+                                fs.rmdir(path, function (err: any) {
+                                    if (err) {
+                                        cb(err, null);
+                                    } else {
+                                        cb(null, true);
+                                    }
+                                });
+                                return true;
+                            }
+                            return false;
+                        };
+                        if (!checkStatus()) {
+                            for (var i = 0; i < f_length; i++) {
+                                // Create a local scope for filePath
+                                // Not really needed, but just good practice
+                                // (as strings arn't passed by reference)
+                                (function () {
+                                    var filePath = path + '/' + files[i];
+                                    // Add a named function as callback
+                                    // just to enlighten debugging
+                                    fs.removeRecursive(filePath, function removeRecursiveCB(err: any, status: any) {
+                                        if (!err) {
+                                            f_delete_index++;
+                                            checkStatus();
+                                        } else {
+                                            cb(err, null);
+                                            return;
+                                        }
+                                    });
+
+                                })()
+                            }
+                        }
+                    });
+                }
+            });
+        };
+        return fs;
     }
 
 }

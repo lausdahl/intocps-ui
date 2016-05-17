@@ -53,7 +53,8 @@ class InitializationController {
         }
         let ipc: Electron.IpcRenderer = require("electron").ipcRenderer;
         ipc.on(IntoCpsAppEvents.PROJECT_CHANGED, (event, arg) => {
-            this.title.innerText = "Project: " + app.getActiveProject().getName();
+            let p = app.getActiveProject();
+            this.title.innerText = "Project: " + p.getName() + " - "+p.getRootFilePath();
         });
     }
 
