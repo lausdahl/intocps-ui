@@ -42,3 +42,6 @@ downloader-test/*.zip
 
 **/R_*
 **/test-project/downloads
+
+
+MakeFile
