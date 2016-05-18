@@ -80,7 +80,13 @@ export class Project implements IProject {
                 "The error: " + err + " happened when attempting to open the file: " + this.configPath + " for writing.";
             }
             else {
-                fs.write(fd, JSON.stringify(this), (err) => {
+                var obj :any = new Object();
+                Object.assign(obj,this);
+                 obj.configPath="";
+                obj.rootPath="";
+                
+                
+                fs.write(fd, JSON.stringify(obj), (err) => {
                     if (err) {
                         console.log("Failed to write settings in : " + this.configPath + ".");
                     }

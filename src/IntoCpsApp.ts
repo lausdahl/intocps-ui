@@ -124,6 +124,8 @@ export default class IntoCpsApp {
         let content = fs.readFileSync(config, "utf8");
         // TODO load configuration containers and config files
         let project = SerializationHelper.toInstance(new Project("", "", ""), content.toString());
+        project.configPath = path;
+        project.rootPath = Path.dirname(path);
         return project;
     }
 
