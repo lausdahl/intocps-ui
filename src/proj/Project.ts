@@ -6,7 +6,6 @@ import Path = require('path');
 
 import {IProject} from "./IProject"
 import {Container} from "./Container"
-import {Config} from "./Config"
 import {ProjectSettings} from "./ProjectSettings"
 
 export class Project implements IProject {
@@ -15,7 +14,6 @@ export class Project implements IProject {
     rootPath: string;
     configPath: string;
     containers: Array<Container> = [];
-    configs: Array<Config> = [];
 
 
 
@@ -49,11 +47,6 @@ export class Project implements IProject {
     public getContainers() {
         return this.containers;
     }
-
-    public getConfigs() {
-        return this.configs;
-    }
-
 
     public getSysMlFolderName(): String {
         return this.PATH_SYSML;
