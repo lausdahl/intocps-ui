@@ -39,3 +39,6 @@ target
 test-project/Models/watertankController/generated
 downloader-test/installed
 downloader-test/*.zip
+
+**/R_*
+**/test-project/downloads
