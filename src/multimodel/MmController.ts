@@ -19,6 +19,7 @@ import {IViewController} from "../iViewController";
 import {SourceDom} from "../sourceDom";
 import {FmuInstancesElement} from "./connections/fmu-instances-element";
 import {ConnectionsElement} from "./connections/connections-element";
+import {FmuKeys} from "./fmu-keys/fmu-keys";
 import Path = require('path');
 
 
@@ -28,6 +29,9 @@ export class MmController extends IViewController {
     private fmuCounter: number = 0;
     private fmusDiv: HTMLDivElement;
     private fmus: Fmu[] = [];
+    private multiModelFmusDiv: HTMLDivElement;
+    private fmuKeysElement: FmuKeys
+
 
     private outputList: HTMLUListElement;
     private outputs: ListElement[] = [];
@@ -59,7 +63,7 @@ export class MmController extends IViewController {
         this.inputList = <HTMLUListElement>document.getElementById("connections-inputs");
         this.fmuInstancesDiv = <HTMLDivElement>document.getElementById("multimodel-fmu-instances");
         this.connectionsDiv = <HTMLDivElement>document.getElementById("multimodel-connections");
-
+        this.multiModelFmusDiv = <HTMLDivElement>document.getElementById("multimodel-fmus");
         this.parametersDiv.innerHTML = "";
 
         var remote = require('remote');
@@ -86,6 +90,11 @@ export class MmController extends IViewController {
         $(this.connectionsDiv).load("multimodel/connections/connections.html", (event: JQueryEventObject) => {
             this.connectionsElement = new ConnectionsElement(this.connectionsDiv);
             this.connectionsElement.addData(this.mm);
+        });
+        
+        $(this.multiModelFmusDiv).load("multimodel/fmu-keys/fmu-keys.html", (event: JQueryEventObject) => {
+            this.fmuKeysElement = new FmuKeys(<HTMLDivElement>this.multiModelFmusDiv.firstChild);
+            this.fmuKeysElement.addData(this.mm);
         });
     }
 
