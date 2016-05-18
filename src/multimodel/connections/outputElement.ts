@@ -7,24 +7,28 @@ export class OutputElement {
         this.listElement = listElement;
         this.name = name;
         this.listElement.innerText = this.name;
-        this.listElement.addEventListener("click", () => {
-            if (!this.selected) {
-                this.listElement.classList.add("active");
-                selected(this);
-                this.selected = true;
-            }
-        });
+        this.listElement.addEventListener("click", this.select);
     }
+
+    select() {
+        if (!this.selected) {
+            this.listElement.classList.add("active");
+            selected(this);
+            this.selected = true;
+        }
+    }
+
     deselect() {
         this.listElement.classList.remove("active");
         this.selected = false;
     }
-    
+
     getName(): string {
         return this.name;
     }
-    
-    getHtml() : HTMLLinkElement {
+
+    getHtml(): HTMLLinkElement {
         return this.listElement;
     }
+
 }

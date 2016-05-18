@@ -7,24 +7,22 @@ export class InstanceElement {
     private but1Span: HTMLSpanElement;
     private removeButton: HTMLButtonElement;
     private instance: Instance;
-    private editGlyphicon: string = "glyphicon-edit";
-    private okGlyphicon: string = "glyphicon-ok"
-    private addInstanceHandler: (instanceElement: InstanceElement) => Boolean;
+    private editGlyphicon: glyphiconEditButton = "glyphicon-edit";
+    private okGlyphicon: glyphiconEditButton = "glyphicon-ok"
+    private addInstanceHandler: (instanceElement: InstanceElement, text: string) => Boolean;
     private editExisting: boolean = false;
 
     private removeHandler: (instanceElement: InstanceElement) => void;
-
     private delete: boolean = false;
-
-    constructor(element: HTMLDivElement, instance: Instance, removeHandler: (instanceElement: InstanceElement) => void, addHandler: (instanceElement: InstanceElement) => Boolean, newInstance?: boolean) {
+    constructor(element: HTMLDivElement, instance: Instance, removeHandler: (instanceElement: InstanceElement) => void, addHandler: (instanceElement: InstanceElement, text: string) => Boolean, newInstance?: boolean) {
         this.element = element
         this.instance = instance;
         this.removeHandler = removeHandler;
         this.addInstanceHandler = addHandler;
-        
+
         this.txt = <HTMLInputElement>this.element.querySelector("#fmu-instance-name");
         this.txt.value = this.instance.name;
-        
+
         this.but1 = <HTMLButtonElement>this.element.querySelector("#fmu-instance-but1");
         this.but1Span = <HTMLButtonElement>this.but1.querySelector("#fmu-instance-but1-span");
         this.removeButton = <HTMLButtonElement>this.element.querySelector("#fmu-instance-remove-but");
@@ -44,19 +42,19 @@ export class InstanceElement {
     }
     // When in Ok state, set button to edit
     private setButtonToOkState(): void {
+        this.delete = true;
         this.setButton(this.okGlyphicon, this.editGlyphicon, true, this.setButtonToEditState);
     }
 
+    //When OK is clicked, then check if it can be added or not.
     private okClickHandler(): void {
-        this.delete = true;
-        this.instance.name = this.txt.value;
-        if (this.addInstanceHandler(this)) {
+        if (this.addInstanceHandler(this, this.txt.value)) {
+            this.instance.name = this.txt.value;
             this.setButtonToOkState();
         }
         else {
             alert("Instance already exists");
         }
-
     }
 
     private removeCancelHandler() {
@@ -75,7 +73,7 @@ export class InstanceElement {
         this.setButton(this.editGlyphicon, this.okGlyphicon, false, this.okClickHandler);
     }
 
-    private setButton(classToRemove: string, classToAdd: string, readOnly: boolean, clickHandler: () => void) {
+    private setButton(classToRemove: glyphiconEditButton, classToAdd: glyphiconEditButton, readOnly: boolean, clickHandler: () => void) {
         if (this.but1Span.classList.contains(classToRemove)) {
             this.but1Span.classList.remove(classToRemove);
         }

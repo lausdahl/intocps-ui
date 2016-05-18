@@ -18,6 +18,7 @@ import {OutputElement} from "./connections/OutputElement";
 import {IViewController} from "../iViewController";
 import {SourceDom} from "../SourceDom";
 import {FmuInstancesElement} from "./connections/fmu-instances-element";
+import {ConnectionsElement} from "./connections/connections-element";
 import Path = require('path');
 
 
@@ -42,6 +43,9 @@ export class MmController extends IViewController {
     private fmuInstancesDiv: HTMLDivElement;
     private fmuInstancesElement: FmuInstancesElement;
     
+    private connectionsDiv: HTMLDivElement;
+    private connectionsElement: ConnectionsElement;
+    
     constructor(mainViewDiv: HTMLDivElement) {
         super(mainViewDiv);
     }
@@ -53,9 +57,15 @@ export class MmController extends IViewController {
         this.outputList = <HTMLUListElement>document.getElementById("connections-outputs");
         this.inputList = <HTMLUListElement>document.getElementById("connections-inputs");
         this.fmuInstancesDiv = <HTMLDivElement>document.getElementById("multimodel-fmu-instances");
-        $(this.fmuInstancesDiv).load("multimodel/connections/fmu-instances.html", (event: JQueryEventObject) => {
+        this.connectionsDiv = <HTMLDivElement>document.getElementById("multimodel-connections");
+        
+        $(this.fmuInstancesDiv).load("multimodel/connections/fmu-instances-element.html", (event: JQueryEventObject) => {
            this.fmuInstancesElement = new FmuInstancesElement(this.fmuInstancesDiv); 
         });
+        
+        $(this.connectionsDiv).load("multimodel/connections/connections.html", (event: JQueryEventObject) => {
+            this.connectionsElement = new ConnectionsElement(this.connectionsDiv);
+        })
 
         this.parametersDiv.innerHTML = "";
 
