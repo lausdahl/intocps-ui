@@ -37,3 +37,5 @@ test-sim
 test-vdmsim
 target
 test-project/Models/watertankController/generated
+downloader-test/installed
+downloader-test/*.zip
