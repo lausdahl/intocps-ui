@@ -1,6 +1,5 @@
 /// <reference path="../../../node_modules/typescript/lib/lib.es6.d.ts" />
-import {Scalar} from "./scalar"
-import {OutputElement} from "./outputElement";
+import {ListElement} from "./list-element";
 import * as Collections from "typescript-collections";
 import {FmuElement} from "./fmu-element";
 import {InstanceElement} from "./instance-element";
@@ -27,15 +26,15 @@ export class FmuInstancesElement {
         this.instanceList = <HTMLUListElement>html.querySelector("#connections-fmuinstances-instances");
         this.addInstancesButton = <HTMLButtonElement>this.html.querySelector("#fmu-instances-add-but");
         this.addInstancesButton.onclick = this.addNewInstanceHandler.bind(this);
-        let dummyDom = new Configs.MultiModelConfig();
-        let fmu1 = new Configs.Fmu("abe", "abe");
-        let fmu2 = new Configs.Fmu("abe2", "abe2");
-        dummyDom.fmus.push(fmu1, fmu2);
-        let instance: Configs.Instance = new Configs.Instance(fmu1, "tiger");
-        let instance2: Configs.Instance = new Configs.Instance(fmu1, "tiger2");
-        let instance3: Configs.Instance = new Configs.Instance(fmu2, "elephant");
-        dummyDom.fmuInstances.push(instance, instance2, instance3);
-        this.addData(dummyDom);
+        // let dummyDom = new Configs.MultiModelConfig();
+        // let fmu1 = new Configs.Fmu("abe", "abe");
+        // let fmu2 = new Configs.Fmu("abe2", "abe2");
+        // dummyDom.fmus.push(fmu1, fmu2);
+        // let instance: Configs.Instance = new Configs.Instance(fmu1, "tiger");
+        // let instance2: Configs.Instance = new Configs.Instance(fmu1, "tiger2");
+        // let instance3: Configs.Instance = new Configs.Instance(fmu2, "elephant");
+        // dummyDom.fmuInstances.push(instance, instance2, instance3);
+        // this.addData(dummyDom);
 
     }
     addData(multiModelDOM: Configs.MultiModelConfig) {

@@ -1,6 +1,7 @@
 import * as Configs from "../../intocps-configurations/intocps-configurations";
-import {OutputElement} from "./outputElement.ts"
-import {ConnectionsInstanceElement} from "./connections-instance-element.ts";
+import {ListElement} from "./list-element"
+import {InstanceListElement} from "./connections-instance-element";
+import {CheckboxInstanceListElement} from "./checkbox-output-element"
 
 
 enum InstanceSelection {
@@ -17,59 +18,63 @@ enum Containers {
 export class ConnectionsElement {
 
     outputInstanceList: HTMLUListElement;
-    selectedOutputInstance: ConnectionsInstanceElement<Configs.Instance>;
-    outputInstances: Array<ConnectionsInstanceElement<Configs.Instance>> = [];
+    selectedOutputInstance: InstanceListElement<Configs.Instance>;
+    outputInstances: Array<InstanceListElement<Configs.Instance>> = [];
 
     outputVariableList: HTMLUListElement;
-    selectedOutputVariable: ConnectionsInstanceElement<Configs.ScalarVariable>;
-    outputVariables: Array<ConnectionsInstanceElement<Configs.ScalarVariable>> = [];
+    selectedOutputVariable: InstanceListElement<Configs.ScalarVariable>;
+    outputVariables: Array<InstanceListElement<Configs.ScalarVariable>> = [];
 
     inputInstanceList: HTMLUListElement;
-    selectedInputInstance: ConnectionsInstanceElement<Configs.Instance>;
-    inputInstances: Array<ConnectionsInstanceElement<Configs.Instance>> = [];
+    selectedInputInstance: InstanceListElement<Configs.Instance>;
+    inputInstances: Array<InstanceListElement<Configs.Instance>> = [];
 
     inputVariableList: HTMLUListElement;
-    inputVariables: Array<ConnectionsInstanceElement<Configs.ScalarVariable>> = [];
+    inputVariables: Array<InstanceListElement<Configs.ScalarVariable>> = [];
 
     private container: HTMLDivElement;
 
     multiModelDOM: Configs.MultiModelConfig;
+    self: ConnectionsElement;
 
     constructor(container: HTMLDivElement) {
         this.container = container;
-        this.outputInstanceList = <HTMLUListElement>this.container.querySelector("connections-output-instances");
-        this.outputVariableList = <HTMLUListElement>this.container.querySelector("connections-output-variables");
-        this.inputInstanceList = <HTMLUListElement>this.container.querySelector("connections-input-instances");
-        this.inputVariableList = <HTMLUListElement>this.container.querySelector("connections-input-variables");
+        this.outputInstanceList = <HTMLUListElement>this.container.querySelector("#connections-output-instances");
+        this.outputVariableList = <HTMLUListElement>this.container.querySelector("#connections-output-variables");
+        this.inputInstanceList = <HTMLUListElement>this.container.querySelector("#connections-input-instances");
+        this.inputVariableList = <HTMLUListElement>this.container.querySelector("#connections-input-variables");
+        this.self = this;
     }
 
     addData(multiModelDOM: Configs.MultiModelConfig) {
         this.multiModelDOM = multiModelDOM;
-        this.updateInstances(this.addInstance, InstanceSelection.Output);
+        this.updateInstances(this.addInstance.bind(this), InstanceSelection.Output);
     }
 
+    // Show the instances
     private updateInstances(addCallback: (instance: Configs.Instance, instanceSelection: InstanceSelection) => void, instanceSelection: InstanceSelection): void {
         this.multiModelDOM.fmus.forEach((val: Configs.Fmu) => {
             this.multiModelDOM.fmuInstances.filter((val2: Configs.Instance) => {
                 return val2.fmu === val;
             }).forEach((val2: Configs.Instance) => {
                 addCallback(val2, instanceSelection);
-            })
-        })
+            });
+        });
     }
+
     //Used by both output instances and input instances
     private addInstance(instance: Configs.Instance, instanceSelection: InstanceSelection) {
         let self = this;
-        $('<div>').load("multimodel/connections/output.html", function (event: BaseJQueryEventObject) {
+        $('<div>').load("multimodel/connections/list-element.html", function (event: BaseJQueryEventObject) {
             let html: HTMLLinkElement = <HTMLLinkElement>(<HTMLDivElement>this).firstChild;
 
             if (instanceSelection == InstanceSelection.Output) {
-                let output: ConnectionsInstanceElement<Configs.Instance> = new ConnectionsInstanceElement(html, instance.fmu.name + instance.name, self.outputInstanceSelected.bind(self), instance);
+                let output: InstanceListElement<Configs.Instance> = new InstanceListElement(html, instance.fmu.name + "." + instance.name, self.outputInstanceSelected.bind(self), instance);
                 self.outputInstanceList.appendChild(html);
                 self.outputInstances.push(output);
             }
             else if (instanceSelection == InstanceSelection.Input) {
-                let output: ConnectionsInstanceElement<Configs.Instance> = new ConnectionsInstanceElement(html, instance.fmu.name + instance.name, self.inputInstanceSelected.bind(self), instance);
+                let output: InstanceListElement<Configs.Instance> = new InstanceListElement(html, instance.fmu.name + "." + instance.name, self.inputInstanceSelected.bind(self), instance);
                 self.inputInstanceList.appendChild(html);
                 self.inputInstances.push(output);
             }
@@ -77,7 +82,7 @@ export class ConnectionsElement {
     }
 
     //Show output variables
-    private outputInstanceSelected(instanceElement: ConnectionsInstanceElement<Configs.Instance>) {
+    private outputInstanceSelected(instanceElement: InstanceListElement<Configs.Instance>) {
         this.selectedOutputInstance = instanceElement;
         this.outputInstances.forEach(element => {
             if (element !== instanceElement) {
@@ -92,8 +97,29 @@ export class ConnectionsElement {
         });
     }
 
+    private addOutputVariable(variable: Configs.ScalarVariable) {
+        let self = this;
+        $('<div>').load("multimodel/connections/list-element.html", function (event: BaseJQueryEventObject) {
+            let html: HTMLLinkElement = <HTMLLinkElement>(<HTMLDivElement>this).firstChild;
+            self.outputVariableList.appendChild(html);
+            let output: InstanceListElement<Configs.ScalarVariable> = new InstanceListElement(html, variable.name, self.outputVariableSelected.bind(self), variable);
+            self.outputVariables.push(output);
+        });
+    }
+
+    private outputVariableSelected(variable: InstanceListElement<Configs.ScalarVariable>) {
+        this.selectedOutputVariable = variable;
+        this.outputVariables.forEach(element => {
+            if (element !== variable) {
+                element.deselect();
+            }
+        });
+        this.clearContainers(Containers.InputInstances | Containers.inputVariables);
+        this.updateInstances(this.addInstance.bind(this), InstanceSelection.Input);
+    }
+
     //Show input variables
-    private inputInstanceSelected(instanceElement: ConnectionsInstanceElement<Configs.Instance>) {
+    private inputInstanceSelected(instanceElement: InstanceListElement<Configs.Instance>) {
         this.selectedInputInstance = instanceElement;
         this.inputInstances.forEach(element => {
             if (element !== instanceElement) {
@@ -102,46 +128,6 @@ export class ConnectionsElement {
         });
         this.clearContainers(Containers.inputVariables);
         this.addInputVariables(this.selectedInputInstance.getInstance());
-    }
-
-    //Clear the list containers
-    private clearContainers(containers: Containers) {
-        let clearContainer = <T>(container: HTMLUListElement, connectionElements: Array<ConnectionsInstanceElement<T>>, selected?: ConnectionsInstanceElement<T>) => {
-            if (selected != null)
-                selected = undefined;
-
-            connectionElements.forEach(element => {
-                container.removeChild(element.getHtml());
-            });
-            connectionElements.splice(0);
-        }
-
-        if (containers == Containers.OutputVariables) {
-            clearContainer(this.outputVariableList, this.outputVariables, this.selectedOutputVariable);
-        }
-        if (containers == Containers.InputInstances) {
-            clearContainer(this.inputInstanceList, this.inputInstances, this.selectedInputInstance);
-        }
-        if (containers == Containers.inputVariables) {
-            clearContainer(this.inputVariableList, this.inputVariables);
-        }
-    }
-
-
-    private addOutputVariable(variable: Configs.ScalarVariable) {
-        let self = this;
-        $('<div>').load("multimodel/connections/output.html", function (event: BaseJQueryEventObject) {
-            let html: HTMLLinkElement = <HTMLLinkElement>(<HTMLDivElement>this).firstChild;
-            self.outputVariableList.appendChild(html);
-            let output: ConnectionsInstanceElement<Configs.ScalarVariable> = new ConnectionsInstanceElement(html, variable.name, self.outputVariableSelected.bind(self), variable);
-            self.outputVariables.push(output);
-        });
-    }
-
-    private outputVariableSelected(variable: ConnectionsInstanceElement<Configs.ScalarVariable>) {
-        this.selectedOutputVariable = variable;
-        this.clearContainers(Containers.InputInstances | Containers.inputVariables);
-        this.updateInstances(this.addInstance, InstanceSelection.Input);
     }
 
     private addInputVariables(instance: Configs.Instance) {
@@ -156,34 +142,80 @@ export class ConnectionsElement {
                 });
                 if (relevantPairs.length > 0) {
                     // Returns the scalar variables
-                    relevantPairs.map((element: Configs.InstanceScalarPair) => {
+                    return relevantPairs.map((element: Configs.InstanceScalarPair) => {
                         return element.scalarVariable;
                     });
                 }
             }
             return [];
         })();
-        let allInputVariables: Configs.ScalarVariable[] = instance.fmu.scalarVariables;
-        allInputVariables.forEach(element => {
-            this.addInputVariable(element, connectedInputVariables.includes(element));
+        let allInputVariables: Configs.ScalarVariable[] = instance.fmu.scalarVariables.filter((element: Configs.ScalarVariable) => {
+            console.log(element.type);
+            return (element.causality == Configs.CausalityType.Input) && (element.type == this.selectedOutputVariable.getInstance().type);
         });
-        
+        allInputVariables.forEach(element => {
+            this.addInputVariable(element, connectedInputVariables.indexOf(element) > -1);
+        });
+
     }
 
     private addInputVariable(variable: Configs.ScalarVariable, selected: boolean) {
         let self = this;
         $('<div>').load("multimodel/connections/input.html", function (event: BaseJQueryEventObject) {
             let html: HTMLLinkElement = <HTMLLinkElement>(<HTMLDivElement>this).firstChild;
-            this.inputVariableList.appendChild(html);
-            let output: ConnectionsInstanceElement<Configs.ScalarVariable> = new ConnectionsInstanceElement(html, variable.name, self.inputVariableSelected.bind(self), variable);
-            if(selected){
-                output.select();
-            }
+            self.inputVariableList.appendChild(html);
+            let output: CheckboxInstanceListElement<Configs.ScalarVariable> = new CheckboxInstanceListElement(html, variable.name, self.inputVariableSelected.bind(self), variable);
+            output.setCheckboxState(selected);
             self.inputVariables.push(output);
         });
     }
 
-    private inputVariableSelected(variable: ConnectionsInstanceElement<Configs.ScalarVariable>) {
-        //Add it to outputs tp
+    private inputVariableSelected(variable: CheckboxInstanceListElement<Configs.ScalarVariable>) {
+        // Check if an entry exists in the map for the given output variable        
+        let getOutputsTo: () => Configs.InstanceScalarPair[] = () => { 
+             return this.selectedOutputInstance.getInstance().outputsTo.get(this.selectedOutputVariable.getInstance());    
+        };
+        let outputsTo = getOutputsTo();
+        
+        //Filter ruins the ordering and so forth. Therefore it can only be used to check if a given element exists, and possibly return the given element.
+        
+        if (variable.getChecked()) {
+            if (outputsTo == null) {
+                this.selectedOutputInstance.getInstance().outputsTo.set(this.selectedOutputVariable.getInstance(), new Array<Configs.InstanceScalarPair>());
+                outputsTo = getOutputsTo();
+            }
+            // Add the instance and variable to outputs to
+            outputsTo.push(new Configs.InstanceScalarPair(this.selectedInputInstance.getInstance(), variable.getInstance()));
+        }
+        else {
+            let index = outputsTo.findIndex((element: Configs.InstanceScalarPair) => {
+                return (element.instance === this.selectedInputInstance.getInstance()) && (element.scalarVariable === variable.getInstance())
+            });
+            // Remove the instance scalar pair
+            outputsTo.splice(index, 1);
+        }
+    }
+
+    //Clear the list containers
+    private clearContainers(containers: Containers) {
+        let clearContainer = <T>(container: HTMLUListElement, connectionElements: Array<InstanceListElement<T>>, selected?: InstanceListElement<T>) => {
+            if (selected != null)
+                selected = undefined;
+
+            connectionElements.forEach(element => {
+                container.removeChild(element.getHtml());
+            });
+            connectionElements.splice(0);
+        }
+
+        if (containers & Containers.OutputVariables) {
+            clearContainer(this.outputVariableList, this.outputVariables, this.selectedOutputVariable);
+        }
+        if (containers & Containers.InputInstances) {
+            clearContainer(this.inputInstanceList, this.inputInstances, this.selectedInputInstance);
+        }
+        if (containers & Containers.inputVariables) {
+            clearContainer(this.inputVariableList, this.inputVariables);
+        }
     }
 }

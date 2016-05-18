@@ -9,63 +9,56 @@ import * as IntoCpsApp from  "../IntoCpsApp"
 import {IntoCpsAppEvents} from "../IntoCpsAppEvents";
 import {Fmu} from "./fmu"
 import * as Collections from 'typescript-collections';
-import {CoeConfig} from '../coe/CoeConfig'
+import {MultiModelConfig, Serializer} from "../intocps-configurations/intocps-configurations";
 
 import {IProject} from "../proj/IProject";
 import {SettingKeys} from "../settings/SettingKeys";
 import {Input} from "./connections/input";
-import {OutputElement} from "./connections/OutputElement";
+import {ListElement} from "./connections/list-element";
 import {IViewController} from "../iViewController";
-import {SourceDom} from "../SourceDom";
+import {SourceDom} from "../sourceDom";
 import {FmuInstancesElement} from "./connections/fmu-instances-element";
 import {ConnectionsElement} from "./connections/connections-element";
 import Path = require('path');
 
 
 export class MmController extends IViewController {
-    coeConfig: CoeConfig = new CoeConfig();
+    mm: MultiModelConfig = new MultiModelConfig();
 
     private fmuCounter: number = 0;
     private fmusDiv: HTMLDivElement;
     private fmus: Fmu[] = [];
 
     private outputList: HTMLUListElement;
-    private outputs: OutputElement[] = [];
+    private outputs: ListElement[] = [];
     private inputList: HTMLUListElement;
     private inputs: Input[] = [];
     private allInputs: any = [];
     private allOutputs: any = [];
     private connections: any = [];
-    private selectedOutput: OutputElement;
+    private selectedOutput: ListElement;
 
     private parametersDiv: HTMLDivElement;
-    
+
     private fmuInstancesDiv: HTMLDivElement;
     private fmuInstancesElement: FmuInstancesElement;
-    
+
     private connectionsDiv: HTMLDivElement;
     private connectionsElement: ConnectionsElement;
-    
+
     constructor(mainViewDiv: HTMLDivElement) {
         super(mainViewDiv);
     }
-    
+
     initialize(sourceDom: SourceDom) {
-        
+        IntoCpsApp.IntoCpsApp.setTopName("Multi-Model");
+
         this.fmusDiv = <HTMLDivElement>document.getElementById("fmusDiv");
         this.parametersDiv = <HTMLDivElement>document.getElementById("parametersDiv");
         this.outputList = <HTMLUListElement>document.getElementById("connections-outputs");
         this.inputList = <HTMLUListElement>document.getElementById("connections-inputs");
         this.fmuInstancesDiv = <HTMLDivElement>document.getElementById("multimodel-fmu-instances");
         this.connectionsDiv = <HTMLDivElement>document.getElementById("multimodel-connections");
-        
-        $(this.fmuInstancesDiv).load("multimodel/connections/fmu-instances-element.html", (event: JQueryEventObject) => {
-           this.fmuInstancesElement = new FmuInstancesElement(this.fmuInstancesDiv); 
-        });
-        
-        $(this.connectionsDiv).load("multimodel/connections/connections.html", (event: JQueryEventObject) => {
-            this.connectionsElement = new ConnectionsElement(this.connectionsDiv);
-        })
 
         this.parametersDiv.innerHTML = "";
 
@@ -80,8 +73,20 @@ export class MmController extends IViewController {
         this.allInputs = [];
         this.allOutputs = [];
         this.connections = [];
-        
+
         this.load(sourceDom.getPath());
+    }
+
+    private loadComponents(multiModelConfig: MultiModelConfig) {
+        $(this.fmuInstancesDiv).load("multimodel/connections/fmu-instances-element.html", (event: JQueryEventObject) => {
+            this.fmuInstancesElement = new FmuInstancesElement(this.fmuInstancesDiv);
+            this.fmuInstancesElement.addData(this.mm);
+        });
+
+        $(this.connectionsDiv).load("multimodel/connections/connections.html", (event: JQueryEventObject) => {
+            this.connectionsElement = new ConnectionsElement(this.connectionsDiv);
+            this.connectionsElement.addData(this.mm);
+        });
     }
 
     public load(path: string) {
@@ -89,22 +94,39 @@ export class MmController extends IViewController {
             this.removeFmu(value);
         });
 
-        this.coeConfig = new CoeConfig();
+
+        //this.coeConfig = new CoeConfig();
         //this.coeConfig.load(path, activeProject.getRootFilePath());
-        this.coeConfig.loadFromMultiModel(path);
+        //this.coeConfig.loadFromMultiModel(path,IntoCpsApp.IntoCpsApp.getInstance().getActiveProject().getFmusPath());
         //until bind is implemented we do this manual sync
 
-        this.coeConfig.fmus.forEach((value, index, map) => {
-            this.addFmu(index + "", value.path);
+        MultiModelConfig.parse(path, IntoCpsApp.IntoCpsApp.getInstance().getActiveProject().getFmusPath()).then(mm => {
+            this.mm = mm;
+            
+            this.loadComponents(this.mm);
+            
+            mm.fmus.forEach(fmu => {
+                this.addFmu(fmu.name, fmu.path);
+            });
+
+        }).catch(e => console.error(e));
+
+
+        /* this.coeConfig.fmus.forEach((value, index, map) => {
+             path = value.description.length == 0 ? value.path : value.description;
+             this.addFmu(index + "", path);
+         });
+ */
+
+        //  this.connections = this.extractConnections(this.coeConfig.connections);
+        // this.extractOuputsAndInputs(this.mm.fmus, this.getDefinedInstances(this.mm.connections));
+
+        this.mm.fmuInstances.forEach((instance) => {
+            instance.initialValues.forEach((value, sv) => {
+                this.parametersDiv.innerHTML += Serializer.getIdSv(instance, sv) + " = " + value + "<br/>";
+            });
+
         });
-
-        this.connections = this.extractConnections(this.coeConfig.connections);
-        this.extractOuputsAndInputs(this.coeConfig.fmus, this.getDefinedInstances(this.coeConfig.connections));
-
-        this.coeConfig.parameters.forEach((value: any, index: String) => {
-            this.parametersDiv.innerHTML += "" + index + " = " + value + "<br/>";
-        });
-
     }
 
     private getConnectionInstance(id: string): string {//"{x2}.tank.valvecontrol"
@@ -132,14 +154,7 @@ export class MmController extends IViewController {
     private extractOuputsAndInputs(fmus: any, instances: string[]) {
         fmus.forEach((value: any, index: any, map: any) => {
 
-            let SESSION_PREFIX = "session:/";
-            var p = value.path;
-            if (p.indexOf(SESSION_PREFIX) == 0) {
-                //session:/
-                let remote = require("remote");
-                let app: IntoCpsApp.IntoCpsApp = remote.getGlobal("intoCpsApp");
-                p = Path.normalize(app.getActiveProject().getFmusPath() + "/" + p.substring(SESSION_PREFIX.length));
-            }
+            var p = Path.normalize(IntoCpsApp.IntoCpsApp.getInstance().getActiveProject().getFmusPath() + "/" + value.path);
 
             let fmuInstances: string[] = instances.filter((value: string) => {
                 return value.indexOf(index + "") == 0;
@@ -156,6 +171,7 @@ export class MmController extends IViewController {
         var JSZip = require("jszip");
         var fs = require("fs");
 
+        console.info(path);
         // read a zip file
         fs.readFile(path, function (err: any, data: any) {
             if (err) throw err;
@@ -269,10 +285,10 @@ export class MmController extends IViewController {
     private setOutputs(allOutputs: any) {
         let mthis = this;
         allOutputs.forEach((element: any) => {
-            $('<div>').load("multimodel/connections/output.html", function (event: BaseJQueryEventObject) {
+            $('<div>').load("multimodel/connections/list-element.html", function (event: BaseJQueryEventObject) {
                 let html: HTMLLinkElement = <HTMLLinkElement>(<HTMLDivElement>this).firstChild;
                 mthis.outputList.appendChild(html);
-                let output: OutputElement = new OutputElement(html, element, mthis.outputSelected.bind(mthis));
+                let output: ListElement = new ListElement(html, element, mthis.outputSelected.bind(mthis));
                 mthis.outputs.push(output);
             });
         });
@@ -313,8 +329,8 @@ export class MmController extends IViewController {
         }
     }
 
-    private outputSelected(output: OutputElement) {
-        this.outputs.filter((obj: OutputElement) => { return obj !== output }).forEach((obj: OutputElement) => { obj.deselect() });
+    private outputSelected(output: ListElement) {
+        this.outputs.filter((obj: ListElement) => { return obj !== output }).forEach((obj: ListElement) => { obj.deselect() });
         while (this.inputList.hasChildNodes()) {
             this.inputList.removeChild(this.inputList.firstChild);
         }
