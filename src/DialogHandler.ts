@@ -8,11 +8,16 @@ export default class DialogHandler {
     htmlPath: string;
     ipcDoActionEventName: string;
     ipcOpenEventName: string;
+    windowWidth: number;
+    windowHeight: number;
 
     win: any = null;
 
-    constructor(htmlPath: string, ipcOpenEventName: string, ipcDoActionEventName: string, doAction: (arg: any) => void) {
+    constructor(htmlPath: string, windowWidth: number,
+        windowHeight: number, ipcOpenEventName: string, ipcDoActionEventName: string, doAction: (arg: any) => void) {
         this.htmlPath = htmlPath;
+        this.windowWidth = windowWidth;
+        this.windowHeight = windowHeight;
         this.ipcDoActionEventName = ipcDoActionEventName;
         this.doAction = doAction;
         this.ipcOpenEventName = ipcOpenEventName;
@@ -20,26 +25,24 @@ export default class DialogHandler {
 
     public install() {
 
-        const electron = require('electron');
-
-        // Module to create native browser window.
-        const BrowserWindow = electron.BrowserWindow;
-
-
         //IPC handlers
-        var ipcMain = require('electron').ipcMain
-        ipcMain.on(this.ipcOpenEventName, (event, arg) => {
-            console.log(arg);  // prints "ping"
-            //event.sender.send('asynchronous-reply', 'pong');
-            this.openWindow();
-        });
+        var ipcMain = require('electron').ipcMain;
 
+        if (this.ipcOpenEventName != null) {
 
-        ipcMain.on(this.ipcDoActionEventName, (event, arg) => {
-            this.doAction(arg);
-            this.win.close();
-        });
+            ipcMain.on(this.ipcOpenEventName, (event, arg) => {
+                console.log(arg);  // prints "ping"
+                //event.sender.send('asynchronous-reply', 'pong');
+                this.openWindow();
+            });
+        }
 
+        if (this.ipcDoActionEventName != null) {
+            ipcMain.on(this.ipcDoActionEventName, (event, arg) => {
+                this.doAction(arg);
+                this.win.close();
+            });
+        }
 
     }
 
@@ -50,7 +53,7 @@ export default class DialogHandler {
         // Module to create native browser window.
         const BrowserWindow = electron.BrowserWindow;
 
-        this.win = new BrowserWindow({ width: 300, height: 200, show: false });
+        this.win = new BrowserWindow({ width: this.windowWidth, height: this.windowHeight, show: false });
 
         // Open the DevTools.
         //win.webContents.openDevTools();
