@@ -1,0 +1,11 @@
+{
+  "configPath": "",
+  "rootPath": "",
+  "name": "TEST Project",
+  "PATH_SYSML": "SysML",
+  "PATH_MULTI_MODELS": "Multi-models",
+  "PATH_MODELS": "Models",
+  "PATH_FMUS": "FMUs",
+  "configs": [],
+  "containers": []
+}

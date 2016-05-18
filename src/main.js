@@ -5,7 +5,9 @@ const fs = require('fs');
 const path = require('path');
 var settings = require("./settings/settings").default;
 var IntoCpsApp = require("./IntoCpsApp").default;
-var CreateProjectHandler = require("./proj/CreateProjectHandler").default;
+
+var DialogHandler = require("./DialogHandler").default;
+var IntoCpsAppEvents = require("./IntoCpsAppEvents");
 
 // Module to control application life.
 const app = electron.app;
@@ -16,7 +18,16 @@ let intoCpsApp = new IntoCpsApp(app, process.platform);
 
 global.intoCpsApp = intoCpsApp;
 
-var createProjectHandler = new CreateProjectHandler(global.intoCpsApp);
+let createProjectHandler=new DialogHandler("proj/new-project.html",300,200, IntoCpsAppEvents.OPEN_CREATE_PROJECT_WINDOW, "new-project-create", arg => {
+  intoCpsApp.createProject(arg.name, arg.path);
+});
+
+let openProjectHandler =new DialogHandler("proj/open-project.html",300,200, IntoCpsAppEvents.OPEN_OPEN_PROJECT_WINDOW, "open-project-open", arg => {
+  intoCpsApp.setActiveProject(intoCpsApp.loadProject(arg.path));
+});
+
+let openDownloadManagerHandler =new DialogHandler("downloadManager/DownloadManager.html",500,500, null, null, null);
+
 
 // Definitions needed for menu construction
 var defaultMenu = require('electron-default-menu')
@@ -52,9 +63,15 @@ function createWindow() {
     submenu: [
 
       {
+        label: 'Open Project',
+        click: function (item, focusedWindow) {
+          openProjectHandler.openWindow();
+        }
+
+      },{
         label: 'New Project',
         click: function (item, focusedWindow) {
-          createProjectHandler.openCreateWindow();
+          createProjectHandler.openWindow();
         }
 
       },
@@ -65,6 +82,12 @@ function createWindow() {
           settingsWin.loadURL('file://' + __dirname + '/settings/settings.html');
           //settingsWin.openDevTools();
           settingsWin.show();
+        }
+
+      },{
+        label: 'Open Download Manager',
+        click: function (item, focusedWindow) {
+          openDownloadManagerHandler.openWindow();
         }
 
       }
@@ -117,3 +140,6 @@ app.on('activate', function () {
 
 
 createProjectHandler.install();
+openProjectHandler.install();
+openDownloadManagerHandler.install();
+

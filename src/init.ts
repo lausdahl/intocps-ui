@@ -1,6 +1,6 @@
 
 import {IntoCpsAppEvents} from "./IntoCpsAppEvents";
-import * as IntoCpsApp from  "./IntoCpsApp";
+import {IntoCpsApp} from  "./IntoCpsApp";
 import {CoeController} from  "./coe/coe";
 import {MmController} from  "./multimodel/MmController";
 import {DseController} from  "./dse/dse";
@@ -46,13 +46,15 @@ class InitializationController {
     private setTitle() {
         // Set the title to the project name
         this.title = <HTMLTitleElement>document.querySelector("title");
-        let app: IntoCpsApp.IntoCpsApp = require("remote").getGlobal("intoCpsApp");
-        if (app.getActiveProject() != null) {
-            this.title.innerText = "Project: " + app.getActiveProject().getName();
+        let app: IntoCpsApp = IntoCpsApp.getInstance();
+        let p = app.getActiveProject();
+        if (p != null) {
+            this.title.innerText = "Project: " + p.getName() + " - "+p.getRootFilePath();
         }
         let ipc: Electron.IpcRenderer = require("electron").ipcRenderer;
         ipc.on(IntoCpsAppEvents.PROJECT_CHANGED, (event, arg) => {
-            this.title.innerText = "Project: " + app.getActiveProject().getName();
+            let p = app.getActiveProject();
+            this.title.innerText = "Project: " + p.getName() + " - "+p.getRootFilePath();
         });
     }
 
@@ -93,12 +95,12 @@ menuHandler.createRTTesterProject = (path) => {
 
 menuHandler.openSysMlExport = () => {
     $(init.mainView).load("sysmlexport/sysmlexport.html");
-    IntoCpsApp.IntoCpsApp.setTopName("SysML Export");
+    IntoCpsApp.setTopName("SysML Export");
 };
 
 menuHandler.openFmu = () => {
     $(init.mainView).load("fmus/fmus.html");
-    IntoCpsApp.IntoCpsApp.setTopName("FMUs");
+    IntoCpsApp.setTopName("FMUs");
 };
 
 menuHandler.openDseView = (path) => {
