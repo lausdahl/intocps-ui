@@ -2,6 +2,10 @@
 import {SourceDom} from "../sourceDom";
 import {IViewController} from "../iViewController";
 import {IntoCpsApp} from "../IntoCpsApp"
+import * as Settings from  "../settings/settings"
+import {SettingKeys} from "../settings/SettingKeys";
+import Path = require('path');
+
 
 export class CreateRTTesterProjectController extends IViewController {
 
@@ -25,24 +29,30 @@ export class CreateRTTesterProjectController extends IViewController {
         }
     }
 
-    createProject() {
+    createProject(): void {
         document.getElementById("CreationParameters").style.display = 'none';
-        document.getElementById("OutputText").style.display = "visible";
-
+        document.getElementById("Output").style.display = "block";
         var hPath: HTMLInputElement = <HTMLInputElement>document.getElementById("XMIModelPathText");
-        var PythonShell = require('python-shell');
-        var options = {
-            mode: "text",
-            // TODO: Fix path
-            // scriptPath: "...",
-            args: ["-h"]
-        };
-        PythonShell.run("rtt-mbt-create-fmi2-project.py", options, function (err: any, results: any) {
-            if (err) throw err;
-            var hOutput: HTMLTextAreaElement = <HTMLTextAreaElement>document.getElementById("OutputText");
-            var text: string = results.join("\n"); 
-            hOutput.textContent = text;
-            console.log('results: ' + text);
+        var hOutputText: HTMLTextAreaElement = <HTMLTextAreaElement>document.getElementById("OutputText");
+        let app: IntoCpsApp = IntoCpsApp.getInstance();
+        let settings = app.getSettings();
+        let script = Path.normalize(settings.getSetting(SettingKeys.RTTESTER_MBT_INSTALL_DIR));
+        script = Path.join(script, "bin/rtt-mbt-create-fmi2-project.py");
+
+        const spawn = require('child_process').spawn;
+        var pythonPath = Path.normalize(settings.getSetting(SettingKeys.RTTESTER_PYTHON));
+        const process = spawn(pythonPath, [script, "--skip-rttui", hPath.value]);
+        process.stdout.on('data', (data: string) => {
+            hOutputText.textContent += data + "\n";
+            hOutputText.scrollTop = hOutputText.scrollHeight;
+        });
+        process.stderr.on('data', (data: string) => {
+            hOutputText.textContent += data + "\n";
+            hOutputText.scrollTop = hOutputText.scrollHeight;
+        });
+        process.on('close', (code: number) => {
+            document.getElementById("scriptRUN").style.display = "none";
+            document.getElementById(code == 0 ? "scriptOK" : "scriptFAIL").style.display = "block";
         });
     }
 
