@@ -10,7 +10,7 @@ export class CheckboxInstanceListElement<T> extends InstanceListElement<T> {
         super(listElement, name, selected, instance);
         this.checkBox = <HTMLInputElement>this.listElement.querySelector("#" + this.checkBoxId);
         // The checkbox does not need an onclick handler, because one is already available on the entire list element.
-        //this.checkBox.onclick = this.select.bind(this);
+        // this.checkBox.onclick = this.select.bind(this);
     }
 
     getChecked(): boolean {

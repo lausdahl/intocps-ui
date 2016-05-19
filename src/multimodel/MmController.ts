@@ -7,13 +7,11 @@
 import * as Main from  "../settings/settings"
 import * as IntoCpsApp from  "../IntoCpsApp"
 import {IntoCpsAppEvents} from "../IntoCpsAppEvents";
-import {Fmu} from "./fmu"
 import * as Collections from 'typescript-collections';
 import {MultiModelConfig, Serializer} from "../intocps-configurations/intocps-configurations";
 
 import {IProject} from "../proj/IProject";
 import {SettingKeys} from "../settings/SettingKeys";
-import {Input} from "./connections/input";
 import {ListElement} from "./connections/list-element";
 import {IViewController} from "../iViewController";
 import {SourceDom} from "../sourceDom";
@@ -25,22 +23,9 @@ import Path = require('path');
 
 export class MmController extends IViewController {
     mm: MultiModelConfig = new MultiModelConfig();
-
-    private fmuCounter: number = 0;
-    private fmusDiv: HTMLDivElement;
-    private fmus: Fmu[] = [];
     private multiModelFmusDiv: HTMLDivElement;
+    private fmuAddButton: HTMLButtonElement;
     private fmuKeysElement: FmuKeys
-
-
-    private outputList: HTMLUListElement;
-    private outputs: ListElement[] = [];
-    private inputList: HTMLUListElement;
-    private inputs: Input[] = [];
-    private allInputs: any = [];
-    private allOutputs: any = [];
-    private connections: any = [];
-    private selectedOutput: ListElement;
 
     private parametersDiv: HTMLDivElement;
 
@@ -57,13 +42,11 @@ export class MmController extends IViewController {
     initialize(sourceDom: SourceDom) {
         IntoCpsApp.IntoCpsApp.setTopName("Multi-Model");
 
-        this.fmusDiv = <HTMLDivElement>document.getElementById("fmusDiv");
         this.parametersDiv = <HTMLDivElement>document.getElementById("parametersDiv");
-        this.outputList = <HTMLUListElement>document.getElementById("connections-outputs");
-        this.inputList = <HTMLUListElement>document.getElementById("connections-inputs");
         this.fmuInstancesDiv = <HTMLDivElement>document.getElementById("multimodel-fmu-instances");
         this.connectionsDiv = <HTMLDivElement>document.getElementById("multimodel-connections");
         this.multiModelFmusDiv = <HTMLDivElement>document.getElementById("multimodel-fmus");
+        this.fmuAddButton = <HTMLButtonElement>document.getElementById("multimodel-fmu-add");
         this.parametersDiv.innerHTML = "";
 
         var remote = require('remote');
@@ -73,11 +56,6 @@ export class MmController extends IViewController {
             console.log("project-changed");  // prints "ping"
 
         });
-
-        this.allInputs = [];
-        this.allOutputs = [];
-        this.connections = [];
-
         this.load(sourceDom.getPath());
     }
 
@@ -95,13 +73,11 @@ export class MmController extends IViewController {
         $(this.multiModelFmusDiv).load("multimodel/fmu-keys/fmu-keys.html", (event: JQueryEventObject) => {
             this.fmuKeysElement = new FmuKeys(<HTMLDivElement>this.multiModelFmusDiv.firstChild);
             this.fmuKeysElement.addData(this.mm);
+            this.fmuAddButton.onclick = () => this.fmuKeysElement.addFmu();
         });
     }
 
     public load(path: string) {
-        this.fmus.forEach((value: Fmu, index: number, array: Fmu[]) => {
-            this.removeFmu(value);
-        });
 
 
         //this.coeConfig = new CoeConfig();
@@ -111,24 +87,8 @@ export class MmController extends IViewController {
 
         MultiModelConfig.parse(path, IntoCpsApp.IntoCpsApp.getInstance().getActiveProject().getFmusPath()).then(mm => {
             this.mm = mm;
-            
             this.loadComponents(this.mm);
-            
-            mm.fmus.forEach(fmu => {
-                this.addFmu(fmu.name, fmu.path);
-            });
-
         }).catch(e => console.error(e));
-
-
-        /* this.coeConfig.fmus.forEach((value, index, map) => {
-             path = value.description.length == 0 ? value.path : value.description;
-             this.addFmu(index + "", path);
-         });
- */
-
-        //  this.connections = this.extractConnections(this.coeConfig.connections);
-        // this.extractOuputsAndInputs(this.mm.fmus, this.getDefinedInstances(this.mm.connections));
 
         this.mm.fmuInstances.forEach((instance) => {
             instance.initialValues.forEach((value, sv) => {
@@ -203,17 +163,14 @@ export class MmController extends IViewController {
                         while (thisNode) {
 
                             instances.forEach((value: string) => {
-
                                 let id = value + "." + thisNode.textContent
                                 console.info(" ScalarVariable output: " + id);
-                                _this.allOutputs.push(id);
                                 outputs.push(id);
                             });
 
                             thisNode = iterator.iterateNext();
                         }
 
-                        _this.setOutputs(outputs);
 
 
                         var iterator = document.evaluate('//ScalarVariable[@causality="input"]/@name', oDOM, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
@@ -221,20 +178,12 @@ export class MmController extends IViewController {
                         var thisNode = iterator.iterateNext();
 
                         while (thisNode) {
-
                             instances.forEach((value: string) => {
-
                                 let id = value + "." + thisNode.textContent
                                 console.info(" ScalarVariable input: " + id);
-                                _this.allInputs.push(id);
-
                             });
-
-
                             thisNode = iterator.iterateNext();
                         }
-
-
                     });
             });
         });
@@ -254,96 +203,5 @@ export class MmController extends IViewController {
 
         });
         return cons;
-    }
-
-
-    removeFmu(fmu: Fmu) {
-        if (this.fmusDiv.contains(fmu.getHtml()))
-            this.fmusDiv.removeChild(fmu.getHtml());
-        this.fmus.splice(this.fmus.indexOf(fmu), 1);
-    };
-
-    addFmu(fmuName: string, path: string) {
-        // https://forum.jquery.com/topic/load-but-append-data-instead-of-replace
-        let self = this;
-        $('<div>').load("multimodel/fmu.html", function (event: JQueryEventObject) {
-            let fmuHtml: HTMLElement = <HTMLElement>(<HTMLDivElement>this).firstChild;
-            let name = fmuName == null ? "{FMU" + self.fmuCounter + "}" : fmuName;
-            let newFmu: Fmu = new Fmu(fmuHtml, self.removeFmu.bind(self), name, path);
-            self.fmus.push(newFmu);
-            self.fmusDiv.appendChild(fmuHtml);
-            self.fmuCounter++;
-        });
-    }
-
-
-    private setConnectionsExample() {
-        this.setConnections({ "output1": ["input1", "input2"], "output2": ["input3"] }, ["output1", "output2", "output3"], ["input1", "input2", "input3"]);
-    }
-
-    setConnections(connections: any, allOutputs: Array<string>, allInputs: Array<string>) {
-
-        //Add all outputs to the list
-        this.connections = connections;
-        this.allOutputs = allOutputs;
-        this.allInputs = allInputs;
-        this.setOutputs(allOutputs);
-    }
-
-    //Add all the outputs to the output list
-    private setOutputs(allOutputs: any) {
-        let mthis = this;
-        allOutputs.forEach((element: any) => {
-            $('<div>').load("multimodel/connections/list-element.html", function (event: BaseJQueryEventObject) {
-                let html: HTMLLinkElement = <HTMLLinkElement>(<HTMLDivElement>this).firstChild;
-                mthis.outputList.appendChild(html);
-                let output: ListElement = new ListElement(html, element, mthis.outputSelected.bind(mthis));
-                mthis.outputs.push(output);
-            });
-        });
-    }
-
-    //Based on a given output populate the input list.
-    //If the given output also exists in connections, mark checked as true.
-    private setInputs(output: string) {
-        let mthis = this;
-        this.allInputs.forEach((inputName: string) => {
-            $('<div>').load("multimodel/connections/input.html", function (event: BaseJQueryEventObject) {
-                let html: HTMLLinkElement = <HTMLLinkElement>(<HTMLDivElement>this).firstChild;
-                mthis.inputList.appendChild(html);
-
-                var checked: boolean = false;
-                if (output in mthis.connections && (<Array<String>>mthis.connections[output]).indexOf(inputName) > -1) {
-                    checked = true;
-                }
-                let input: Input = new Input(html, inputName, checked, mthis.inputChanged.bind(mthis));
-                mthis.inputs.push(input);
-            });
-        });
-    }
-
-    private inputChanged(input: Input) {
-        if (!(this.selectedOutput.getName() in this.connections)) {
-            this.connections[this.selectedOutput.getName()] = [];
-        }
-        let outputConnections: Array<string> = <Array<string>>this.connections[this.selectedOutput.getName()];
-        if (input.getChecked()) {
-            outputConnections.push(input.getName());
-        }
-        else {
-            outputConnections.splice(outputConnections.indexOf(input.getName()), 1);
-            if (outputConnections.length === 0) {
-                delete this.connections[this.selectedOutput.getName()];
-            }
-        }
-    }
-
-    private outputSelected(output: ListElement) {
-        this.outputs.filter((obj: ListElement) => { return obj !== output }).forEach((obj: ListElement) => { obj.deselect() });
-        while (this.inputList.hasChildNodes()) {
-            this.inputList.removeChild(this.inputList.firstChild);
-        }
-        this.setInputs(output.getName());
-        this.selectedOutput = output;
     }
 }

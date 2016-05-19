@@ -1,7 +1,7 @@
 import * as Configs from "../../intocps-configurations/intocps-configurations";
 import {ListElement} from "./list-element"
 import {InstanceListElement} from "./connections-instance-element";
-import {CheckboxInstanceListElement} from "./checkbox-output-element"
+import {CheckboxInstanceListElement} from "./checkbox-list-element";
 
 
 enum InstanceSelection {

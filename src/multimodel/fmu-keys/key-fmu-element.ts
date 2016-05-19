@@ -14,6 +14,7 @@ export class KeyFmuElement {
     removeCallback: (element: KeyFmuElement) => void;
     constructor(container: HTMLDivElement, fmu: Configs.Fmu, keyChangeCallback: (element: KeyFmuElement, text: string) => boolean, removeCallback: (element: KeyFmuElement) => void, newFmu: boolean) {
         this.container = container;
+        
         this.fmu = fmu;
         this.keyChangeCallback = keyChangeCallback;
         this.removeCallback = removeCallback;
@@ -37,16 +38,12 @@ export class KeyFmuElement {
 
     private initializeKey(newFmu: boolean) {
         this.keyContainer = <HTMLDivElement>this.container.querySelector("#multimodel-fmu_keys-key");
-        let self = this;
-        $(this.keyContainer).load("./multimodel/fmu-keys/text-input.html", function (event: BaseJQueryEventObject) {
-            let html: HTMLDivElement = <HTMLDivElement>(<HTMLDivElement>this).firstChild;
-            self.keyElement = new TextInput(html, self.fmu.name, self.textChanged.bind(self), newFmu ? TextInputState.EDIT : TextInputState.OK)
-        });
+        this.keyElement = new TextInput(this.fmu.name, this.textChanged.bind(this), () => {this.keyContainer.appendChild(this.keyElement.container);}, newFmu ? TextInputState.EDIT : TextInputState.OK);
     }
 
     private initializeBrowseComponent(fmu: Configs.Fmu) {
         this.pathContainer = <HTMLDivElement>this.container.querySelector("#multimodel-fmu_keys-path");
-        this.pathTextField = <HTMLInputElement>this.pathContainer.querySelector("#fmuPath");
+        this.pathTextField = <HTMLInputElement>this.container.querySelector("#fmuPath");
         if (fmu.path != null) {
             this.pathTextField.value = fmu.path;
         }
