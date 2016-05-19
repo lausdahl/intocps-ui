@@ -110,7 +110,7 @@ export class CoeSimulationRunner {
         $.getJSON(this.getHttpUrl() + this.createSessionCmd)
             .fail(function (err: any) {
                 console.log("error: " + err);
-                this.setErrorMessage("Could not create settion");
+                self.setErrorMessage("Could not create settion");
             })
             .done(function (data: any) {
                 console.log("data:" + data);
