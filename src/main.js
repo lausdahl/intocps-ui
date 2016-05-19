@@ -18,13 +18,15 @@ let intoCpsApp = new IntoCpsApp(app, process.platform);
 
 global.intoCpsApp = intoCpsApp;
 
-let createProjectHandler=new DialogHandler("proj/new-project.html", IntoCpsAppEvents.OPEN_CREATE_PROJECT_WINDOW, "new-project-create", arg => {
+let createProjectHandler=new DialogHandler("proj/new-project.html",300,200, IntoCpsAppEvents.OPEN_CREATE_PROJECT_WINDOW, "new-project-create", arg => {
   intoCpsApp.createProject(arg.name, arg.path);
 });
 
-let openProjectHandler =new DialogHandler("proj/open-project.html", IntoCpsAppEvents.OPEN_OPEN_PROJECT_WINDOW, "open-project-open", arg => {
+let openProjectHandler =new DialogHandler("proj/open-project.html",300,200, IntoCpsAppEvents.OPEN_OPEN_PROJECT_WINDOW, "open-project-open", arg => {
   intoCpsApp.setActiveProject(intoCpsApp.loadProject(arg.path));
 });
+
+let openDownloadManagerHandler =new DialogHandler("downloadManager/DownloadManager.html",500,500, null, null, null);
 
 
 // Definitions needed for menu construction
@@ -82,6 +84,12 @@ function createWindow() {
           settingsWin.show();
         }
 
+      },{
+        label: 'Open Download Manager',
+        click: function (item, focusedWindow) {
+          openDownloadManagerHandler.openWindow();
+        }
+
       }
     ]
   })
@@ -133,4 +141,5 @@ app.on('activate', function () {
 
 createProjectHandler.install();
 openProjectHandler.install();
+openDownloadManagerHandler.install();
 

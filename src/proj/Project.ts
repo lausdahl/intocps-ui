@@ -6,7 +6,6 @@ import Path = require('path');
 
 import {IProject} from "./IProject"
 import {Container} from "./Container"
-import {Config} from "./Config"
 import {ProjectSettings} from "./ProjectSettings"
 
 export class Project implements IProject {
@@ -15,7 +14,6 @@ export class Project implements IProject {
     rootPath: string;
     configPath: string;
     containers: Array<Container> = [];
-    configs: Array<Config> = [];
 
 
 
@@ -50,11 +48,6 @@ export class Project implements IProject {
         return this.containers;
     }
 
-    public getConfigs() {
-        return this.configs;
-    }
-
-
     public getSysMlFolderName(): String {
         return this.PATH_SYSML;
     }
@@ -80,7 +73,13 @@ export class Project implements IProject {
                 "The error: " + err + " happened when attempting to open the file: " + this.configPath + " for writing.";
             }
             else {
-                fs.write(fd, JSON.stringify(this), (err) => {
+                var obj :any = new Object();
+                Object.assign(obj,this);
+                 obj.configPath="";
+                obj.rootPath="";
+                
+                
+                fs.write(fd, JSON.stringify(obj), (err) => {
                     if (err) {
                         console.log("Failed to write settings in : " + this.configPath + ".");
                     }

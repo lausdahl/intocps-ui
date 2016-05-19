@@ -1,4 +1,4 @@
-// ITC Marking: UTC Proprietary - Export Controlled - Created at UTRC-I, ECCN NLR
+// ITC Marking: Export Controlled - Created at UTRC-I, ECCN NLR
 // Copyright UTRC 2016
 
 'use strict';
@@ -13,7 +13,7 @@ var outputPath = 'dist/',
     resourcesFolder = 'src/resources',
     typingsFolder = 'typings',
     cssSrcs = [bowerFolder + '/bootstrap/dist/css/bootstrap.css',
-        resourcesFolder + '/w2ui-1.5/w2ui.min.css'],
+    resourcesFolder + '/w2ui-1.5/w2ui.min.css'],
     bowerSrcs = "";
 
 // Tools.
@@ -28,7 +28,12 @@ var gulp = require('gulp'),
     debug = require('gulp-debug'),
     typings = require('gulp-typings'),
     bower = require('gulp-bower'),
-    merge = require('merge-stream');
+    merge = require('merge-stream'),
+    electron = require('gulp-electron'),
+    packager = require('electron-packager');
+    //packageJson = require('./package.json');
+
+    
 
 // Tasks
 
@@ -107,6 +112,53 @@ gulp.task('init', ['install-ts-defs', 'install-bower-components']);
 
 //Build App
 gulp.task('build', ['compile-ts', 'copy-js', 'copy-html', 'copy-css', 'copy-bower', 'copy-fonts']);
+
+
+// P]ackage app into binary
+
+gulp.task("create-package", function(callback) {
+    var options = {
+        dir: '.',
+        name: "blah",
+        platform: "win32",
+        arch: "x64",
+        version: "0.36.0",
+        overwrite:true,
+        icon: 'into-cps-logo.png.ico',
+        out: 'pkg',
+        "app-version": "0.4.5",
+        "version-string": {
+            "CompanyName": "blah",
+            "ProductName": "blah"
+        }
+    };
+    packager(options, function done (err, appPath) {
+        if(err) { return console.log(err); }
+        callback();
+    });
+});
+
+//gulp.task('package', function () {
+    //gulp.src("")
+    //.pipe(electron({
+        //src: './dist/**',
+        //packageJson: packageJson,
+        //release: './release',
+        //cache: './cache',
+        //version: 'v0.36.11',
+        //packaging: false,
+        //platforms: ['win32'],
+        //platformResources: {
+            //win: {
+                //"version-string": packageJson.version,
+                //"file-version": packageJson.version,
+                //"product-version": packageJson.version,
+                //"icon": 'into-cps-logo.png.ico'
+            //}
+        //}
+    //}))
+    //.pipe(gulp.dest(""));
+//});
 
 
 // Watch for changes and rebuild on the fly

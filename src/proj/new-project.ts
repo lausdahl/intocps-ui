@@ -3,7 +3,7 @@
 function launchProjectExplorer() {
     let remote = require("remote");
     let dialog = remote.require("dialog");
-    let dialogResult: string[] = dialog.showOpenDialog({ properties: ["openDirectory"] });
+    let dialogResult: string[] = dialog.showOpenDialog({ properties: ["openDirectory","createDirectory"] });
     if (dialogResult != undefined) {
 
         var p: HTMLInputElement = <HTMLInputElement>document.getElementById("projectRootPathText");
