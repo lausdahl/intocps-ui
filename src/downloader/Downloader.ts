@@ -85,7 +85,7 @@ export function downloadTool(tool: any, targetDirectory: string, progressCallbac
                 if (newMd5sum == md5sum) {
                     resolve(filePath);
                 } else {
-                    reject("Bad MD5");
+                    reject("Bad MD5 expected: '"+md5sum + "' got: '"+newMd5sum+"'");
                 }
             }, function (error: string) {
                 reject(error);

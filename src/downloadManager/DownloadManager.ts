@@ -69,14 +69,18 @@ function fetchList() {
     var url = IntoCpsApp.getInstance().getSettings().getValue(SettingKeys.UPDATE_SITE);
 
     if (url == null || url == undefined) {
-        url = "https://raw.githubusercontent.com/into-cps/release-site/master/download/versions.json";
+        url = "https://raw.githubusercontent.com/into-cps/release-site/master/download/";
         IntoCpsApp.getInstance().getSettings().setValue(SettingKeys.UPDATE_SITE, url);
 
     }
 
     var panel: HTMLInputElement = <HTMLInputElement>document.getElementById("tool-versions-panel");
 
-    downloader.fetchVersionList(url).then(data => {
+    while (panel.hasChildNodes()) {
+        panel.removeChild(panel.lastChild);
+    }
+
+    downloader.fetchVersionList(url + "versions.json").then(data => {
         //   console.log(JSON.stringify(data) + "\n");
         //   console.log("Fetching version 0.0.6");
 
@@ -103,15 +107,17 @@ function fetchList() {
 
             divStatus.innerHTML = version;/// +" - "data[version];
             divStatus.onclick = function (e) {
-                downloader.fetchVersion(data[version]).then(dataVersion => {
+                downloader.fetchVersion(url + data[version]).then(dataVersion => {
                     showVersion(version, dataVersion);
                 });
             };
+
+
             divVersions.appendChild(divStatus);
         });
 
 
-        panel.appendChild(createPanel("Versions", divVersions));
+        panel.appendChild(createPanel("Releases", divVersions));
         //return downloader.fetchVersion(data[versions[0]]);
     });
 
@@ -143,10 +149,19 @@ function showVersion(version: string, data: any) {
 
         var divTool = document.createElement("li");
         divTool.className = "list-group-item";
-        divTool.innerHTML = tool.name + " - " + tool.description + " (" + tool.version + ")";
+        divTool.innerText = tool.name + " - " + tool.description + " (" + tool.version + ") ";
         div.appendChild(divTool);
 
-        divTool.onclick = function (e) {
+        let btn = document.createElement("button");
+        //button type="button" class="btn btn-default btn-sm"
+        btn.type = "button";
+        btn.className = "btn btn-default btn-sm";
+        var icon = document.createElement("span");
+        icon.className = "glyphicon glyphicon-save";
+        btn.appendChild(icon);
+        divTool.appendChild(btn);
+
+        btn.onclick = function (e) {
             let remote = require("remote");
             let dialog = remote.require("dialog");
             let buttons: string[] = ["No", "Yes"];
@@ -174,7 +189,7 @@ function showVersion(version: string, data: any) {
         divT.removeChild(divT.lastChild);
     }
 
-    divT.appendChild(createPanel("Tools in version: " + data.version, div));
+    divT.appendChild(createPanel("Overview - Release: " + data.version, div));
 
     //console.log("Downloading tool: Overture Tool Wrapper");
     // panel.appendChild(createPanel("Downloading: Overture Tool Wrapper", document.createElement("div")));
