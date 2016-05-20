@@ -97,30 +97,48 @@ export class CoeController extends IViewController {
         }
     }
 
+    private clearCoeStatus() {
+        var div = <HTMLElement>document.getElementById("coe-status");
+        while (div.hasChildNodes()) {
+            div.removeChild(div.lastChild);
+        }
+    }
+
     private checkCoeConnection() {
         let self = this;
-        $.getJSON("http://" + this.getCoeUrl() + "/version")
-            .fail(function (err: any) {
+        new Promise<void>(resolve => {
+            let p = $.getJSON("http://" + this.getCoeUrl() + "/version");
+            setTimeout(function () { p.abort(); }, 1500);
+            p.fail(function (err: any) {
                 var div = <HTMLInputElement>document.getElementById("coe-status");
+                self.clearCoeStatus();
 
                 var divStatus = document.createElement("div");
                 divStatus.className = "alert alert-danger";
                 divStatus.innerHTML = "Co-Simulation Engine, offline no connection at: " + self.getCoeUrl();
                 div.appendChild(divStatus);
+
+                setTimeout(function () {
+                    self.checkCoeConnection();
+                }, 5000);
+
             })
-            .done(function (data: any) {
-                var div = <HTMLInputElement>document.getElementById("coe-status");
+                .done(function (data: any) {
+                    var div = <HTMLInputElement>document.getElementById("coe-status");
+                    self.clearCoeStatus();
+                    var divStatus = document.createElement("div");
+                    divStatus.className = "alert alert-info";
+                    divStatus.innerHTML = "Co-Simulation Engine, version: " + data.version + ", online at: " + self.getCoeUrl();
+                    div.appendChild(divStatus);
 
-                var divStatus = document.createElement("div");
-                divStatus.className = "alert alert-info";
-                divStatus.innerHTML = "Co-Simulation Engine, version: " + data.version + ", online at: " + self.getCoeUrl();
-                div.appendChild(divStatus);
-
-                var simulationPaneDiv = <HTMLElement>document.getElementById("simulation-pane");
-                simulationPaneDiv.style.visibility = "visible";
+                    var simulationPaneDiv = <HTMLElement>document.getElementById("simulation-pane");
+                    simulationPaneDiv.style.visibility = "visible";
 
 
-            });
+                }).always(function () {
+                    console.info("always connection check");
+                })
+        });
     }
 
     initializeChart() {
