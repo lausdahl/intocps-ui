@@ -3,7 +3,7 @@
 console = require("console");
 downloader = require("../dist/downloader/Downloader");
 
-
+const VERSIONS_URL = "http://overture.au.dk/into-cps/site/download/versions.json";
 function progress(state) {
   console.log(parseInt(state.percentage * 100, 10) + "%");
 }
@@ -12,7 +12,7 @@ function progress(state) {
 function testDownloadAndUnpack() {
   var tool;
   console.log("Fetching list of available version")
-  return downloader.fetchVersionList()
+  return downloader.fetchVersionList(VERSIONS_URL)
   .then(function (data) {
     console.log(JSON.stringify(data) + "\n");
     console.log("Fetching version 0.0.6");

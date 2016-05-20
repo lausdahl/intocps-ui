@@ -28,7 +28,28 @@ function createPanel(title: string, content: HTMLElement): HTMLElement {
     return divPanel;
 }
 
+function getTempDir(): string {
+    let tempDir = IntoCpsApp.getInstance().getSettings().getValue(SettingKeys.INSTALL_TMP_DIR);
+    if (tempDir == null || tempDir == undefined) {
+        if (IntoCpsApp.getInstance().getActiveProject() == null) {
+            let remote = require("remote");
+            let dialog = remote.require("dialog");
+            dialog.showErrorBox("No active project", "No Active project loaded, please load and try again.");
+            return;
+        }
+        tempDir = Path.join(IntoCpsApp.getInstance().getActiveProject().getRootFilePath(), "downloads");
+    }
+    try {
+        fs.mkdirSync(tempDir);
+    } catch (e) { }
+    return tempDir;
+}
+
 function progress(state: any) {
+    if (state == 1) {
+        setProgress(100);
+        return;
+    }
     let pct = parseInt((state.percentage * 100) + "", 10);
     console.log(pct + "%");
     setProgress(pct);
@@ -44,51 +65,122 @@ function setProgress(progress: number) {
 }
 
 function fetchList() {
-    var tool: any;
-    let tempDir = IntoCpsApp.getInstance().getSettings().getValue(SettingKeys.INSTALL_TMP_DIR);
-    if (tempDir == null || tempDir == undefined) {
-        tempDir = Path.join(IntoCpsApp.getInstance().getActiveProject().getRootFilePath(), "downloads");
+
+    var url = IntoCpsApp.getInstance().getSettings().getValue(SettingKeys.UPDATE_SITE);
+
+    if (url == null || url == undefined) {
+        url = "https://raw.githubusercontent.com/into-cps/release-site/master/download/versions.json";
+        IntoCpsApp.getInstance().getSettings().setValue(SettingKeys.UPDATE_SITE, url);
+
     }
-    try {
-        fs.mkdirSync(tempDir);
-    } catch (e) { }
 
     var panel: HTMLInputElement = <HTMLInputElement>document.getElementById("tool-versions-panel");
 
-    downloader.fetchVersionList().then(data => {
-        console.log(JSON.stringify(data) + "\n");
-        console.log("Fetching version 0.0.6");
+    downloader.fetchVersionList(url).then(data => {
+        //   console.log(JSON.stringify(data) + "\n");
+        //   console.log("Fetching version 0.0.6");
 
+        var versions: string[] = [];
 
         var divVersions = document.createElement("div");
 
         $.each(Object.keys(data), (j, key) => {
+            let version = key;
+            versions.push(version);
+        });
+
+        //sort
+        versions = versions.sort(downloader.compareVersions);
+        //highest version first
+        versions = versions.reverse();
+
+
+        var divVersions = document.createElement("div");
+
+        versions.forEach(version => {
             var divStatus = document.createElement("div");
-            //divStatus.className = "alert alert-danger";
-            divStatus.innerHTML = data[key];
+            divStatus.className = "alert alert-info";
+
+            divStatus.innerHTML = version;/// +" - "data[version];
+            divStatus.onclick = function (e) {
+                downloader.fetchVersion(data[version]).then(dataVersion => {
+                    showVersion(version, dataVersion);
+                });
+            };
             divVersions.appendChild(divStatus);
         });
+
+
         panel.appendChild(createPanel("Versions", divVersions));
-        return downloader.fetchVersion(data["0.0.6"]);
-    }).then(function (data) {
-        console.log(JSON.stringify(data) + "\n");
-
-        var div = document.createElement("div");
-        $.each(Object.keys(data.tools), (j, key) => {
-
-            let tool = data.tools[key];
-            var divTool = document.createElement("div");
-            //divStatus.className = "alert alert-danger";
-            divTool.innerHTML = tool.name + " (" + tool.version + ") - " + tool.description;
-            div.appendChild(divTool);
-        });
-        panel.appendChild(createPanel("Tools in version: " + data.version, div));
-
-        console.log("Downloading tool: Overture Tool Wrapper");
-        panel.appendChild(createPanel("Downloading: Overture Tool Wrapper", document.createElement("div")));
-        tool = data.tools.overtureToolWrapper;
-        return downloader.downloadTool(tool, tempDir, progress);
+        //return downloader.fetchVersion(data[versions[0]]);
     });
+
+}
+
+function showVersion(version: string, data: any) {
+
+    var panel: HTMLInputElement = <HTMLInputElement>document.getElementById("tool-versions-panel");
+    // var tool: any;
+    // console.log(JSON.stringify(data) + "\n");
+
+    var div = document.createElement("ul");
+    div.className = "list-group";
+    $.each(Object.keys(data.tools), (j, key) => {
+
+        let tool = data.tools[key];
+
+        var supported = false;
+        let platform = downloader.getSystemPlatform();
+        let platforms = tool.platforms;
+        Object.keys(tool.platforms).forEach(pl => {
+            if (pl.indexOf(platform) == 0) {
+                supported = true;
+            }
+        });
+
+        if (!supported)
+            return;
+
+        var divTool = document.createElement("li");
+        divTool.className = "list-group-item";
+        divTool.innerHTML = tool.name + " - " + tool.description + " (" + tool.version + ")";
+        div.appendChild(divTool);
+
+        divTool.onclick = function (e) {
+            let remote = require("remote");
+            let dialog = remote.require("dialog");
+            let buttons: string[] = ["No", "Yes"];
+            dialog.showMessageBox({ type: 'question', buttons: buttons, message: "Download: " + tool.name + " (" + tool.version + ")" }, function (button: any) {
+                if (button == 1)//yes
+                {
+                    downloader.downloadTool(tool, getTempDir(), progress).then(function (filePath) {
+                        console.log("Download complete: " + filePath);
+                        dialog.showMessageBox({ type: 'info', buttons: ["OK"], message: "Download completed: " + filePath }, function (button: any) { });
+                        //console.log("Unpacking tool");
+                    });
+                }
+            });
+        };
+    });
+
+    var divT = document.getElementById("toolsversion");
+    if (divT == undefined) {
+        divT = document.createElement("div");
+        divT.id = "toolsversion";
+        panel.appendChild(divT);
+    }
+
+    while (divT.hasChildNodes()) {
+        divT.removeChild(divT.lastChild);
+    }
+
+    divT.appendChild(createPanel("Tools in version: " + data.version, div));
+
+    //console.log("Downloading tool: Overture Tool Wrapper");
+    // panel.appendChild(createPanel("Downloading: Overture Tool Wrapper", document.createElement("div")));
+    // tool = data.tools.overtureToolWrapper;
+    //return downloader.downloadTool(tool, getTempDir(), progress);
+
     /*.then(function (filePath) {
         console.log("Download complete: " + filePath);
         console.log("Unpacking tool");

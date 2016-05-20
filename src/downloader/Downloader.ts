@@ -8,10 +8,10 @@ let hash = require("md5-promised");
 let unzip = require("unzip");
 
 
-const VERSIONS_URL = "http://overture.au.dk/into-cps/site/download/versions.json";
 
 
-function getSystemPlatform() {
+
+export function getSystemPlatform() {
     let arch: string;
     if (process.arch == "ia32") {
         arch = "32";
@@ -37,10 +37,10 @@ function getSystemPlatform() {
 const SYSTEM_PLATFORM = getSystemPlatform();
 
 
-export function fetchVersionList(): Promise<any> {
+export function fetchVersionList(url:string): Promise<any> {
     return new Promise<any>((resolve, reject) => {
         // let data = new Stream<string>();
-        request({url: VERSIONS_URL, json: true}, function (
+        request({url: url, json: true}, function (
                 error: Error, response: http.IncomingMessage, body: any) {
             if (!error && response.statusCode == 200) {
                 resolve(body);
@@ -80,6 +80,7 @@ export function downloadTool(tool: any, targetDirectory: string, progressCallbac
             reject(error);
         })
         .on("end", function () {
+            progressCallback(1);
             hash(filePath).then(function (newMd5sum: string) {
                 if (newMd5sum == md5sum) {
                     resolve(filePath);
@@ -131,4 +132,22 @@ export function installTool(tool: any, filePath: string, targetDirectory: string
     } else {
         throw new Error(`Unsupported action: ${action}`);
     }
+}
+
+
+
+export function compareVersions (a:string, b:string) {
+    var i:number, diff:number;
+    var regExStrip0 = /(\.0+)+$/;
+    var segmentsA = a.replace(regExStrip0, '').split('.');
+    var segmentsB = b.replace(regExStrip0, '').split('.');
+    var l = Math.min(segmentsA.length, segmentsB.length);
+
+    for (i = 0; i < l; i++) {
+        diff = parseInt(segmentsA[i], 10) - parseInt(segmentsB[i], 10);
+        if (diff) {
+            return diff;
+        }
+    }
+    return segmentsA.length - segmentsB.length;
 }

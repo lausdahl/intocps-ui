@@ -9,4 +9,5 @@ export namespace SettingKeys {
     export var COE_URL = "coe_host_url";
     export var COE_DEBUG_ENABLED = "coe_debug_enabled";
     export var COE_REMOTE_HOST = "coe_remote_host";
+    export var UPDATE_SITE = "update_site";
 }
