@@ -11,11 +11,8 @@ export class CreateRTTesterProjectController extends IViewController {
 
     constructor(protected viewDiv: HTMLDivElement) {
         super(viewDiv);
-    };
-
-    initialize(sourceDom: SourceDom): void {
         IntoCpsApp.setTopName("RT-Tester Project");
-    }
+    };
 
     xmiModelBrowser() {
         let remote = require("remote");
