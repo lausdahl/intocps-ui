@@ -14,7 +14,7 @@ export namespace SettingKeys {
     export var RTTESTER_PYTHON: string = "rttester_python_executable";
 
     export var DEFAULT_VALUES:  { [key: string]: any; } = {};
-    DEFAULT_VALUES[RTTESTER_INSTALL_DIR] = "C:\opt\rt-tester";
-    DEFAULT_VALUES[RTTESTER_MBT_INSTALL_DIR] = "C:\opt\rtt-mbt";
-    DEFAULT_VALUES[RTTESTER_PYTHON] = "C:\Python27\python.exe";
+    DEFAULT_VALUES[RTTESTER_INSTALL_DIR] = 'C:/opt/rt-tester';
+    DEFAULT_VALUES[RTTESTER_MBT_INSTALL_DIR] = "C:/opt/rtt-mbt";
+    DEFAULT_VALUES[RTTESTER_PYTHON] = "C:/Python27/python.exe";
 }

@@ -9,10 +9,15 @@ import Path = require('path');
 
 export class CreateRTTesterProjectController extends IViewController {
 
-    constructor(protected viewDiv: HTMLDivElement) {
+    directory: string;
+
+    constructor(protected viewDiv: HTMLDivElement, directory: string) {
         super(viewDiv);
+        this.directory = directory;
         IntoCpsApp.setTopName("RT-Tester Project");
     };
+
+
 
     xmiModelBrowser() {
         let remote = require("remote");
@@ -31,14 +36,22 @@ export class CreateRTTesterProjectController extends IViewController {
         document.getElementById("Output").style.display = "block";
         var hPath: HTMLInputElement = <HTMLInputElement>document.getElementById("XMIModelPathText");
         var hOutputText: HTMLTextAreaElement = <HTMLTextAreaElement>document.getElementById("OutputText");
+        let projectName = (<HTMLInputElement>document.getElementById("ProjectName")).value;
         let app: IntoCpsApp = IntoCpsApp.getInstance();
         let settings = app.getSettings();
         let script = Path.normalize(settings.getSetting(SettingKeys.RTTESTER_MBT_INSTALL_DIR));
         script = Path.join(script, "bin/rtt-mbt-create-fmi2-project.py");
+        let targetDir = Path.normalize(Path.join(this.directory, projectName));
 
         const spawn = require('child_process').spawn;
         var pythonPath = Path.normalize(settings.getSetting(SettingKeys.RTTESTER_PYTHON));
-        const process = spawn(pythonPath, [script, "--skip-rttui", hPath.value]);
+        let args: string[] = [
+            script,
+            "--dir=" + targetDir,
+            "--skip-rttui",
+            hPath.value
+        ];
+        const process = spawn(pythonPath, args);
         process.stdout.on('data', (data: string) => {
             hOutputText.textContent += data + "\n";
             hOutputText.scrollTop = hOutputText.scrollHeight;

@@ -92,7 +92,9 @@ menuHandler.openMultiModel = (path) => {
 };
 
 menuHandler.createRTTesterProject = (path) => {
-    openViewController("rttester/CreateRTTesterProject.html", path, CreateRTTesterProjectController);
+    $(init.mainView).load("rttester/CreateRTTesterProject.html", (event: JQueryEventObject) => {
+        controller = new CreateRTTesterProjectController(init.mainView, path);
+    });
 };
 
 menuHandler.openSysMlExport = () => {
