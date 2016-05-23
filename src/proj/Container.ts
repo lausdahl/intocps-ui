@@ -1,4 +1,4 @@
-// ITC Marking: UTC Proprietary - Export Controlled - Created at UTRC-I, ECCN NLR
+// ITC Marking: Export Controlled - Created at UTRC-I, ECCN NLR
 // Copyright UTRC 2016
 
 import {IProject} from "./IProject"

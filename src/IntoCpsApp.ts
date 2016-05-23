@@ -33,6 +33,14 @@ export default class IntoCpsApp {
         
         this.settings = new Settings(app, intoCpsAppFolder);
         this.settings.load();
+        // fill-in default values for yet unset values
+        for (var key in SettingKeys.DEFAULT_VALUES) {
+            if (this.settings.getSetting(key) == null) {
+                let value: any = SettingKeys.DEFAULT_VALUES[key];
+                this.settings.setSetting(key, value);
+            }
+        }
+        this.settings.save();
 
         let activeProjectPath = this.settings.getSetting(SettingKeys.ACTIVE_PROJECT);
         try {
@@ -124,6 +132,8 @@ export default class IntoCpsApp {
         let content = fs.readFileSync(config, "utf8");
         // TODO load configuration containers and config files
         let project = SerializationHelper.toInstance(new Project("", "", ""), content.toString());
+        project.configPath = path;
+        project.rootPath = Path.dirname(path);
         return project;
     }
 

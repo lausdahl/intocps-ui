@@ -77,7 +77,9 @@ let controller: IViewController;
 function openViewController(htmlPath: string, path: string, controllerPar: new (mainDiv: HTMLDivElement) => IViewController) {
     $(init.mainView).load(htmlPath, (event: JQueryEventObject) => {
         controller = new controllerPar(init.mainView);
-        controller.initialize(new SourceDom(path));
+        if (controller.initialize) {
+            controller.initialize(new SourceDom(path));
+        }
     });
 }
 
@@ -90,7 +92,9 @@ menuHandler.openMultiModel = (path) => {
 };
 
 menuHandler.createRTTesterProject = (path) => {
-    openViewController("rttester/CreateRTTesterProject.html", path, CreateRTTesterProjectController);
+    $(init.mainView).load("rttester/CreateRTTesterProject.html", (event: JQueryEventObject) => {
+        controller = new CreateRTTesterProjectController(init.mainView, path);
+    });
 };
 
 menuHandler.openSysMlExport = () => {

@@ -2,6 +2,10 @@
 
 <div class="form-group" id="CreationParameters">
     <div class="form-group">
+        <label for="ProjectName">Project Name:</label>
+        <input type="text" class="form-control input-sm" id="ProjectName">
+    </div>
+    <div class="form-group">
         <label for="XMIModelPathText">
             XMI Model path:
         </label>
@@ -19,4 +23,11 @@
     </button>
 </div>
 
-<textarea id="OutputText" style="visibility: collapse;" />
+<div id="Output" style="display: none;">
+    <div for="OutputText">
+        <label id="scriptRUN"><span class="glyphicon glyphicon-time"></span></span>&nbsp;Creating Project...</label>
+        <label id="scriptOK" style="display: none;"><span class="glyphicon glyphicon-ok"></span>&nbsp;Creation successful</label>
+        <label id="scriptFAIL" style="display: none;"><span class="glyphicon glyphicon-remove"></span>&nbsp;Creation failed</label>
+    </div>
+    <textarea id="OutputText" style="width: 100%; height: 500px;" readonly="readonly" />
+</div>

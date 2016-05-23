@@ -1,1 +1,1 @@
-{"containers":[],"configs":[],"conMaps":[],"PATH_FMUS":"FMUs","PATH_MODELS":"Models","PATH_MULTI_MODELS":"Multi-models","PATH_DSE":"Design Space Explorations","PATH_SYSML":"SysML","name":"d","rootPath":"C:\\source\\into-cps-public\\intocps-ui\\test-project","configPath":"C:\\source\\into-cps-public\\intocps-ui\\test-project\\.project.json"}
+{"containers":[],"PATH_FMUS":"FMUs","PATH_MODELS":"Models","PATH_MULTI_MODELS":"Multi-models","PATH_SYSML":"SysML","name":"test-project","rootPath":"","configPath":""}
