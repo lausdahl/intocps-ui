@@ -2,10 +2,11 @@ import {KeyFmuElement} from "./key-fmu-element"
 import * as Configs from "../../intocps-configurations/intocps-configurations";
 
 export class FmuKeys {
-    container: HTMLDivElement;
-    multiModelDOM: Configs.MultiModelConfig;
-    fmuKeyElements: KeyFmuElement[] = [];
-    elementContainer: HTMLDivElement;
+    private container: HTMLDivElement;
+    private multiModelDOM: Configs.MultiModelConfig;
+    private fmuKeyElements: KeyFmuElement[] = [];
+    private elementContainer: HTMLDivElement;
+    private onChangeHandler: () => void
 
     constructor(container: HTMLDivElement) {
         this.container = container;
@@ -19,6 +20,9 @@ export class FmuKeys {
         });
     }
 
+    setOnChangeHandler(callback: () => void){
+        this.onChangeHandler = callback;
+    }
     public addFmu(fmu?: Configs.Fmu) {
         let self = this;
         $('<div>').load("multimodel/fmu-keys/key-fmu-element.html", function (event: JQueryEventObject) {
@@ -46,6 +50,7 @@ export class FmuKeys {
                 this.multiModelDOM.fmus.push(elementFmu);
             }
             elementFmu.name = text;
+            this.onChangeHandler();
             return true;
         }
     }
@@ -53,5 +58,6 @@ export class FmuKeys {
     private removeCallback(element: KeyFmuElement) {
         this.multiModelDOM.fmus.splice(this.multiModelDOM.fmus.indexOf(element.getFmu()), 1);
         this.elementContainer.removeChild(element.getHtml());
+        this.onChangeHandler();
     }
 }

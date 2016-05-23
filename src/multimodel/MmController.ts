@@ -10,6 +10,8 @@ import {IntoCpsAppEvents} from "../IntoCpsAppEvents";
 import * as Collections from 'typescript-collections';
 import {MultiModelConfig, Serializer} from "../intocps-configurations/intocps-configurations";
 
+import {Parameters} from "./parameters/parameters";
+
 import {IProject} from "../proj/IProject";
 import {SettingKeys} from "../settings/SettingKeys";
 import {ListElement} from "./connections/list-element";
@@ -21,19 +23,28 @@ import {FmuKeys} from "./fmu-keys/fmu-keys";
 import Path = require('path');
 
 
+enum MmContainers {
+    Instances = 1 << 0,
+    Connections = 1 << 1,
+    Parameters = 1 << 2,
+    Keys = 1 << 3,
+}
+
 export class MmController extends IViewController {
     mm: MultiModelConfig = new MultiModelConfig();
     private multiModelFmusDiv: HTMLDivElement;
     private fmuAddButton: HTMLButtonElement;
     private fmuKeysElement: FmuKeys
 
-    private parametersDiv: HTMLDivElement;
-
     private fmuInstancesDiv: HTMLDivElement;
     private fmuInstancesElement: FmuInstancesElement;
 
     private connectionsDiv: HTMLDivElement;
     private connectionsElement: ConnectionsElement;
+
+    private parametersDiv: HTMLDivElement;
+    private parameters: Parameters;
+
 
     constructor(mainViewDiv: HTMLDivElement) {
         super(mainViewDiv);
@@ -42,11 +53,11 @@ export class MmController extends IViewController {
     initialize(sourceDom: SourceDom) {
         IntoCpsApp.IntoCpsApp.setTopName("Multi-Model");
 
-        this.parametersDiv = <HTMLDivElement>document.getElementById("parametersDiv");
         this.fmuInstancesDiv = <HTMLDivElement>document.getElementById("multimodel-fmu-instances");
         this.connectionsDiv = <HTMLDivElement>document.getElementById("multimodel-connections");
         this.multiModelFmusDiv = <HTMLDivElement>document.getElementById("multimodel-fmus");
         this.fmuAddButton = <HTMLButtonElement>document.getElementById("multimodel-fmu-add");
+        this.parametersDiv = <HTMLDivElement>document.getElementById("parameters-div");
         this.parametersDiv.innerHTML = "";
 
         var remote = require('remote');
@@ -59,22 +70,39 @@ export class MmController extends IViewController {
         this.load(sourceDom.getPath());
     }
 
-    private loadComponents(multiModelConfig: MultiModelConfig) {
-        $(this.fmuInstancesDiv).load("multimodel/connections/fmu-instances-element.html", (event: JQueryEventObject) => {
-            this.fmuInstancesElement = new FmuInstancesElement(this.fmuInstancesDiv);
-            this.fmuInstancesElement.addData(this.mm);
-        });
+    private loadComponents(multiModelConfig: MultiModelConfig, containers: MmContainers) {
+        if (containers & MmContainers.Keys) {
+            $(this.multiModelFmusDiv).load("multimodel/fmu-keys/fmu-keys.html", (event: JQueryEventObject) => {
+                this.fmuKeysElement = new FmuKeys(<HTMLDivElement>this.multiModelFmusDiv.firstChild);
+                this.fmuKeysElement.addData(this.mm);
+                this.fmuKeysElement.setOnChangeHandler(this.onKeyChange.bind(this));
+                this.fmuAddButton.onclick = () => this.fmuKeysElement.addFmu();
+            });
+        }
 
-        $(this.connectionsDiv).load("multimodel/connections/connections.html", (event: JQueryEventObject) => {
-            this.connectionsElement = new ConnectionsElement(this.connectionsDiv);
-            this.connectionsElement.addData(this.mm);
-        });
-        
-        $(this.multiModelFmusDiv).load("multimodel/fmu-keys/fmu-keys.html", (event: JQueryEventObject) => {
-            this.fmuKeysElement = new FmuKeys(<HTMLDivElement>this.multiModelFmusDiv.firstChild);
-            this.fmuKeysElement.addData(this.mm);
-            this.fmuAddButton.onclick = () => this.fmuKeysElement.addFmu();
-        });
+        if (containers & MmContainers.Instances) {
+            $(this.fmuInstancesDiv).load("multimodel/connections/fmu-instances-element.html", (event: JQueryEventObject) => {
+                this.fmuInstancesElement = new FmuInstancesElement(this.fmuInstancesDiv);
+                this.fmuInstancesElement.setOnChangeHandler(this.onInstancesChanged.bind(this));
+                this.fmuInstancesElement.addData(this.mm);
+            });
+        }
+        if (containers & MmContainers.Connections) {
+            $(this.connectionsDiv).load("multimodel/connections/connections.html", (event: JQueryEventObject) => {
+                this.connectionsElement = new ConnectionsElement(this.connectionsDiv);
+                this.connectionsElement.addData(this.mm);
+            });
+        }
+
+        if (containers & MmContainers.Parameters) {
+            let loadedCallback = (parameters: Parameters) => {
+                this.parametersDiv.appendChild(parameters.getContainer());
+            }
+
+            this.parameters = new Parameters(loadedCallback.bind(this), this.mm);
+        }
+
+
     }
 
     public load(path: string) {
@@ -87,7 +115,7 @@ export class MmController extends IViewController {
 
         MultiModelConfig.parse(path, IntoCpsApp.IntoCpsApp.getInstance().getActiveProject().getFmusPath()).then(mm => {
             this.mm = mm;
-            this.loadComponents(this.mm);
+            this.loadComponents(this.mm, MmContainers.Keys | MmContainers.Instances | MmContainers.Connections | MmContainers.Parameters);
         }).catch(e => console.error(e));
 
         this.mm.fmuInstances.forEach((instance) => {
@@ -187,6 +215,40 @@ export class MmController extends IViewController {
                     });
             });
         });
+    }
+
+    private onKeyChange() {
+        // Refresh FMU Instances, Connections, and parameters
+        let containers = MmContainers.Instances | MmContainers.Connections | MmContainers.Parameters;
+        this.clearContainers(containers);
+        this.loadComponents(this.mm, containers);
+    }
+
+    private onInstancesChanged() {
+        // Refresh Connections and parameters
+        let containers = MmContainers.Connections | MmContainers.Parameters;
+        this.clearContainers(containers);
+        this.loadComponents(this.mm, containers);
+    }
+
+    //Clear the list containers
+    private clearContainers(containers: MmContainers) {
+        let clearContainer = (container: HTMLDivElement, object: Object) => {
+            while (container.hasChildNodes()) {
+                container.removeChild(container.lastChild);
+            }
+            object = null;
+        }
+
+        if (containers & MmContainers.Instances) {
+            clearContainer(this.fmuInstancesDiv, this.fmuInstancesElement);
+        }
+        if (containers & MmContainers.Connections) {
+            clearContainer(this.connectionsDiv, this.connectionsElement);
+        }
+        if (containers & MmContainers.Parameters) {
+            clearContainer(this.parametersDiv, this.parameters);
+        }
     }
 
 

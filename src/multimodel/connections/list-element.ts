@@ -25,7 +25,7 @@ export class ListElement {
     deselect() {
         this.listElement.classList.remove("active");
         this.selected = false;
-    }
+    }   
 
     getName(): string {
         return this.name;

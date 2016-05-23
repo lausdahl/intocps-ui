@@ -1,6 +1,6 @@
 import {InstanceElement} from "../connections/instance-element.ts"
 import * as Configs from "../../intocps-configurations/intocps-configurations";
-import {TextInput, TextInputState} from "./text-input";
+import {TextInput, TextInputState} from "../components/text-input";
 export class KeyFmuElement {
     container: HTMLDivElement;
     keyContainer: HTMLDivElement;
@@ -38,7 +38,7 @@ export class KeyFmuElement {
 
     private initializeKey(newFmu: boolean) {
         this.keyContainer = <HTMLDivElement>this.container.querySelector("#multimodel-fmu_keys-key");
-        this.keyElement = new TextInput(this.fmu.name, this.textChanged.bind(this), () => {this.keyContainer.appendChild(this.keyElement.container);}, newFmu ? TextInputState.EDIT : TextInputState.OK);
+        this.keyElement = new TextInput(this.fmu.name, this.textChanged.bind(this), () => {this.keyContainer.appendChild(this.keyElement.getContainer());}, newFmu ? TextInputState.EDIT : TextInputState.OK);
     }
 
     private initializeBrowseComponent(fmu: Configs.Fmu) {

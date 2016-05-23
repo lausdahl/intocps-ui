@@ -6,14 +6,14 @@ export enum TextInputState {
 type editButtonGlyphicons = "glyphicon-ok" | "glyphicon-pencil";
 
 export class TextInput {
-    container: HTMLDivElement;
-    textField: HTMLInputElement;
-    editOkButton: HTMLButtonElement;
-    editOkButtonGlyphicon: HTMLSpanElement;
-    cancelButton: HTMLButtonElement;
-    state: TextInputState;
-    text: string;
-    keyChanged: (text: string) => boolean;
+    private container: HTMLDivElement;
+    private textField: HTMLInputElement;
+    private editOkButton: HTMLButtonElement;
+    private editOkButtonGlyphicon: HTMLSpanElement;
+    private cancelButton: HTMLButtonElement;
+    private state: TextInputState;
+    private text: string;
+    private keyChanged: (text: string) => boolean;
     constructor(text: string, keyChanged: (text: string) => boolean, loadedCB: () => void, state?: TextInputState) {
         this.text = text;
         this.keyChanged = keyChanged;
@@ -21,9 +21,13 @@ export class TextInput {
         this.loadHtml(loadedCB);
     }
 
+    getText(){
+        return this.text;
+    }
+
     private loadHtml(loadedCB: () => void, state?: TextInputState) {
         let self = this;
-        $("<div>").load("multimodel/fmu-keys/text-input.html", function (event: JQueryEventObject) {
+        $("<div>").load("multimodel/components/text-input.html", function (event: JQueryEventObject) {
             self.container = <HTMLDivElement>(<HTMLDivElement>this).firstChild;
             self.initializeUI(state);
             loadedCB();
@@ -63,13 +67,13 @@ export class TextInput {
         }
     }
 
-    public hideElement(element: HTMLElement) {
+    hideElement(element: HTMLElement) {
         if (!element.classList.contains("hidden")) {
             element.classList.add("hidden");
         }
     }
 
-    public showElement(element: HTMLElement) {
+    showElement(element: HTMLElement) {
         if (element.classList.contains("hidden")) {
             element.classList.remove("hidden");
         }
@@ -87,12 +91,15 @@ export class TextInput {
             this.setState(TextInputState.EDIT);
         }
         else if (this.state == TextInputState.EDIT) {
+            let previousText = this.text;
+            this.text = this.getTextUI();
             if (this.keyChanged(this.getTextUI())) {
-                this.text = this.getTextUI();
                 this.setState(TextInputState.OK);
             }
             else {
-                alert("The key already exists");
+                this.setTextUI(previousText);
+                this.text = previousText;
+                alert("Invalid");
             }
         }
     }
@@ -106,6 +113,10 @@ export class TextInput {
             alert("The key already exists");
         }
 
+    }
+    
+    getContainer(){
+        return this.container;
     }
 
 

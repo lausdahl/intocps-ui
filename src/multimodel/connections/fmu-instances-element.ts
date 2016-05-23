@@ -32,6 +32,12 @@ export class FmuInstancesElement {
         this.addFmus(this.multiModelDOM.fmus);
     }
 
+    private onChangeHandler: () => void;
+
+    setOnChangeHandler(callback: () => void) {
+        this.onChangeHandler = callback;
+    }
+
     private addFmus(fmus: Configs.Fmu[]) {
         let self = this;
         fmus.forEach((fmu: Configs.Fmu) => {
@@ -116,6 +122,7 @@ export class FmuInstancesElement {
                 }) === false) {
                     this.multiModelDOM.fmuInstances.push(instanceElement.getInstance());
                     this.instanceElements.push(instanceElement);
+                    this.onChangeHandler();
                 }
 
                 return true;
@@ -128,6 +135,7 @@ export class FmuInstancesElement {
         let index = this.multiModelDOM.fmuInstances.findIndex((val: Configs.Instance) => { return val === instanceElement.getInstance() });
         if (index > -1) {
             this.multiModelDOM.fmuInstances.splice(index, 1);
+            this.onChangeHandler();
         }
 
         // Remove instance from HTML
