@@ -65,45 +65,65 @@ export class Fmu {
         var oDOM = oParser.parseFromString(content, "text/xml");
 
         //output
-        var iterator = document.evaluate('//ScalarVariable[@causality="output"]/@name', oDOM, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
+        var iterator = document.evaluate('//ScalarVariable', oDOM, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
 
         var thisNode = iterator.iterateNext();
 
         while (thisNode) {
-            this.scalarVariables.push({ name: thisNode.textContent, type: ScalarVariableType.Real, causality: CausalityType.Output });
+
+
+            let causalityNode = thisNode.attributes.getNamedItem("causality");
+            let nameNode = thisNode.attributes.getNamedItem("name");
+            var type: ScalarVariableType;
+
+            var tNode = document.evaluate('Real', thisNode, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+            
+            if (tNode != null) {
+                type = ScalarVariableType.Real;
+            } else {
+                tNode = document.evaluate('Boolean', thisNode, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+                if (tNode != null) {
+                    type = ScalarVariableType.Bool;
+                } else {
+                    tNode = document.evaluate('Integer', thisNode, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+                    if (tNode != null) {
+                        type = ScalarVariableType.Int;
+                    } else {
+                        tNode = document.evaluate('String', thisNode, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+                        if (tNode != null) {
+                            type = ScalarVariableType.String;
+                        }
+                    }
+                }
+            }
+
+            var causality: CausalityType;
+
+            if (causalityNode != undefined) {
+                let causalityText = causalityNode.textContent;
+
+                if ("output" == causalityText) {
+                    causality = CausalityType.Output;
+                }
+                else if ("input" == causalityText) {
+                    causality = CausalityType.Input;
+                }
+                else if ("parameter" == causalityText) {
+                    causality = CausalityType.Parameter;
+                }
+                else if ("calculatedParameter" == causalityText) {
+                    causality = CausalityType.CalculatedParameter;
+                }
+            }
+
+            this.scalarVariables.push({ name: nameNode.textContent, type: type, causality: causality });
             thisNode = iterator.iterateNext();
         }
 
-        //input
-        var iterator = document.evaluate('//ScalarVariable[@causality="input"]/@name', oDOM, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
 
-        var thisNode = iterator.iterateNext();
 
-        while (thisNode) {
-            this.scalarVariables.push({ name: thisNode.textContent, type: ScalarVariableType.Real, causality: CausalityType.Input });
-            thisNode = iterator.iterateNext();
-        }
 
-        //parameter
-         iterator = document.evaluate('//ScalarVariable[@causality="parameter"]/@name', oDOM, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
 
-        var thisNode = iterator.iterateNext();
-
-        while (thisNode) {
-            this.scalarVariables.push({ name: thisNode.textContent, type: ScalarVariableType.Real, causality: CausalityType.Parameter });
-            thisNode = iterator.iterateNext();
-        }
-          //calculated parameter
-         iterator = document.evaluate('//ScalarVariable[@causality="calculatedParameter"]/@name', oDOM, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
-
-        var thisNode = iterator.iterateNext();
-
-        while (thisNode) {
-            this.scalarVariables.push({ name: thisNode.textContent, type: ScalarVariableType.Real, causality: CausalityType.CalculatedParameter });
-            thisNode = iterator.iterateNext();
-        }
-        
-        
     }
 
     public getScalarVariable(name: string): ScalarVariable {
@@ -126,7 +146,7 @@ export class ScalarVariable {
     causality: CausalityType;
 }
 export enum ScalarVariableType { Real, Bool, Int, String };
-export enum CausalityType { Output, Input, Parameter ,CalculatedParameter};
+export enum CausalityType { Output, Input, Parameter, CalculatedParameter };
 
 // Repersents an instance of an FMU, including initial parameters and a mapping from outputs to InstanceScalarPair
 export class Instance {
