@@ -69,6 +69,11 @@ export class MmController extends IViewController {
         });
         this.load(sourceDom.getPath());
     }
+    
+    deInitialize(){
+        this.mm.save();
+        return true;
+    }
 
     private loadComponents(multiModelConfig: MultiModelConfig, containers: MmContainers) {
         if (containers & MmContainers.Keys) {

@@ -102,18 +102,14 @@ export class FmuInstancesElement {
         let existsByName: InstanceElement[] = this.instanceElements.filter((val: InstanceElement) => {
             return val.getInstance().name == text;
         });
+
+        let returnValue = false;
+
         //Two instances with the same name should never be possible.
-        if (existsByName.length > 1) {
-            return false;
-        }
-        else {
+        if (existsByName.length <= 1) {
             //If one already exists with the same name, then make sure it is the same.
-            if (existsByName.length == 1) {
-                if (existsByName[0] !== instanceElement)
-                    return false;
-                else {
-                    return true;
-                }
+            if (existsByName.length == 1 && existsByName[0] === instanceElement) {
+                returnValue = true;
             }
             else {
                 //Determine whether it is a new element or just updating the name of an element
@@ -122,12 +118,16 @@ export class FmuInstancesElement {
                 }) === false) {
                     this.multiModelDOM.fmuInstances.push(instanceElement.getInstance());
                     this.instanceElements.push(instanceElement);
-                    this.onChangeHandler();
                 }
 
-                return true;
+                returnValue = true;
             }
         }
+
+        if (returnValue) {
+            this.onChangeHandler();
+        }
+        return returnValue;
     }
 
     private removeInstance(instanceElement: InstanceElement) {

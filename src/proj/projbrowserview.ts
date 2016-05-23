@@ -162,15 +162,20 @@ export class BrowserController {
 
         this.addDblClickHandler((event: JQueryEventObject) => {
             console.info(event);
-            let path = Path.normalize(event.target + "");
-            if (path.indexOf('coe.json') >= 0) {
-                this.menuHandler.openCoeView(path);
-            } else if (path.indexOf('mm.json') >= 0) {
-                this.menuHandler.openMultiModel(path);
-            } else if (path.indexOf('sysml.json') >= 0) {
-                this.menuHandler.openSysMlExport(path);
-            } else if (path.indexOf('.fmu') >= 0) {
-                this.menuHandler.openFmu(path);
+            let allowClick = true;
+            if (this.menuHandler.deInitialize != null)
+            { allowClick = this.menuHandler.deInitialize(); }
+            if (allowClick) {
+                let path = Path.normalize(event.target + "");
+                if (path.indexOf('coe.json') >= 0) {
+                    this.menuHandler.openCoeView(path);
+                } else if (path.indexOf('mm.json') >= 0) {
+                    this.menuHandler.openMultiModel(path);
+                } else if (path.indexOf('sysml.json') >= 0) {
+                    this.menuHandler.openSysMlExport(path);
+                } else if (path.indexOf('.fmu') >= 0) {
+                    this.menuHandler.openFmu(path);
+                }
             }
         });
 

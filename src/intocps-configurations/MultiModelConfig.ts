@@ -115,9 +115,10 @@ export class MultiModelConfig implements ISerializable {
     }
 
     save(): Promise<void> {
+        let self=this;
         return new Promise<void>(function (resolve, reject) {
             try {
-                fs.writeFile(this.sourcePath, JSON.stringify(this.toObject()), function (err) {
+                fs.writeFile(self.sourcePath, JSON.stringify(self.toObject()), function (err) {
                     if (err !== null) {
                         return reject(err);
                     }
