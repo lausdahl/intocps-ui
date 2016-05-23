@@ -1,5 +1,8 @@
 intocps-ui
 ---
+
+![The INTO-CPS App](screenshot.png?raw=true "The INTO-CPS App")
+
 A new UI for the INTO-CPS application. 
 
 
