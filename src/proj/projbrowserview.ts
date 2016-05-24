@@ -23,6 +23,7 @@ export class ProjectBrowserItem {
     parent: ProjectBrowserItem;
     group: boolean = false;
 
+    clickHandler(): void { }
     dblClickHandler(): void { }
 
     constructor(path: string, parent: ProjectBrowserItem) {
@@ -52,7 +53,6 @@ export class ProjectBrowserItem {
 export class BrowserController {
     private browser: HTMLDivElement;
     private tree: W2UI.W2Sidebar;
-    private clickHandlers: Array<(event: JQueryEventObject) => void> = [];
     private dblClickHandlers: Array<(event: JQueryEventObject) => void> = [];
 
     private menuHandler: IntoCpsAppMenuHandler = null;
@@ -318,10 +318,6 @@ export class BrowserController {
         this.tree.remove.apply(this.tree, ids);
     }
 
-    addClickHandler(clickHandler: (event: JQueryEventObject) => void) {
-        this.clickHandlers.push(clickHandler);
-    }
-
     private addHandlers() {
         this.tree.on("dblClick", (event: JQueryEventObject) => {
             //Remove auto expansion on double click
@@ -331,9 +327,8 @@ export class BrowserController {
         });
 
         this.tree.on("click", (event: JQueryEventObject) => {
-            this.clickHandlers.forEach(handler => {
-                handler(event);
-            })
+            var item: ProjectBrowserItem = <ProjectBrowserItem>((<any>event).object);
+            item.clickHandler();
         });
     }
 
