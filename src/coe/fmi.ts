@@ -22,7 +22,12 @@ export class Fmu {
            tmp[this.name] = this.path;
            return JSON.stringify(tmp);
        }*/
-
+    public reset() {
+        if (this.platforms != null)
+            this.platforms.length = 0;
+        if (this.scalarVariables != null)
+            this.scalarVariables.length = 0;
+    }
     public populate(): Promise<void> {
         let self = this;
         let checkFileExists = new Promise<Buffer>(function (resolve, reject) {
@@ -85,7 +90,7 @@ export class Fmu {
         }
 
         //parameter
-         iterator = document.evaluate('//ScalarVariable[@causality="parameter"]/@name', oDOM, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
+        iterator = document.evaluate('//ScalarVariable[@causality="parameter"]/@name', oDOM, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
 
         var thisNode = iterator.iterateNext();
 
@@ -93,8 +98,8 @@ export class Fmu {
             this.scalarVariables.push({ name: thisNode.textContent, type: ScalarVariableType.Real, causality: CausalityType.Parameter });
             thisNode = iterator.iterateNext();
         }
-          //calculated parameter
-         iterator = document.evaluate('//ScalarVariable[@causality="calculatedParameter"]/@name', oDOM, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
+        //calculated parameter
+        iterator = document.evaluate('//ScalarVariable[@causality="calculatedParameter"]/@name', oDOM, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
 
         var thisNode = iterator.iterateNext();
 
@@ -102,8 +107,8 @@ export class Fmu {
             this.scalarVariables.push({ name: thisNode.textContent, type: ScalarVariableType.Real, causality: CausalityType.CalculatedParameter });
             thisNode = iterator.iterateNext();
         }
-        
-        
+
+
     }
 
     public getScalarVariable(name: string): ScalarVariable {
@@ -126,7 +131,7 @@ export class ScalarVariable {
     causality: CausalityType;
 }
 export enum ScalarVariableType { Real, Bool, Int, String };
-export enum CausalityType { Output, Input, Parameter ,CalculatedParameter};
+export enum CausalityType { Output, Input, Parameter, CalculatedParameter };
 
 // Repersents an instance of an FMU, including initial parameters and a mapping from outputs to InstanceScalarPair
 export class Instance {

@@ -6,7 +6,9 @@ export class FmuKeys {
     private multiModelDOM: Configs.MultiModelConfig;
     private fmuKeyElements: KeyFmuElement[] = [];
     private elementContainer: HTMLDivElement;
-    private onChangeHandler: () => void
+    private onChangeHandler: (fmu: Configs.Fmu, reloadDom: boolean) => void;
+    private onPathChangedHandler: (fmu: Configs.Fmu) => void;
+    private onRemoveHandler: (fmu: Configs.Fmu) => void;
 
     constructor(container: HTMLDivElement) {
         this.container = container;
@@ -20,9 +22,18 @@ export class FmuKeys {
         });
     }
 
-    setOnChangeHandler(callback: () => void){
+    setOnChangeHandler(callback: (fmu: Configs.Fmu, reloadDom: boolean) => void) {
         this.onChangeHandler = callback;
     }
+
+    setOnPathChangeHandler(callback: () => void) {
+        this.onPathChangedHandler = callback;
+    }
+    
+    setOnRemoveHandler(callback: (fmu: Configs.Fmu) => void){
+        this.onRemoveHandler = callback;
+    }
+
     public addFmu(fmu?: Configs.Fmu) {
         let self = this;
         $('<div>').load("multimodel/fmu-keys/key-fmu-element.html", function (event: JQueryEventObject) {
@@ -32,7 +43,7 @@ export class FmuKeys {
                 fmu = new Configs.Fmu("{FMU}", "");
                 newFmu = true;
             }
-            let element = new KeyFmuElement(html, fmu, self.keyChangeCallback.bind(self), self.removeCallback.bind(self), newFmu);
+            let element = new KeyFmuElement(html, fmu, self.keyChangeCallback.bind(self), self.onPathChanged.bind(self), self.removeCallback.bind(self), newFmu);
             self.fmuKeyElements.push(element);
             self.elementContainer.appendChild(html);
         });
@@ -43,21 +54,33 @@ export class FmuKeys {
         // Get the elements with the same name. 
         if (this.multiModelDOM.fmus.some(elem => elem.name == text && elem != elementFmu)) {
             return false;
-        }else{
+        } else {
+            let reloadDom: boolean = false;
             //Check if it is a new fmu
-            if(this.multiModelDOM.fmus.indexOf(elementFmu) == -1)
-            {
+            if (this.multiModelDOM.fmus.indexOf(elementFmu) == -1) {
+                reloadDom = true;
                 this.multiModelDOM.fmus.push(elementFmu);
             }
             elementFmu.name = text;
-            this.onChangeHandler();
+            this.onChangeHandler(elementFmu, reloadDom);
             return true;
         }
     }
 
+    private onPathChanged(element: KeyFmuElement, path: string) {
+        element.getFmu().path = path;
+        // The fmu must exist with a key.
+        if (this.multiModelDOM.fmus.indexOf(element.getFmu()) != -1) {
+            if (this.onPathChangedHandler != null) {
+                this.onPathChangedHandler(element.getFmu());
+            }
+        }
+    }
+
     private removeCallback(element: KeyFmuElement) {
-        this.multiModelDOM.fmus.splice(this.multiModelDOM.fmus.indexOf(element.getFmu()), 1);
+        // this.multiModelDOM.fmus.splice(this.multiModelDOM.fmus.indexOf(element.getFmu()), 1);
         this.elementContainer.removeChild(element.getHtml());
-        this.onChangeHandler();
+        this.onRemoveHandler(element.getFmu());
+        // this.onChangeHandler(element.getFmu(), false);
     }
 }

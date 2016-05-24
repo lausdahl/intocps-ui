@@ -9,7 +9,7 @@ import * as IntoCpsApp from  "../IntoCpsApp"
 import {IntoCpsAppEvents} from "../IntoCpsAppEvents";
 import * as Collections from 'typescript-collections';
 import {MultiModelConfig, Serializer} from "../intocps-configurations/intocps-configurations";
-
+import * as Configs from "../intocps-configurations/intocps-configurations";
 import {Parameters} from "./parameters/parameters";
 
 import {IProject} from "../proj/IProject";
@@ -69,8 +69,8 @@ export class MmController extends IViewController {
         });
         this.load(sourceDom.getPath());
     }
-    
-    deInitialize(){
+
+    deInitialize() {
         this.mm.save();
         return true;
     }
@@ -81,6 +81,8 @@ export class MmController extends IViewController {
                 this.fmuKeysElement = new FmuKeys(<HTMLDivElement>this.multiModelFmusDiv.firstChild);
                 this.fmuKeysElement.addData(this.mm);
                 this.fmuKeysElement.setOnChangeHandler(this.onKeyChange.bind(this));
+                this.fmuKeysElement.setOnPathChangeHandler(this.onPathChange.bind(this));
+                this.fmuKeysElement.setOnRemoveHandler(this.onFmuRemove.bind(this));
                 this.fmuAddButton.onclick = () => this.fmuKeysElement.addFmu();
             });
         }
@@ -122,13 +124,6 @@ export class MmController extends IViewController {
             this.mm = mm;
             this.loadComponents(this.mm, MmContainers.Keys | MmContainers.Instances | MmContainers.Connections | MmContainers.Parameters);
         }).catch(e => console.error(e));
-
-        this.mm.fmuInstances.forEach((instance) => {
-            instance.initialValues.forEach((value, sv) => {
-                this.parametersDiv.innerHTML += Serializer.getIdSv(instance, sv) + " = " + value + "<br/>";
-            });
-
-        });
     }
 
     private getConnectionInstance(id: string): string {//"{x2}.tank.valvecontrol"
@@ -222,11 +217,36 @@ export class MmController extends IViewController {
         });
     }
 
-    private onKeyChange() {
-        // Refresh FMU Instances, Connections, and parameters
-        let containers = MmContainers.Instances | MmContainers.Connections | MmContainers.Parameters;
+    private onPathChange(fmu: Configs.Fmu) {
+        this.onKeyChange(fmu, true);
+    }
+    private cleanAndReload(containers: number){
         this.clearContainers(containers);
         this.loadComponents(this.mm, containers);
+    }
+    private onKeyChange(fmu: Configs.Fmu, reloadDom: boolean) {
+        let cleanAndReload = () => {
+            let containers = MmContainers.Instances | MmContainers.Connections | MmContainers.Parameters;
+            this.clearContainers(containers);
+            this.loadComponents(this.mm, containers);
+        }
+        // Refresh FMU Instances, Connections, and parameters
+        let promise: Promise<void> = null;
+        if (reloadDom) {
+            fmu.reset();
+            fmu.populate().then(() => { cleanAndReload(); })
+        } else {
+            cleanAndReload();
+        }
+    }
+    
+    private onFmuRemove(fmu: Configs.Fmu){
+        // Remove the FMU
+        this.mm.removeFmu(fmu);
+        // Reload the UI
+        let containers = MmContainers.Instances | MmContainers.Connections | MmContainers.Parameters;
+        this.cleanAndReload(containers);
+        
     }
 
     private onInstancesChanged() {
@@ -253,6 +273,10 @@ export class MmController extends IViewController {
         }
         if (containers & MmContainers.Parameters) {
             clearContainer(this.parametersDiv, this.parameters);
+        }
+
+        if (containers & MmContainers.Keys) {
+            clearContainer(this.multiModelFmusDiv, this.fmuKeysElement);
         }
     }
 
