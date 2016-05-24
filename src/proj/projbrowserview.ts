@@ -23,6 +23,8 @@ export class ProjectBrowserItem {
     parent: ProjectBrowserItem;
     group: boolean = false;
 
+    dblClickHandler(): void { }
+
     constructor(path: string, parent: ProjectBrowserItem) {
         this.id = path;
         this.text = Path.basename(path);
@@ -191,21 +193,6 @@ export class BrowserController {
             }
         });
 
-
-        this.addDblClickHandler((event: JQueryEventObject) => {
-            console.info(event);
-            let path = Path.normalize(event.target + "");
-            if (path.indexOf('coe.json') >= 0) {
-                this.menuHandler.openCoeView(path);
-            } else if (path.indexOf('mm.json') >= 0) {
-                this.menuHandler.openMultiModel(path);
-            } else if (path.indexOf('sysml.json') >= 0) {
-                this.menuHandler.openSysMlExport(path);
-            } else if (path.indexOf('.fmu') >= 0) {
-                this.menuHandler.openFmu(path);
-            }
-        });
-
         this.addHandlers();
 
         this.refreshProjectBrowser();
@@ -232,6 +219,7 @@ export class BrowserController {
 
 
     private addFSItem(path: string, parent: ProjectBrowserItem): ProjectBrowserItem {
+        var _this = this;
         var result: ProjectBrowserItem = result = new ProjectBrowserItem(path, parent);
         var stat = fs.statSync(path);
         if (Path.basename(path).startsWith('.')) {
@@ -243,25 +231,34 @@ export class BrowserController {
                 parent.img = 'glyphicon glyphicon-copyright-mark';
                 (<any>parent).coeConfig = path;
                 parent.removeNodeWithPath(path);
+                parent.dblClickHandler = function () {
+                    _this.menuHandler.openCoeView(path);
+                };
                 result = null;
-                // children.push(new Container(name, filePath, ContainerType.CoeConfig));
             }
             else if (path.endsWith('.mm.json')) {
                 //merge MultiModelConfig and folder
                 parent.img = 'glyphicon glyphicon-briefcase';
                 (<any>parent).mmConfig = path;
                 parent.removeNodeWithPath(path);
+                parent.dblClickHandler = function () {
+                    _this.menuHandler.openMultiModel(path);
+                };
                 result = null;
-                //children.push(new Container(name, filePath, ContainerType.MultiModelConfig));
             }
             else if (path.endsWith('.fmu')) {
                 result.img = 'icon-page';
                 result.removeFileExtensionFromText();
-                //children.push(new Container(name, filePath, ContainerType.FMU));
+                parent.dblClickHandler = function () {
+                    _this.menuHandler.openFmu(path);
+                };
             }
             else if (path.endsWith('.sysml.json')) {
                 result.img = 'glyphicon glyphicon-tasks';
                 result.removeFileExtensionFromText();
+                result.dblClickHandler = function () {
+                    _this.menuHandler.openSysMlExport(path);
+                };
                 //children.push(new Container(name, filePath, ContainerType.SysMLExport));
             }
             else if (path.endsWith('.emx')) {
@@ -281,7 +278,6 @@ export class BrowserController {
             }
         } else if (stat.isDirectory()) {
             result.img = 'icon-folder';
-            //children.push(new Container(name, filePath, ContainerType.Folder));
             if (this.isOvertureProject(path)) {
                 result.img = 'glyphicon glyphicon-leaf';
                 result.expanded = false;
@@ -326,17 +322,12 @@ export class BrowserController {
         this.clickHandlers.push(clickHandler);
     }
 
-    addDblClickHandler(clickHandler: (event: JQueryEventObject) => void) {
-        this.dblClickHandlers.push(clickHandler);
-    }
-
     private addHandlers() {
         this.tree.on("dblClick", (event: JQueryEventObject) => {
             //Remove auto expansion on double click
             event.preventDefault();
-            this.dblClickHandlers.forEach(handler => {
-                handler(event);
-            })
+            var item: ProjectBrowserItem = <ProjectBrowserItem>((<any>event).object);
+            item.dblClickHandler();
         });
 
         this.tree.on("click", (event: JQueryEventObject) => {
