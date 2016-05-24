@@ -48,7 +48,7 @@ export class TextInput {
     private setTextUI(text: string) {
         this.textField.value = text;
     }
-
+    
     private getTextUI() {
         return this.textField.value;
     }

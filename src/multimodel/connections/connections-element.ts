@@ -36,6 +36,8 @@ export class ConnectionsElement {
 
     multiModelDOM: Configs.MultiModelConfig;
     self: ConnectionsElement;
+    
+    private unconfirmedText: string = "Variable is unconfirmed";
 
     constructor(container: HTMLDivElement) {
         this.container = container;
@@ -93,7 +95,10 @@ export class ConnectionsElement {
         this.clearContainers(Containers.InputInstances | Containers.inputVariables | Containers.OutputVariables);
 
         (<Configs.Instance>instanceElement.getInstance()).fmu.scalarVariables.forEach(element => {
-            this.addOutputVariable(element);
+            if (Configs.isCausalityCompatible(element.causality, Configs.CausalityType.Output)){
+                this.addOutputVariable(element);
+            }
+
         });
     }
 
@@ -103,6 +108,9 @@ export class ConnectionsElement {
             let html: HTMLLinkElement = <HTMLLinkElement>(<HTMLDivElement>this).firstChild;
             self.outputVariableList.appendChild(html);
             let output: InstanceListElement<Configs.ScalarVariable> = new InstanceListElement(html, variable.name, self.outputVariableSelected.bind(self), variable);
+            if (!variable.isConfirmed) {
+                output.setWarning(self.unconfirmedText);
+            }
             self.outputVariables.push(output);
         });
     }
@@ -150,8 +158,8 @@ export class ConnectionsElement {
             return [];
         })();
         let allInputVariables: Configs.ScalarVariable[] = instance.fmu.scalarVariables.filter((element: Configs.ScalarVariable) => {
-            console.log(element.type);
-            return (element.causality == Configs.CausalityType.Input) && (element.type == this.selectedOutputVariable.getInstance().type);
+            return Configs.isTypeCompatiple(element.type, this.selectedOutputVariable.getInstance().type) && 
+            Configs.isCausalityCompatible(element.causality, Configs.CausalityType.Input);
         });
         allInputVariables.forEach(element => {
             this.addInputVariable(element, connectedInputVariables.indexOf(element) > -1);
@@ -165,6 +173,9 @@ export class ConnectionsElement {
             let html: HTMLLinkElement = <HTMLLinkElement>(<HTMLDivElement>this).firstChild;
             self.inputVariableList.appendChild(html);
             let output: CheckboxInstanceListElement<Configs.ScalarVariable> = new CheckboxInstanceListElement(html, variable.name, self.inputVariableSelected.bind(self), variable);
+            if(!variable.isConfirmed){
+                output.setWarning(self.unconfirmedText);
+            }
             output.setCheckboxState(selected);
             self.inputVariables.push(output);
         });
@@ -172,13 +183,13 @@ export class ConnectionsElement {
 
     private inputVariableSelected(variable: CheckboxInstanceListElement<Configs.ScalarVariable>) {
         // Check if an entry exists in the map for the given output variable        
-        let getOutputsTo: () => Configs.InstanceScalarPair[] = () => { 
-             return this.selectedOutputInstance.getInstance().outputsTo.get(this.selectedOutputVariable.getInstance());    
+        let getOutputsTo: () => Configs.InstanceScalarPair[] = () => {
+            return this.selectedOutputInstance.getInstance().outputsTo.get(this.selectedOutputVariable.getInstance());
         };
         let outputsTo = getOutputsTo();
-        
+
         //Filter ruins the ordering and so forth. Therefore it can only be used to check if a given element exists, and possibly return the given element.
-        
+
         if (variable.getChecked()) {
             if (outputsTo == null) {
                 this.selectedOutputInstance.getInstance().outputsTo.set(this.selectedOutputVariable.getInstance(), new Array<Configs.InstanceScalarPair>());

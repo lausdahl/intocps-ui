@@ -40,12 +40,14 @@ export class KeyFmuElement {
 
     private initializeKey(newFmu: boolean) {
         this.keyContainer = <HTMLDivElement>this.container.querySelector("#multimodel-fmu_keys-key");
-        this.keyElement = new TextInput(this.fmu.name, this.textChanged.bind(this), () => { this.keyContainer.appendChild(this.keyElement.getContainer()); }, newFmu ? TextInputState.EDIT : TextInputState.OK);
-    }
+        this.keyElement = new TextInput(this.fmu.name, this.textChanged.bind(this), () => { this.keyContainer.appendChild(this.keyElement.getContainer());}, newFmu ? TextInputState.EDIT : TextInputState.OK);
+ 
+}
 
     private initializeBrowseComponent(fmu: Configs.Fmu) {
         this.pathContainer = <HTMLDivElement>this.container.querySelector("#multimodel-fmu_keys-path");
         this.pathTextField = <HTMLInputElement>this.container.querySelector("#fmuPath");
+        this.pathTextField.readOnly = true;
         if (fmu.path != null) {
             this.pathTextField.value = fmu.path;
         }

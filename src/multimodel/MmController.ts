@@ -10,6 +10,7 @@ import {IntoCpsAppEvents} from "../IntoCpsAppEvents";
 import * as Collections from 'typescript-collections';
 import {MultiModelConfig, Serializer} from "../intocps-configurations/intocps-configurations";
 import * as Configs from "../intocps-configurations/intocps-configurations";
+import * as Messages from "../intocps-configurations/Messages";
 import {Parameters} from "./parameters/parameters";
 
 import {IProject} from "../proj/IProject";
@@ -44,6 +45,8 @@ export class MmController extends IViewController {
 
     private parametersDiv: HTMLDivElement;
     private parameters: Parameters;
+    
+    private saveButton : HTMLButtonElement;
 
 
     constructor(mainViewDiv: HTMLDivElement) {
@@ -58,7 +61,9 @@ export class MmController extends IViewController {
         this.multiModelFmusDiv = <HTMLDivElement>document.getElementById("multimodel-fmus");
         this.fmuAddButton = <HTMLButtonElement>document.getElementById("multimodel-fmu-add");
         this.parametersDiv = <HTMLDivElement>document.getElementById("parameters-div");
-        this.parametersDiv.innerHTML = "";
+        this.saveButton = <HTMLButtonElement>document.getElementById("multimodel-save-button");
+        this.saveButton.onclick = this.save.bind(this);
+        
 
         var remote = require('remote');
         var Menu = remote.require('menu');
@@ -74,7 +79,16 @@ export class MmController extends IViewController {
         this.mm.save();
         return true;
     }
-
+    private save(ev: MouseEvent){
+        let warningMessages: Messages.WarningMessage[]  = this.mm.validate(); 
+        if(warningMessages.length > 0){
+            alert(warningMessages.map(message => {return message.message}).join("\n"));
+        }
+        else{
+            this.mm.save();
+        }          
+    }
+    
     private loadComponents(multiModelConfig: MultiModelConfig, containers: MmContainers) {
         if (containers & MmContainers.Keys) {
             $(this.multiModelFmusDiv).load("multimodel/fmu-keys/fmu-keys.html", (event: JQueryEventObject) => {
@@ -218,26 +232,16 @@ export class MmController extends IViewController {
     }
 
     private onPathChange(fmu: Configs.Fmu) {
-        this.onKeyChange(fmu, true);
+        fmu.updatePath(fmu.path);
+        this.cleanAndReload(MmContainers.Instances | MmContainers.Connections | MmContainers.Parameters);
     }
     private cleanAndReload(containers: number){
         this.clearContainers(containers);
         this.loadComponents(this.mm, containers);
     }
-    private onKeyChange(fmu: Configs.Fmu, reloadDom: boolean) {
-        let cleanAndReload = () => {
-            let containers = MmContainers.Instances | MmContainers.Connections | MmContainers.Parameters;
-            this.clearContainers(containers);
-            this.loadComponents(this.mm, containers);
-        }
+    private onKeyChange(fmu: Configs.Fmu) {
         // Refresh FMU Instances, Connections, and parameters
-        let promise: Promise<void> = null;
-        if (reloadDom) {
-            //FIXME fmu.reset();
-            fmu.populate().then(() => { cleanAndReload(); })
-        } else {
-            cleanAndReload();
-        }
+            this.cleanAndReload(MmContainers.Instances | MmContainers.Connections | MmContainers.Parameters);
     }
     
     private onFmuRemove(fmu: Configs.Fmu){

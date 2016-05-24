@@ -117,6 +117,9 @@ export class Fmu {
                 else if ("calculatedParameter" == causalityText) {
                     causality = CausalityType.CalculatedParameter;
                 }
+                else if ("local" == causalityText){
+                    causality = CausalityType.Local;
+                }
             }
 
             let sv = this.getScalarVariable(nameNode.textContent);
@@ -138,7 +141,7 @@ export class Fmu {
         let res = this.scalarVariables.find(function (s) { return s.name == name; });
         if (res == undefined) {
             // scalar variable does not exist so make new unlinked variable
-            let sv : ScalarVariable = { name: name, type: ScalarVariableType.Unknown, causality: CausalityType.Local, isConfirmed: false };
+            let sv : ScalarVariable = { name: name, type: ScalarVariableType.Unknown, causality: CausalityType.Unknown, isConfirmed: false };
             this.scalarVariables.push(sv);
             return sv;
         }
@@ -160,12 +163,21 @@ export class ScalarVariable {
     public isConfirmed: boolean;
 }
 export enum ScalarVariableType { Real, Bool, Int, String, Unknown };
-export enum CausalityType { Output, Input, Parameter, CalculatedParameter ,Local};
+export enum CausalityType { Output, Input, Parameter, CalculatedParameter ,Local, Unknown};
 
 export function isTypeCompatiple(t1: ScalarVariableType, t2: ScalarVariableType): boolean {
     if (t1 == ScalarVariableType.Unknown || t2 == ScalarVariableType.Unknown) {
         return true;
     } else {
+        return t1 == t2;
+    }
+}
+
+export function isCausalityCompatible(t1: CausalityType, t2: CausalityType): boolean {
+    if(t1 == CausalityType.Unknown || t2 == CausalityType.Unknown){
+        return true;
+    }
+    else {
         return t1 == t2;
     }
 }
