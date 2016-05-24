@@ -233,7 +233,7 @@ export class MmController extends IViewController {
         // Refresh FMU Instances, Connections, and parameters
         let promise: Promise<void> = null;
         if (reloadDom) {
-            fmu.reset();
+            //FIXME fmu.reset();
             fmu.populate().then(() => { cleanAndReload(); })
         } else {
             cleanAndReload();
