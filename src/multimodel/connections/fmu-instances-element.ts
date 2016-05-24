@@ -1,6 +1,5 @@
 /// <reference path="../../../node_modules/typescript/lib/lib.es6.d.ts" />
-import {Scalar} from "./scalar"
-import {OutputElement} from "./outputElement";
+import {ListElement} from "./list-element";
 import * as Collections from "typescript-collections";
 import {FmuElement} from "./fmu-element";
 import {InstanceElement} from "./instance-element";
@@ -25,22 +24,18 @@ export class FmuInstancesElement {
         this.html = html;
         this.fmuList = <HTMLUListElement>html.querySelector("#connections-fmuinstances-fmus");
         this.instanceList = <HTMLUListElement>html.querySelector("#connections-fmuinstances-instances");
-        this.addInstancesButton = <HTMLButtonElement>this.html.querySelector("#fmu-instances-add-but"); 
+        this.addInstancesButton = <HTMLButtonElement>this.html.querySelector("#fmu-instances-add-but");
         this.addInstancesButton.onclick = this.addNewInstanceHandler.bind(this);
-        let dummyDom = new Configs.MultiModelConfig();
-        let fmu1 = new Configs.Fmu("abe", "abe");
-        let fmu2 = new Configs.Fmu("abe2", "abe2");
-        dummyDom.fmus.push(fmu1, fmu2);
-        let instance: Configs.Instance = new Configs.Instance(fmu1, "tiger");
-        let instance2: Configs.Instance = new Configs.Instance(fmu1, "tiger2");
-        let instance3: Configs.Instance = new Configs.Instance(fmu2,"elephant");
-        dummyDom.fmuInstances.push(instance, instance2, instance3);
-        this.addData(dummyDom);
-
     }
     addData(multiModelDOM: Configs.MultiModelConfig) {
         this.multiModelDOM = multiModelDOM;
         this.addFmus(this.multiModelDOM.fmus);
+    }
+
+    private onChangeHandler: () => void;
+
+    setOnChangeHandler(callback: () => void) {
+        this.onChangeHandler = callback;
     }
 
     private addFmus(fmus: Configs.Fmu[]) {
@@ -56,7 +51,7 @@ export class FmuInstancesElement {
     }
 
     private fmuSelectionChanged(fmuElement: FmuElement) {
-        if(this.addInstancesButton.classList.contains("hidden")) {this.addInstancesButton.classList.remove("hidden");}
+        if (this.addInstancesButton.classList.contains("hidden")) { this.addInstancesButton.classList.remove("hidden"); }
         this.fmuElements.forEach((fmuElementPar: FmuElement) => {
             if (fmuElementPar !== fmuElement)
                 fmuElementPar.deselect();
@@ -91,45 +86,60 @@ export class FmuInstancesElement {
         });
     }
 
-    private addNewInstanceHandler(){
+    private addNewInstanceHandler() {
         let self = this;
         $('<div>').load("multimodel/connections/instance-element.html", function (event: JQueryEventObject) {
-                let html: HTMLDivElement = <HTMLDivElement>(<HTMLDivElement>this).firstChild;
-                let instance = new Configs.Instance(self.selectedFmuElement.getFmu(),"FMU Instance");
-                let element: InstanceElement = new InstanceElement(html, instance, self.removeInstance.bind(self), self.addInstanceHandler.bind(self), true);
-                self.instanceList.appendChild(element.getHtml());
-            });
+            let html: HTMLDivElement = <HTMLDivElement>(<HTMLDivElement>this).firstChild;
+            let instance = new Configs.Instance(self.selectedFmuElement.getFmu(), "FMU Instance");
+            let element: InstanceElement = new InstanceElement(html, instance, self.removeInstance.bind(self), self.addInstanceHandler.bind(self), true);
+            self.instanceList.appendChild(element.getHtml());
+        });
     }
+
     // If an instance already exists with the same name then return false
     // otherwise add the element to instanceElements and the DOM
-    private addInstanceHandler(instanceElement: InstanceElement) {
-        let exists: number = this.instanceElements.findIndex((val: InstanceElement) => {
-            return val.getInstance().name == instanceElement.getInstance().name; 
+    private addInstanceHandler(instanceElement: InstanceElement, text: string) {
+        let existsByName: InstanceElement[] = this.instanceElements.filter((val: InstanceElement) => {
+            return val.getInstance().name == text;
         });
-        if (exists > -1) {
-            if(this.instanceElements[exists] == instanceElement){
-                return true;
+
+        let returnValue = false;
+
+        //Two instances with the same name should never be possible.
+        if (existsByName.length <= 1) {
+            //If one already exists with the same name, then make sure it is the same.
+            if (existsByName.length == 1 && existsByName[0] === instanceElement) {
+                returnValue = true;
             }
-            else{
-                return false;
+            else {
+                //Determine whether it is a new element or just updating the name of an element
+                if (this.instanceElements.some((val: InstanceElement) => {
+                    return val.getInstance() === instanceElement.getInstance();
+                }) === false) {
+                    this.multiModelDOM.fmuInstances.push(instanceElement.getInstance());
+                    this.instanceElements.push(instanceElement);
+                }
+
+                returnValue = true;
             }
         }
-        else {
-            this.multiModelDOM.fmuInstances.push(instanceElement.getInstance());
-            this.instanceElements.push(instanceElement);
-            return true;
+
+        if (returnValue) {
+            this.onChangeHandler();
         }
+        return returnValue;
     }
 
     private removeInstance(instanceElement: InstanceElement) {
         // Remove instance from DOM
-        let index = this.multiModelDOM.fmuInstances.findIndex((val: Configs.Instance) => {return val === instanceElement.getInstance()});
-        if(index > -1){
+        let index = this.multiModelDOM.fmuInstances.findIndex((val: Configs.Instance) => { return val === instanceElement.getInstance() });
+        if (index > -1) {
             this.multiModelDOM.fmuInstances.splice(index, 1);
+            this.onChangeHandler();
         }
-        
+
         // Remove instance from HTML
         this.instanceList.removeChild(instanceElement.getHtml());
-        this.instanceElements.splice(this.instanceElements.findIndex((val: InstanceElement) =>{return val === instanceElement}),1);
+        this.instanceElements.splice(this.instanceElements.findIndex((val: InstanceElement) => { return val === instanceElement }), 1);
     }
 }

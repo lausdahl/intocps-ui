@@ -7,7 +7,7 @@
 
 import * as Collections from 'typescript-collections';
 import * as Fmi from "../coe/fmi";
-import {Parser,Serializer} from "./Parser";
+import {Parser, Serializer} from "./Parser";
 
 import Path = require('path');
 import fs = require('fs');
@@ -18,7 +18,7 @@ export class MultiModelConfig implements ISerializable {
 
     //path to the source from which this DOM is generated
     sourcePath: string;
-    fmusRootPath : string;
+    fmusRootPath: string;
     fmus: Fmi.Fmu[] = [];
     fmuInstances: Fmi.Instance[] = [];
 
@@ -47,8 +47,6 @@ export class MultiModelConfig implements ISerializable {
 
         return instance;
     }
-
-
 
     public getFmu(fmuName: string): Fmi.Fmu {
         let res = this.fmus.find(function (v) { return v.name == fmuName; });
@@ -81,8 +79,6 @@ export class MultiModelConfig implements ISerializable {
     static parse(path: string, fmuRootPath: string): Promise<MultiModelConfig> {
         let self = this;
         return new Promise<MultiModelConfig>(function (resolveFinal, reject) {
-
-
             let checkFileExists = new Promise<Buffer>(function (resolve, reject) {
                 try {
                     if (fs.accessSync(path, fs.R_OK)) {
@@ -112,14 +108,39 @@ export class MultiModelConfig implements ISerializable {
         });
     }
 
+    public removeFmu(fmu: Fmi.Fmu) {
+        this.fmus.splice(this.fmus.indexOf(fmu),1);
+        this.fmuInstances.filter(element => {return element.fmu == fmu}).forEach(element => {
+            this.removeInstance(element);
+        });
+    }
+
+
+    public removeInstance(instance: Fmi.Instance) {
+        // Remove the instance
+        this.fmuInstances.splice(this.fmuInstances.indexOf(instance), 1);        
+        
+        // When removing an instance, all connections to this instance must be removed as well.  
+        this.fmuInstances.forEach(element => {
+                element.outputsTo.forEach((value, key) => {
+                    for (let i = value.length - 1; i >= 0; i--) {
+                        if (value[i].instance == instance) {
+                            value.splice(i, 1);
+                        }
+                    }
+                });
+        });
+    }
+
     toObject(): any {
-        return new Serializer().toObjectMultiModel(this,this.fmusRootPath);
+        return new Serializer().toObjectMultiModel(this, this.fmusRootPath);
     }
 
     save(): Promise<void> {
+        let self = this;
         return new Promise<void>(function (resolve, reject) {
             try {
-                fs.writeFile(this.sourcePath, JSON.stringify(this.toObject()), function (err) {
+                fs.writeFile(self.sourcePath, JSON.stringify(self.toObject()), function (err) {
                     if (err !== null) {
                         return reject(err);
                     }

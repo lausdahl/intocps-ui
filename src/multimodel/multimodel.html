@@ -11,45 +11,32 @@
 </style>
 <div class="row">
     <div class="col-md-12">
-
         <!-- FMUS AREA -->
-        <h5>
+        <h4>
             <span>FMUs</span>
-            <button type="button" class="btn btn-default btn-xs" onclick="controller.addFmu()">
+            <button type="button" class="btn btn-default btn-xs" id="multimodel-fmu-add">
                 <span class="glyphicon glyphicon-plus"></span>
             </button>
-        </h5>
-        <form class="form-horizontal">
-            <div id="fmusDiv">
-            </div>
-        </form>
+        </h4>
 
-        <!--CONNECTIONS NEW AREA-->
+        <div id="multimodel-fmus">
+        </div>
+
+
+        <!--FMU INSTANCES NEW AREA-->
         <h4>FMU INSTANCES</h4>
         <div class="row" id="multimodel-fmu-instances">
-            
         </div>
 
-        <!--CONNECTIONS AREA-->
+        <!--CONNECTIONS NEW AREA-->
         <h4>CONNECTIONS</h4>
-        <div class="row">
-            <div class="col-md-5">
-                <h5>Outputs</h5>
-                <ul class="list-group" id="connections-outputs">
-                </ul>
-            </div>
-            <div class="col-md-1"></div>
-            <div class="col-md-6">
-                <h5>Inputs</h5>
-                <ul class="list-group" id="connections-inputs">
-                </ul>
-            </div>
+        <div class="row" id="multimodel-connections">
         </div>
+
         <!--PARAMETERS AREA-->
         <h4>PARAMETERS</h4>
-        <form class="form-horizontal">
-            <div id="parametersDiv">
+
+            <div class="row" id="parameters-div">
             </div>
-        </form>
     </div>
 </div>

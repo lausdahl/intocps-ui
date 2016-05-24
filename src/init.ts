@@ -83,9 +83,17 @@ function openViewController(htmlPath: string, path: string, controllerPar: new (
     });
 }
 
+menuHandler.deInitialize = () => {
+    if(controller != null && controller.deInitialize)
+    {return controller.deInitialize();}
+    else
+    {return true;}
+    
+}
+
 menuHandler.openCoeView = (path) => {
     openViewController("coe/coe.html", path, CoeController);
-};
+    };
 
 menuHandler.openMultiModel = (path) => {
     openViewController("multimodel/multimodel.html", path, MmController);

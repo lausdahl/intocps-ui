@@ -124,6 +124,7 @@ export class Fmu {
 
 
 
+
     }
 
     public getScalarVariable(name: string): ScalarVariable {
