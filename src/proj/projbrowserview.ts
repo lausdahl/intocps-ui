@@ -175,7 +175,7 @@ export class BrowserController {
             else if (path.endsWith('.fmu')) {
                 result.img = 'icon-page';
                 result.removeFileExtensionFromText();
-                parent.dblClickHandler = function () {
+                result.dblClickHandler = function () {
                     self.menuHandler.openFmu(path);
                 };
             }
