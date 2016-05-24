@@ -123,7 +123,7 @@ export class Fmu {
             sv.type = type;
             sv.causality = causality;
             sv.isConfirmed = true;
-            
+
             thisNode = iterator.iterateNext();
         }
 
@@ -138,7 +138,7 @@ export class Fmu {
         let res = this.scalarVariables.find(function (s) { return s.name == name; });
         if (res == undefined) {
             // scalar variable does not exist so make new unlinked variable
-            let sv : ScalarVariable = { name: name, type: ScalarVariableType.Unknown, causality: CausalityType.Local, isConfirmed: false };
+            let sv: ScalarVariable = { name: name, type: ScalarVariableType.Unknown, causality: CausalityType.Local, isConfirmed: false };
             this.scalarVariables.push(sv);
             return sv;
         }
@@ -160,7 +160,7 @@ export class ScalarVariable {
     public isConfirmed: boolean;
 }
 export enum ScalarVariableType { Real, Bool, Int, String, Unknown };
-export enum CausalityType { Output, Input, Parameter, CalculatedParameter ,Local};
+export enum CausalityType { Output, Input, Parameter, CalculatedParameter, Local };
 
 export function isTypeCompatiple(t1: ScalarVariableType, t2: ScalarVariableType): boolean {
     if (t1 == ScalarVariableType.Unknown || t2 == ScalarVariableType.Unknown) {
@@ -168,6 +168,28 @@ export function isTypeCompatiple(t1: ScalarVariableType, t2: ScalarVariableType)
     } else {
         return t1 == t2;
     }
+}
+
+function isInteger(x:any) { return typeof x === "number" && isFinite(x) && Math.floor(x) === x; }
+function isFloat(x:any) { return !!(x % 1); }
+function isString(value:any) {return typeof value === 'string';}
+
+export function isTypeCompatipleWithValue(t1: ScalarVariableType, value: any): boolean {
+
+    switch (t1) {
+        case ScalarVariableType.Unknown:
+            return true;
+
+        case ScalarVariableType.Real:
+            return isFloat(value);
+        case ScalarVariableType.Bool:
+            return typeof(value) === "boolean" || isInteger(value);
+        case ScalarVariableType.Int:
+            return isInteger(value);
+        case ScalarVariableType.String:
+            return isString(value);
+    }
+    return false;
 }
 
 // Repersents an instance of an FMU, including initial parameters and a mapping from outputs to InstanceScalarPair
