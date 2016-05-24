@@ -17,17 +17,15 @@ export class Fmu {
         this.path = path;
     }
 
-    /*   toJSON(): string {
-           var tmp: any = {};
-           tmp[this.name] = this.path;
-           return JSON.stringify(tmp);
-       }*/
-    public reset() {
-        if (this.platforms != null)
-            this.platforms.length = 0;
-        if (this.scalarVariables != null)
-            this.scalarVariables.length = 0;
+    public updatePath(path: string): Promise<void> {
+        this.path = path;
+        this.scalarVariables.forEach(sv => {
+            sv.isConfirmed = false;
+        });
+        this.platforms = [];
+        return this.populate();
     }
+
     public populate(): Promise<void> {
         let self = this;
         let checkFileExists = new Promise<Buffer>(function (resolve, reject) {
@@ -70,43 +68,68 @@ export class Fmu {
         var oDOM = oParser.parseFromString(content, "text/xml");
 
         //output
-        var iterator = document.evaluate('//ScalarVariable[@causality="output"]/@name', oDOM, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
+        var iterator = document.evaluate('//ScalarVariable', oDOM, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
 
         var thisNode = iterator.iterateNext();
 
         while (thisNode) {
-            this.scalarVariables.push({ name: thisNode.textContent, type: ScalarVariableType.Real, causality: CausalityType.Output });
+
+
+            let causalityNode = thisNode.attributes.getNamedItem("causality");
+            let nameNode = thisNode.attributes.getNamedItem("name");
+            var type: ScalarVariableType;
+
+            var tNode = document.evaluate('Real', thisNode, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+
+            if (tNode != null) {
+                type = ScalarVariableType.Real;
+            } else {
+                tNode = document.evaluate('Boolean', thisNode, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+                if (tNode != null) {
+                    type = ScalarVariableType.Bool;
+                } else {
+                    tNode = document.evaluate('Integer', thisNode, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+                    if (tNode != null) {
+                        type = ScalarVariableType.Int;
+                    } else {
+                        tNode = document.evaluate('String', thisNode, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+                        if (tNode != null) {
+                            type = ScalarVariableType.String;
+                        }
+                    }
+                }
+            }
+
+            var causality: CausalityType;
+
+            if (causalityNode != undefined) {
+                let causalityText = causalityNode.textContent;
+
+                if ("output" == causalityText) {
+                    causality = CausalityType.Output;
+                }
+                else if ("input" == causalityText) {
+                    causality = CausalityType.Input;
+                }
+                else if ("parameter" == causalityText) {
+                    causality = CausalityType.Parameter;
+                }
+                else if ("calculatedParameter" == causalityText) {
+                    causality = CausalityType.CalculatedParameter;
+                }
+            }
+
+            let sv = this.getScalarVariable(nameNode.textContent);
+            sv.type = type;
+            sv.causality = causality;
+            sv.isConfirmed = true;
+            
             thisNode = iterator.iterateNext();
         }
 
-        //input
-        var iterator = document.evaluate('//ScalarVariable[@causality="input"]/@name', oDOM, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
 
-        var thisNode = iterator.iterateNext();
 
-        while (thisNode) {
-            this.scalarVariables.push({ name: thisNode.textContent, type: ScalarVariableType.Real, causality: CausalityType.Input });
-            thisNode = iterator.iterateNext();
-        }
 
-        //parameter
-        iterator = document.evaluate('//ScalarVariable[@causality="parameter"]/@name', oDOM, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
-
-        var thisNode = iterator.iterateNext();
-
-        while (thisNode) {
-            this.scalarVariables.push({ name: thisNode.textContent, type: ScalarVariableType.Real, causality: CausalityType.Parameter });
-            thisNode = iterator.iterateNext();
-        }
-        //calculated parameter
-        iterator = document.evaluate('//ScalarVariable[@causality="calculatedParameter"]/@name', oDOM, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
-
-        var thisNode = iterator.iterateNext();
-
-        while (thisNode) {
-            this.scalarVariables.push({ name: thisNode.textContent, type: ScalarVariableType.Real, causality: CausalityType.CalculatedParameter });
-            thisNode = iterator.iterateNext();
-        }
 
 
     }
@@ -114,7 +137,10 @@ export class Fmu {
     public getScalarVariable(name: string): ScalarVariable {
         let res = this.scalarVariables.find(function (s) { return s.name == name; });
         if (res == undefined) {
-            return null;
+            // scalar variable does not exist so make new unlinked variable
+            let sv : ScalarVariable = { name: name, type: ScalarVariableType.Unknown, causality: CausalityType.Local, isConfirmed: false };
+            this.scalarVariables.push(sv);
+            return sv;
         }
         return res;
     }
@@ -125,13 +151,24 @@ export enum Platfomrs { Mac64, Linux32, Linux64, Win32, Win64 };
 
 // Represents a FMI ScalarVariable
 export class ScalarVariable {
-    name: string;
+    public name: string;
 
-    type: ScalarVariableType;
-    causality: CausalityType;
+    public type: ScalarVariableType;
+    public causality: CausalityType;
+
+    //none FMI specific
+    public isConfirmed: boolean;
 }
-export enum ScalarVariableType { Real, Bool, Int, String };
-export enum CausalityType { Output, Input, Parameter, CalculatedParameter };
+export enum ScalarVariableType { Real, Bool, Int, String, Unknown };
+export enum CausalityType { Output, Input, Parameter, CalculatedParameter ,Local};
+
+export function isTypeCompatiple(t1: ScalarVariableType, t2: ScalarVariableType): boolean {
+    if (t1 == ScalarVariableType.Unknown || t2 == ScalarVariableType.Unknown) {
+        return true;
+    } else {
+        return t1 == t2;
+    }
+}
 
 // Repersents an instance of an FMU, including initial parameters and a mapping from outputs to InstanceScalarPair
 export class Instance {

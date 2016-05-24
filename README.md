@@ -1,6 +1,10 @@
 intocps-ui
 ---
-A new UI for the INTO-CPS application. 
+
+UI app for the INTO-CPS tool chain.
+
+![The INTO-CPS App](screenshot.png?raw=true "The INTO-CPS App")
+
 
 
 How to build

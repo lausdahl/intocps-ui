@@ -8,6 +8,7 @@
 import * as Collections from 'typescript-collections';
 import * as Fmi from "../coe/fmi";
 import {Parser, Serializer} from "./Parser";
+import {Message,WarningMessage,ErrorMessage} from "./Messages";
 
 import Path = require('path');
 import fs = require('fs');
@@ -135,10 +136,24 @@ export class MultiModelConfig implements ISerializable {
     toObject(): any {
         return new Serializer().toObjectMultiModel(this, this.fmusRootPath);
     }
+    
+    validate() : WarningMessage[]
+    {
+        let messages : WarningMessage[]=[];
+        
+        //TODO perform check
+        
+        return messages;
+    }
 
     save(): Promise<void> {
         let self = this;
         return new Promise<void>(function (resolve, reject) {
+            let messages = self.validate();
+            if(messages.length>0)
+            {
+                reject(messages);
+            }
             try {
                 fs.writeFile(self.sourcePath, JSON.stringify(self.toObject()), function (err) {
                     if (err !== null) {
