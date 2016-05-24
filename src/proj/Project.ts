@@ -5,7 +5,6 @@ import fs = require('fs');
 import Path = require('path');
 
 import {IProject} from "./IProject"
-import {Container} from "./Container"
 import {ProjectSettings} from "./ProjectSettings"
 
 export class Project implements IProject {
@@ -13,7 +12,6 @@ export class Project implements IProject {
     name: string;
     rootPath: string;
     configPath: string;
-    containers: Array<Container> = [];
 
 
 
@@ -43,10 +41,6 @@ export class Project implements IProject {
     public getRootFilePath(): string { return this.rootPath; }
     public getProjectConfigFilePath(): string { return this.configPath }
     public getFmusPath(): string { return Path.normalize(this.getRootFilePath() + "/" + this.PATH_FMUS); }
-
-    public getContainers() {
-        return this.containers;
-    }
 
     public getSysMlFolderName(): String {
         return this.PATH_SYSML;

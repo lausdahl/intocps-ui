@@ -5,8 +5,6 @@
 
 import {IntoCpsAppEvents} from "../IntoCpsAppEvents";
 import {IntoCpsApp} from  "../IntoCpsApp"
-import {ContentProvider} from "./ContentProvider";
-import {Container, ContainerType} from "./Container";
 import {Project} from "./Project";
 import {IProject} from "./IProject";
 import fs = require('fs');
@@ -14,6 +12,40 @@ import Path = require('path');
 
 import {IntoCpsAppMenuHandler} from "../IntoCpsAppMenuHandler";
 import {eventEmitter} from "../Emitter";
+
+export class ProjectBrowserItem {
+    id: string;
+    text: string;
+    level: number;
+    expanded: boolean = false;
+    img: any = null;
+    nodes: ProjectBrowserItem[] = [];
+    parent: ProjectBrowserItem;
+    group: boolean = false;
+
+    constructor(path: string, parent: ProjectBrowserItem) {
+        this.id = path;
+        this.text = Path.basename(path);
+        this.parent = parent;
+        if (parent == null) {
+            this.level = 0;
+            this.group = true;
+            this.expanded = true;
+        } else {
+            this.level = parent.level + 1;
+            parent.nodes.push(this);
+        }
+    }
+    removeFileExtensionFromText(): void {
+        this.text = this.text.substr(0, this.text.indexOf('.'));
+    }
+    removeNodeWithPath(path: string): void {
+        this.nodes = this.nodes.filter(function (n: ProjectBrowserItem) {
+            return n.id != path;
+        });
+    }
+
+}
 
 export class BrowserController {
     private browser: HTMLDivElement;
@@ -193,132 +225,86 @@ export class BrowserController {
 
         let app: IntoCpsApp = IntoCpsApp.getInstance();
         if (app.getActiveProject() != null) {
-            let root = new Container(app.getActiveProject().getName(), app.getActiveProject().getRootFilePath(), ContainerType.Folder);
             this.clearAll();
-            this.addToplevelNodes(this.buildProjectStructor(app.getActiveProject(), 0, root, 3, []));
+            this.addToplevelNodes(this.addFSFolderContent(app.getActiveProject().getRootFilePath()));
         }
     }
 
-    private buildProjectStructor(project: IProject, level: number, root: Container, expandToLevel: number, skipContainers: Container[]): any {
 
-        let _this = this;
-        var items: any[] = [];
-        let contentProvider: ContentProvider = new ContentProvider();
-
-        contentProvider.getChildren(root).forEach((value: Container, index: number, array: Container[]) => {
-
-            if (skipContainers.indexOf(value) >= 0) {
-                return;
+    private addFSItem(path: string, parent: ProjectBrowserItem): ProjectBrowserItem {
+        var result: ProjectBrowserItem = result = new ProjectBrowserItem(path, parent);
+        var stat = fs.statSync(path);
+        if (Path.basename(path).startsWith('.')) {
+            return null;
+        }
+        if (stat.isFile()) {
+            if (path.endsWith('.coe.json')) {
+                //merge MultiModelConfig and folder
+                parent.img = 'glyphicon glyphicon-copyright-mark';
+                (<any>parent).coeConfig = path;
+                parent.removeNodeWithPath(path);
+                result = null;
+                // children.push(new Container(name, filePath, ContainerType.CoeConfig));
             }
-
-            var name = value.name;
-            if (name.indexOf('.') > 0) {
-                name = name.substring(0, name.indexOf('.'));
+            else if (path.endsWith('.mm.json')) {
+                //merge MultiModelConfig and folder
+                parent.img = 'glyphicon glyphicon-briefcase';
+                (<any>parent).mmConfig = path;
+                parent.removeNodeWithPath(path);
+                result = null;
+                //children.push(new Container(name, filePath, ContainerType.MultiModelConfig));
             }
-
-            var modifiedExpandLevel = expandToLevel;
-
-            var item: any = new Object();
-            item.id = value.filepath;
-            item.text = name;
-            item.expanded = true
-
-            if (level == 0) {
-                item.group = true;
-
-                if (value.name.toLowerCase().indexOf(project.getSysMlFolderName().toLowerCase() + "") == 0) {
-                    modifiedExpandLevel = 2;//modify expand level for SysML
-                }
+            else if (path.endsWith('.fmu')) {
+                result.img = 'icon-page';
+                result.removeFileExtensionFromText();
+                //children.push(new Container(name, filePath, ContainerType.FMU));
             }
-
-            switch (value.type) {
-                case ContainerType.Folder:
-                    {
-                        item.img = 'icon-folder';
-
-                        //merge MultiModelConfig and folder
-                        var autoRemoveChild = _this.getChildContainer(value, ContainerType.MultiModelConfig);
-                        if (autoRemoveChild != null) {
-                            item.img = 'glyphicon glyphicon-briefcase';
-                            item.id = autoRemoveChild.filepath;
-                        }
-                        //merge CosimConfig
-                        autoRemoveChild = _this.getChildContainer(value, ContainerType.CoeConfig);
-                        if (autoRemoveChild != null) {
-                            item.img = 'glyphicon glyphicon-copyright-mark';
-                            item.id = autoRemoveChild.filepath;
-                        }
-
-                        if (level >= 5) {
-                            //truncate content
-                            item.nodes = [
-                                {
-                                    id: item.id + 'truncated', text: 'content truncated', img: 'glyphicon glyphicon-option-horizontal', group: false
-                                }];
-                        } else {
-                            let autoremoveList: Container[] = autoRemoveChild == null ? [] : [autoRemoveChild];
-                            item.nodes = _this.buildProjectStructor(project, level + 1, value, modifiedExpandLevel, autoremoveList);
-                        }
-
-                        if (level >= modifiedExpandLevel) {
-                            item.expanded = false;
-                        }
-
-                        if (_this.isOvertureProject(value)) {
-                            item.img = 'glyphicon glyphicon-leaf';
-                            item.expanded = false;
-                        } else if (name.indexOf("R_") == 0) {
-                            item.img = 'glyphicon glyphicon-barcode';
-                        }
-                        break;
-                    };
-                case ContainerType.FMU:
-                    {
-                        item.img = 'icon-page';
-                        break;
-                    };
-                case ContainerType.MultiModelConfig:
-                    {
-                        item.img = 'glyphicon glyphicon-briefcase';
-                        break;
-                    };
-                case ContainerType.CoeConfig:
-                    {
-                        item.img = 'glyphicon glyphicon-copyright-mark';
-                        break;
-                    };
-                case ContainerType.SysMLExport:
-                    {
-                        item.img = 'glyphicon glyphicon-tasks';
-                        break;
-                    };
-                case ContainerType.EMX:
-                    {
-                        item.img = 'glyphicon glyphicon-tree-conifer';
-                        break;
-                    };
-                case ContainerType.MO:
-                    {
-                        item.img = 'glyphicon glyphicon-tree-deciduous';
-                        break;
-                    };
-                case ContainerType.CSV:
-                    {
-                        item.img = 'glyphicon glyphicon-th-list';
-                        break;
-                    };
-
-
-
+            else if (path.endsWith('.sysml.json')) {
+                result.img = 'glyphicon glyphicon-tasks';
+                result.removeFileExtensionFromText();
+                //children.push(new Container(name, filePath, ContainerType.SysMLExport));
             }
-            if (!(value.type == ContainerType.CoeConfig || value.type == ContainerType.MultiModelConfig)) {
-                item.id = item.id.replace(/\\/g, "/");
-                items.push(item)
-            };
+            else if (path.endsWith('.emx')) {
+                result.img = 'glyphicon glyphicon-tree-conifer';
+                result.removeFileExtensionFromText();
+                //children.push(new Container(name, filePath, ContainerType.EMX));
+            }
+            else if (path.endsWith('.mo')) {
+                result.img = 'glyphicon glyphicon-tree-deciduous';
+                result.removeFileExtensionFromText();
+                //children.push(new Container(name, filePath, ContainerType.MO));
+            }
+            else if (path.endsWith('.csv')) {
+                result.img = 'glyphicon glyphicon-th-list';
+                result.removeFileExtensionFromText();
+                //children.push(new Container(name, filePath, ContainerType.CSV));
+            }
+        } else if (stat.isDirectory()) {
+            result.img = 'icon-folder';
+            //children.push(new Container(name, filePath, ContainerType.Folder));
+            if (this.isOvertureProject(path)) {
+                result.img = 'glyphicon glyphicon-leaf';
+                result.expanded = false;
+            } else if (name.indexOf("R_") == 0) {
+                result.img = 'glyphicon glyphicon-barcode';
+            }
+            var children: ProjectBrowserItem[] = this.addFSFolderContent(path, result);
+        }
+        return result;
+    }
+
+    private addFSFolderContent(path: string, parent: ProjectBrowserItem = null): ProjectBrowserItem[] {
+        var result: ProjectBrowserItem[] = [];
+        var fs = require('fs');
+        var _this = this;
+        fs.readdirSync(path).forEach(function (name: string) {
+            var filePath: string = Path.join(path, name);
+            var ret = _this.addFSItem(filePath, parent);
+            if (ret != null) {
+                result.push(ret);
+            }
         });
-
-
-        return items;
+        return result;
     }
 
     addToplevelNodes(nodes: Object | Object[]): Object {
@@ -368,9 +354,9 @@ export class BrowserController {
     /*
     Utility function to determin if the container holds an Overture Project. TODO: Should this be annotated in the container instead.
      */
-    private isOvertureProject(container: Container): boolean {
+    private isOvertureProject(path: string): boolean {
 
-        let projectFile = Path.normalize(container.getFilePath() + "/" + ".project");
+        let projectFile = Path.normalize(Path.join(path, ".project"));
 
         try {
             if (!fs.accessSync(projectFile, fs.R_OK)) {
@@ -382,18 +368,6 @@ export class BrowserController {
 
         }
         return false;
-    }
-
-    private getChildContainer(root: Container, type: ContainerType) {
-        let contentProvider: ContentProvider = new ContentProvider();
-
-        let children = contentProvider.getChildren(root).filter((value) => { return value.getType() == type });
-
-        if (children.length > 0)
-            return children[0];
-
-        return null;
-
     }
 
     private getCustomFs(): any {
