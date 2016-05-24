@@ -66,7 +66,7 @@ export class CoeController extends IViewController {
             .catch(e => console.error(e));
 
 
-        this.checkCoeConnection();
+        checkCoeConnection("coe-status", getCoeUrl());
     }
 
     private readSettings() {
@@ -97,49 +97,9 @@ export class CoeController extends IViewController {
         }
     }
 
-    private clearCoeStatus() {
-        var div = <HTMLElement>document.getElementById("coe-status");
-        while (div.hasChildNodes()) {
-            div.removeChild(div.lastChild);
-        }
-    }
-
-    private checkCoeConnection() {
-        let self = this;
-        new Promise<void>(resolve => {
-            let p = $.getJSON("http://" + this.getCoeUrl() + "/version");
-            setTimeout(function () { p.abort(); }, 1500);
-            p.fail(function (err: any) {
-                var div = <HTMLInputElement>document.getElementById("coe-status");
-                self.clearCoeStatus();
-
-                var divStatus = document.createElement("div");
-                divStatus.className = "alert alert-danger";
-                divStatus.innerHTML = "Co-Simulation Engine, offline no connection at: " + self.getCoeUrl();
-                div.appendChild(divStatus);
-
-                setTimeout(function () {
-                    self.checkCoeConnection();
-                }, 5000);
-
-            })
-                .done(function (data: any) {
-                    var div = <HTMLInputElement>document.getElementById("coe-status");
-                    self.clearCoeStatus();
-                    var divStatus = document.createElement("div");
-                    divStatus.className = "alert alert-info";
-                    divStatus.innerHTML = "Co-Simulation Engine, version: " + data.version + ", online at: " + self.getCoeUrl();
-                    div.appendChild(divStatus);
-
-                    var simulationPaneDiv = <HTMLElement>document.getElementById("simulation-pane");
-                    simulationPaneDiv.style.visibility = "visible";
 
 
-                }).always(function () {
-                    console.info("always connection check");
-                })
-        });
-    }
+
 
     initializeChart() {
         this.liveStreamCanvas = <HTMLCanvasElement>document.getElementById("liveStreamCanvas");
@@ -320,14 +280,7 @@ export class CoeController extends IViewController {
         return true;
     }
 
-    private getCoeUrl(): string {
-        let url = this.app.getSettings().getSetting(SettingKeys.COE_URL);
 
-        if (url == null) {
-            url = "localhost:8082";
-        }
-        return url;
-    }
 
 
 
@@ -343,7 +296,7 @@ export class CoeController extends IViewController {
 
         let self = this;
 
-        let url = this.getCoeUrl();
+        let url = getCoeUrl();
 
         let coeRunner = new CoeSimulationRunner(this.app.getActiveProject(),
             this.coSimConfig,
@@ -361,3 +314,58 @@ export class CoeController extends IViewController {
 
 }
 
+
+export function checkCoeConnection(id: string, url: string) {
+
+   return new Promise<void>(resolve => {
+        let p = $.getJSON("http://" + url + "/version");
+        setTimeout(function () { p.abort(); }, 1500);
+        p.fail(function (err: any) {
+            var div = <HTMLInputElement>document.getElementById(id);
+            clearCoeStatus(id);
+
+            var divStatus = document.createElement("div");
+            divStatus.className = "alert alert-danger";
+            divStatus.innerHTML = "Co-Simulation Engine, offline no connection at: " + url;
+            div.appendChild(divStatus);
+
+            setTimeout(function () {
+                checkCoeConnection(id, url);
+            }, 5000);
+
+        })
+            .done(function (data: any) {
+                var div = <HTMLInputElement>document.getElementById(id);
+                clearCoeStatus(id);
+                var divStatus = document.createElement("div");
+                divStatus.className = "alert alert-success";//alert alert-info
+                divStatus.innerHTML = "Co-Simulation Engine, version: " + data.version + ", online at: " + url;
+                div.appendChild(divStatus);
+
+                var simulationPaneDiv = <HTMLElement>document.getElementById("simulation-pane");
+                simulationPaneDiv.style.visibility = "visible";
+
+
+            }).always(function () {
+                console.info("always connection check");
+            })
+    });
+}
+
+
+function clearCoeStatus(id: string) {
+    var div = <HTMLElement>document.getElementById(id);
+    while (div.hasChildNodes()) {
+        div.removeChild(div.lastChild);
+    }
+}
+
+
+export function getCoeUrl(): string {
+    let url = IntoCpsApp.getInstance().getSettings().getSetting(SettingKeys.COE_URL);
+
+    if (url == null) {
+        url = "localhost:8082";
+    }
+    return url;
+}

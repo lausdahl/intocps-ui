@@ -32,6 +32,10 @@ export default class IntoCpsApp {
         this.createDirectoryStructure(intoCpsAppFolder);
         
         this.settings = new Settings(app, intoCpsAppFolder);
+        
+        // Set calculated default values
+        SettingKeys.DEFAULT_VALUES[SettingKeys.INSTALL_TMP_DIR]=Path.join(intoCpsAppFolder,"tmp","install_temp");
+        SettingKeys.DEFAULT_VALUES[SettingKeys.INSTALL_TMP_DIR]=Path.join(intoCpsAppFolder,"tmp","install_temp");
         this.settings.load();
         // fill-in default values for yet unset values
         for (var key in SettingKeys.DEFAULT_VALUES) {

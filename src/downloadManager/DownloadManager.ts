@@ -40,8 +40,12 @@ function getTempDir(): string {
         tempDir = Path.join(IntoCpsApp.getInstance().getActiveProject().getRootFilePath(), "downloads");
     }
     try {
-        fs.mkdirSync(tempDir);
-    } catch (e) { }
+       // fs.mkdirSync(tempDir);
+       var mkdirp = require('mkdirp');
+       mkdirp.sync(tempDir);
+    } catch (e) {
+        console.error(e);
+     }
     return tempDir;
 }
 
