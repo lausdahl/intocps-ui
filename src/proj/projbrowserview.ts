@@ -59,7 +59,7 @@ export class ProjectBrowserItem {
         this.menuEntries.push(new MenuEntry(this, text, icon, callback));
     }
     addMenuEntryObject(entry: MenuEntry) {
-        this.menuEntries.push(entry));
+        this.menuEntries.push(entry);
     }
     removeFileExtensionFromText(): void {
         this.text = this.text.substr(0, this.text.indexOf('.'));
